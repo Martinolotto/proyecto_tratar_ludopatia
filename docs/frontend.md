@@ -70,7 +70,7 @@ El panel no debe concentrar los formularios o gráficos completos. Puede prioriz
 
 **Diferencia con el código actual:** `AppRouter.jsx` conserva `/mi-espacio`; `AppNavigation.jsx` lo presenta como cuarta entrada y `HomePage.jsx` enlaza allí. `AppLayout.jsx` aún no contiene el panel desplegable. Estos archivos se mantienen intactos en esta etapa documental; su adaptación debe realizarse coordinadamente en una tarea posterior, sin borrar o renombrar la página de forma aislada. Las páginas de herramientas todavía no existen y no se fijan nuevas URLs en esta guía.
 
-La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto, no como autorización para repetir esa estructura. No se encontró una guía visual dentro de `docs/design/` para actualizarla en esta tarea.
+La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md), confirma el Dashboard global desplegable y colapsable; no cambia la adaptación del código que sigue pendiente.
 
 ### Límites funcionales relevantes
 
@@ -108,11 +108,15 @@ La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-
 
 ## 6. Diseño
 
+La referencia visual del repositorio es [DESIGN_GUIDELINES.md](design/DESIGN_GUIDELINES.md), convención `MODUS-DS-001`, versión 1.1: base de diseño aceptada por el responsable para iniciar implementación. Sus referencias visuales no sustituyen decisiones funcionales ni políticas de acceso; ante contradicciones, prevalecen los RF vigentes y se consulta al responsable.
+
 El sistema de estilos disponible está centralizado en `frontend/src/index.css`: variables `--modus-*`, tokens de color mediante `@theme inline` y fuentes Inter/Manrope cargadas desde `main.jsx`. Reutilizar clases como `bg-surface`, `text-brand-navy`, `text-brand-teal`, `font-sans` y `font-heading`, e iconos de Lucide cuando correspondan.
 
 Tailwind CSS 4 se incorpora mediante `@tailwindcss/vite` en `vite.config.js` y `@import "tailwindcss"` en el CSS global. No agregar configuración de Tailwind de otra versión.
 
-`docs/design/DESIGN_GUIDELINES.md` está referenciado como guía prevista, pero **no existe actualmente**. Los tokens presentes son la base disponible, no evidencia de que el sistema de diseño oficial esté terminado. Coordinar su evolución y evitar valores arbitrarios repetidos entre componentes.
+Los seis colores de marca actuales y las fuentes Inter/Manrope coinciden con la guía. Lucide ya está disponible en el proyecto. Los tokens semánticos adicionales de borde, texto secundario y feedback siguen por definir o derivar; no se incorporan valores nuevos en esta revisión.
+
+La guía ya está incorporada, pero su aplicación y validación no se consideran terminadas. Siguen pendientes sus comprobaciones de contraste en componentes reales, navegación y estados responsive, comparación de flujos con RF finales y confirmación de permisos públicos/privados. Su política de acceso no se deduce de un mockup. Coordinar la evolución de los tokens y evitar valores arbitrarios repetidos entre componentes.
 
 La experiencia debe ser juvenil, atractiva, accesible e interactiva. Se permiten ilustraciones, animaciones y elementos lúdicos adecuados, sin imitar apuestas, incentivar uso compulsivo ni adoptar una apariencia hospitalaria o infantilizada.
 

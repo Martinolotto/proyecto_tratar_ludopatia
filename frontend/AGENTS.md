@@ -28,7 +28,7 @@ Antes de editar, leer `../docs/CONSTITUTION.md` y `../docs/frontend.md`.
 - El código aún conserva `/mi-espacio`: ver la transición pendiente en `../docs/frontend.md` antes de adaptar navegación, layouts o rutas. No renombrar ni borrar archivos de forma aislada.
 - Reutilizar los tokens centralizados de `src/index.css`, las fuentes Inter/Manrope y Lucide existentes; evitar repetir colores o valores arbitrarios en componentes.
 - Tailwind 4 ya está integrado mediante `@tailwindcss/vite` y `@import "tailwindcss"`; no introducir configuración de otra versión.
-- La guía `../docs/design/DESIGN_GUIDELINES.md` todavía no existe. No inventar un sistema oficial ni sustituir los tokens actuales sin coordinación.
+- Seguir [DESIGN_GUIDELINES.md](../docs/design/DESIGN_GUIDELINES.md), versión 1.1 (`MODUS-DS-001`), como base visual aceptada. Su incorporación no implica implementación o validación visual terminada; respetar sus pendientes y la prioridad de los RF vigentes. No sustituir tokens sin coordinación.
 - Priorizar accesibilidad, foco visible, controles comprensibles y adaptación móvil/escritorio. Se admite estética lúdica apropiada para adolescentes, sin imitar apuestas ni incentivar uso compulsivo.
 
 ## Alcance y verificación

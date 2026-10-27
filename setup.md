@@ -23,7 +23,7 @@ Frontend y backend ejecutables, estructura modular organizada, navegación inici
 - [x] Consolidar `docs/frontend.md`: Dashboard global desplegable, Home y Perfil diferenciados y transición del código actual identificada.
 - [x] Crear `docs/backend.md` con estructura real, responsabilidades, ejecución y coordinación pendiente del proxy `/api`.
 - [x] Completar `README.md` con instalación, comandos, ramas y contribución.
-- [x] Identificar que `docs/design/DESIGN_GUIDELINES.md` falta; reconocer los tokens actuales sin afirmar que el diseño oficial está terminado.
+- [x] Verificar la incorporación de [DESIGN_GUIDELINES.md](docs/design/DESIGN_GUIDELINES.md), versión 1.1 (`MODUS-DS-001`), como base visual aceptada; referencias actualizadas y colores de marca/fuentes actuales cotejados. Esto no acredita la aplicación completa ni la validación visual del sistema.
 
 ### Verificaciones ejecutadas durante la preparación
 
@@ -39,7 +39,7 @@ Estas verificaciones no prueban navegación manual completa, autenticación, per
 
 - [ ] Adaptar conjuntamente `AppLayout.jsx`, `AppNavigation.jsx`, `HomePage.jsx` y la ruta/página de Mi espacio al Dashboard desplegable; revisar navegación móvil y escritorio.
 - [ ] Preparar las carpetas, páginas y archivos iniciales de herramientas cuya estructura haya sido aprobada por el equipo; no exige implementar todavía sus RF.
-- [ ] Definir e incorporar la guía de diseño oficial, preservando y revisando los tokens compartidos existentes.
+- [ ] Aplicar y validar la guía 1.1 en la interfaz: resolver tokens semánticos pendientes, comprobar contrastes reales y revisar navegación/estados en móvil y escritorio. Conservar sus pendientes de contraste con RF y confirmación de permisos; no darlos por resueltos por la incorporación del archivo.
 - [ ] Acordar las configuraciones generales de Express necesarias para la base, como CORS, entorno o prefijos, y documentar sus valores; no agregar configuración arbitraria ni servicios inexistentes.
 - [ ] Verificar la navegación inicial completa y una instalación limpia de frontend/backend con la configuración de la base.
 - [ ] Verificar sincronización con GitHub; no comprobada en esta tarea.

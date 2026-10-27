@@ -9,6 +9,8 @@ Proyecto universitario desarrollado por tres integrantes para adolescentes de 13
 - `docs/`: constitución y guías del equipo.
 - `setup.md`: preparación verificada y pendientes de la base común.
 
+La [guía de diseño MODUS, versión 1.1](docs/design/DESIGN_GUIDELINES.md), es la base visual aceptada; su aplicación y validación siguen pendientes según el checklist de preparación.
+
 Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). El proyecto Supabase todavía no está configurado: son flujos previstos, no integraciones existentes.
 
 ## Incorporarse al equipo: Git y ramas
