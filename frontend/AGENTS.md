@@ -25,7 +25,7 @@ Antes de editar, leer `../docs/CONSTITUTION.md` y `../docs/frontend.md`.
 
 - La decisión vigente define Dashboard como panel global desplegable disponible desde el layout autenticado, con enlaces a páginas independientes de herramientas; no como cuarta página principal.
 - Home es la entrada integrada de los tres ejes; Perfil mantiene identidad y configuración.
-- El código aún conserva `/mi-espacio`: ver la transición pendiente en `../docs/frontend.md` antes de adaptar navegación, layouts o rutas. No renombrar ni borrar archivos de forma aislada.
+- `/mi-espacio` se conserva como ruta de transición, fuera de la navegación principal. El panel global ya está en `AppLayout`; consultar `../docs/frontend.md` antes de cambiar sus accesos o las páginas de herramientas. No renombrar ni borrar archivos de forma aislada.
 - Reutilizar los tokens centralizados de `src/index.css`, las fuentes Inter/Manrope y Lucide existentes; evitar repetir colores o valores arbitrarios en componentes.
 - Tailwind 4 ya está integrado mediante `@tailwindcss/vite` y `@import "tailwindcss"`; no introducir configuración de otra versión.
 - Seguir [DESIGN_GUIDELINES.md](../docs/design/DESIGN_GUIDELINES.md), versión 1.1 (`MODUS-DS-001`), como base visual aceptada. Su incorporación no implica implementación o validación visual terminada; respetar sus pendientes y la prioridad de los RF vigentes. No sustituir tokens sin coordinación.

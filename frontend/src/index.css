@@ -1,0 +1,53 @@
+/*
+ * Estilos globales cargados por main.jsx: identidad visual y reglas comunes.
+ * Los componentes reutilizan estos tokens mediante las clases de Tailwind.
+ */
+/* Incorporar Tailwind 4; su plugin de Vite procesa las utilidades durante desarrollo y build. */
+@import "tailwindcss";
+
+/* Variables de marca disponibles en todo el documento; centralizan los valores de color. */
+:root {
+  --modus-brand-navy: #172b3a;
+  --modus-brand-teal: #2a7774;
+  --modus-canvas: #f5f3ee;
+  --modus-surface-soft: #dce8e5;
+  --modus-ink: #27343c;
+  --modus-surface: #ffffff;
+}
+
+/* Conectar las variables con nombres de utilidades como bg-surface y text-ink.
+   inline hace que esas utilidades usen el valor referenciado por el token. */
+@theme inline {
+  --color-brand-navy: var(--modus-brand-navy);
+  --color-brand-teal: var(--modus-brand-teal);
+  --color-canvas: var(--modus-canvas);
+  --color-surface-soft: var(--modus-surface-soft);
+  --color-ink: var(--modus-ink);
+  --color-surface: var(--modus-surface);
+
+  /* Las fuentes se cargan en main.jsx; system-ui y sans-serif son alternativas locales. */
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-heading: "Manrope Variable", system-ui, sans-serif;
+}
+
+/* Base de toda página: quitar el margen del navegador y aplicar fondo, texto y fuente. */
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: var(--modus-canvas);
+  color: var(--modus-ink);
+  font-family: "Inter Variable", system-ui, sans-serif;
+}
+
+/* Reservar Manrope para títulos; el cuerpo del documento usa Inter. */
+h1,
+h2,
+h3 {
+  font-family: "Manrope Variable", system-ui, sans-serif;
+}
+
+/* El diálogo modal impide interactuar con el fondo; evitar también su desplazamiento. */
+/* :has detecta un diálogo abierto dentro del documento sin añadir estado de React. */
+body:has(dialog[open]) {
+  overflow: hidden;
+}
