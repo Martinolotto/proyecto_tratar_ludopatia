@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpenText,
+  ExternalLink,
   Search,
   ShieldCheck,
   X,
@@ -11,6 +12,7 @@ import {
   categoriasPrevencion,
   contenidosPrevencion,
 } from "./prevencionContenido.js";
+import { formatosHistorias, historiasReales } from "./historiasReales.js";
 import "./PrevencionPage.css";
 
 const normalizeText = (text) =>
@@ -23,9 +25,21 @@ export const PrevencionPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("todos");
   const [searchText, setSearchText] = useState("");
   const [selectedContent, setSelectedContent] = useState(null);
+  const [selectedStoryFormat, setSelectedStoryFormat] = useState("todos");
+  const [selectedStory, setSelectedStory] = useState(null);
   const articleRef = useRef(null);
   const articleHeadingRef = useRef(null);
   const explorerRef = useRef(null);
+  const storyDetailRef = useRef(null);
+  const storyHeadingRef = useRef(null);
+  const storyTriggerRef = useRef(null);
+
+  const visibleStories =
+    selectedStoryFormat === "todos"
+      ? historiasReales
+      : historiasReales.filter(
+          (story) => story.format === selectedStoryFormat,
+        );
 
   const visibleContents = useMemo(() => {
     const query = normalizeText(searchText.trim());
@@ -62,10 +76,34 @@ export const PrevencionPage = () => {
     });
   }, [selectedContent]);
 
+  useEffect(() => {
+    if (!selectedStory) return;
+
+    storyHeadingRef.current?.focus({ preventScroll: true });
+    storyDetailRef.current?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+      block: "start",
+    });
+  }, [selectedStory]);
+
   const categoryLabel = (categoryId) =>
     categoriasPrevencion.find((category) => category.id === categoryId)?.label;
 
   const openContent = (content) => setSelectedContent(content);
+
+  const openStory = (story) => {
+    storyTriggerRef.current = document.activeElement;
+    setSelectedStory(story);
+  };
+
+  const closeStory = () => {
+    setSelectedStory(null);
+    window.requestAnimationFrame(() => {
+      storyTriggerRef.current?.focus({ preventScroll: true });
+    });
+  };
 
   const closeContent = () => {
     setSelectedContent(null);
@@ -101,6 +139,188 @@ export const PrevencionPage = () => {
             </span>
           </div>
         </div>
+      </section>
+
+      <section
+        className="prevention-section prevention-stories"
+        aria-labelledby="prevention-stories-title"
+      >
+        <div className="prevention-section__heading">
+          <div>
+            <p className="prevention-eyebrow">Voces y experiencias</p>
+            <h2 id="prevention-stories-title">Historias reales</h2>
+          </div>
+          <p>
+            Relatos publicados por medios reconocidos, resumidos con cuidado y
+            enlazados a sus fuentes originales. Cada experiencia es distinta.
+          </p>
+        </div>
+
+        <div
+          className="prevention-story-filters"
+          role="group"
+          aria-label="Filtrar historias por formato"
+        >
+          {formatosHistorias.map((format) => (
+            <button
+              key={format.id}
+              type="button"
+              className="prevention-filter"
+              aria-pressed={selectedStoryFormat === format.id}
+              onClick={() => {
+                setSelectedStory(null);
+                setSelectedStoryFormat(format.id);
+              }}
+            >
+              {format.label}
+            </button>
+          ))}
+        </div>
+
+        <p className="prevention-results-count" aria-live="polite">
+          {visibleStories.length === 1
+            ? "1 experiencia disponible"
+            : `${visibleStories.length} experiencias disponibles`}
+        </p>
+
+        <div className="prevention-stories-grid">
+          {visibleStories.map((story, index) => (
+            <article
+              key={story.id}
+              className={`prevention-story-card ${
+                index === 0 ? "prevention-story-card--featured" : ""
+              }`}
+            >
+              <div className="prevention-story-card__topline">
+                <span>{story.formatLabel}</span>
+                <span>{story.country}</span>
+              </div>
+              <h3>{story.title}</h3>
+              <p>{story.summary}</p>
+              <ul
+                className="prevention-story-card__themes"
+                aria-label="Temas de la experiencia"
+              >
+                {story.themes.map((theme) => (
+                  <li key={theme}>{theme}</li>
+                ))}
+              </ul>
+              <p className="prevention-story-card__source">
+                Fuente: {story.sourcePublisher}
+              </p>
+              <button
+                type="button"
+                className="prevention-story-card__action"
+                aria-expanded={selectedStory?.id === story.id}
+                aria-controls="prevention-story-detail"
+                onClick={() =>
+                  selectedStory?.id === story.id
+                    ? closeStory()
+                    : openStory(story)
+                }
+              >
+                {selectedStory?.id === story.id
+                  ? "Cerrar historia"
+                  : "Conocer la experiencia"}
+                <ArrowRight size={17} aria-hidden="true" />
+              </button>
+            </article>
+          ))}
+        </div>
+
+        {selectedStory && (
+          <article
+            id="prevention-story-detail"
+            className="prevention-story-detail"
+            ref={storyDetailRef}
+            aria-labelledby="prevention-story-title"
+          >
+            <div className="prevention-article__topline">
+              <p className="prevention-article__category">
+                {selectedStory.formatLabel} · {selectedStory.country}
+              </p>
+              <button
+                type="button"
+                className="prevention-article__back"
+                onClick={closeStory}
+              >
+                <X size={17} aria-hidden="true" />
+                Cerrar historia
+              </button>
+            </div>
+
+            <h2
+              id="prevention-story-title"
+              ref={storyHeadingRef}
+              tabIndex={-1}
+            >
+              {selectedStory.title}
+            </h2>
+            <p className="prevention-article__intro">
+              {selectedStory.summary}
+            </p>
+            <p className="prevention-story-detail__notice">
+              Nota de contenido: {selectedStory.contentNote}
+            </p>
+
+            <div className="prevention-article__body">
+              {selectedStory.sections.map((section) => (
+                <section key={section.heading}>
+                  <h3>{section.heading}</h3>
+                  <p>{section.text}</p>
+                </section>
+              ))}
+            </div>
+
+            <aside className="prevention-reflection">
+              <p className="prevention-reflection__label">
+                <BookOpenText
+                  size={16}
+                  aria-hidden="true"
+                  style={{ verticalAlign: "text-bottom", marginRight: "0.35rem" }}
+                />
+                Para pensar, si te sirve
+              </p>
+              <p>{selectedStory.reflection}</p>
+            </aside>
+
+            <p className="prevention-story-detail__editorial-note">
+              {selectedStory.editorialNote}
+            </p>
+
+            <div className="prevention-sources">
+              <h3>Fuente original</h3>
+              <p>
+                {selectedStory.sourcePublisher} · {selectedStory.sourceLanguage}
+              </p>
+              <a
+                href={selectedStory.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Abrir publicación original de {selectedStory.sourcePublisher}
+                <ExternalLink size={16} aria-hidden="true" />
+              </a>
+              <p className="prevention-story-detail__external-note">
+                El enlace abre una publicación externa que puede incluir
+                información adicional y contenido no resumido aquí.
+              </p>
+            </div>
+          </article>
+        )}
+
+        <aside
+          className="prevention-stories-note"
+          aria-label="Criterios de las historias"
+        >
+          <ShieldCheck size={20} aria-hidden="true" />
+          <p>
+            Estos relatos son experiencias personales publicadas por terceros;
+            no representan a todas las personas ni permiten sacar conclusiones
+            sobre quien lee. MODUS comparte resúmenes propios y no reemplaza la
+            fuente original.
+          </p>
+        </aside>
       </section>
 
       <section
