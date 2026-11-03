@@ -1,6 +1,6 @@
 /*
  * Pantalla de Comunidad (/comunidad) interactiva.
- * Incluye insignias chiquitas junto al nombre del usuario en publicaciones y comentarios.
+ * Incluye publicaciones dinámicas, adjuntos e interacciones con comentarios y distintivos.
  */
 import { useState } from "react";
 import {
@@ -40,6 +40,25 @@ const MOCK_POSTS = [
         insignia: "Escudo Activo",
         texto: "¡Totalmente de acuerdo! Bloquear las alertas es la clave.",
       },
+      {
+        id: 102,
+        autor: "Anónimo",
+        insignia: null,
+        texto: "¡Vamos con todo! Felicitaciones por las dos semanas.",
+      },
+      {
+        id: 103,
+        autor: "Sofia_Dev",
+        insignia: "Primer Paso",
+        texto: "¡Qué gran logro! ¿Qué app usaste para bloquear los accesos?",
+      },
+      {
+        id: 104,
+        autor: "Estudiante",
+        insignia: "Mente Clara",
+        texto:
+          "A mí me sirvió desactivar también las notificaciones de canales de deportes.",
+      },
     ],
     hace: "Hace 2 horas",
   },
@@ -54,8 +73,58 @@ const MOCK_POSTS = [
     archivoAdjunto: null,
     meGusta: 18,
     dioMeGusta: true,
-    comentarios: [],
+    comentarios: [
+      {
+        id: 201,
+        autor: "Anónimo",
+        insignia: null,
+        texto: "Dar el primer paso es lo que más cuesta, posta.",
+      },
+      {
+        id: 202,
+        autor: "Mateo_R",
+        insignia: "Voz de Apoyo",
+        texto:
+          "Tal cual, tener alguien de confianza que te escuche sin juzgar ayuda muchísimo.",
+      },
+      {
+        id: 203,
+        autor: "Anónimo",
+        insignia: null,
+        texto:
+          "Gracias por compartirlo, me da ánimos para contárselo a mi hermano.",
+      },
+    ],
     hace: "Hace 5 horas",
+  },
+  {
+    id: 3,
+    autor: "Anónimo",
+    esAnonimo: true,
+    insignia: null,
+    categoria: "Apoyo",
+    contenido:
+      "¿Alguien probó las herramientas del Escudo Digital de la app? Me gustaría saber qué medidas les sirvieron más para evitar la tentación en horarios nocturnos.",
+    archivoAdjunto: null,
+    meGusta: 8,
+    dioMeGusta: false,
+    comentarios: [
+      {
+        id: 301,
+        autor: "Lucas_04",
+        insignia: "Escudo Activo",
+        texto:
+          "A mí me sirvió la regla de dejar el celular lejos de la cama antes de dormir.",
+      },
+      {
+        id: 302,
+        autor: "Valen_T",
+        insignia: "Mente Clara",
+        texto:
+          "Probá activar el modo 'No molestar' automático a partir de las 22:00 hs.",
+      },
+    ],
+    hace: "Hace 1 día",
   },
 ];
 
@@ -339,7 +408,6 @@ export const ComunidadPage = () => {
                         {post.autor}
                       </span>
 
-                      {/* Insignia chiquita al lado del nombre */}
                       {post.insignia && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2 py-0.5 text-[10px] font-bold text-brand-teal">
                           <Award size={11} />
@@ -430,12 +498,12 @@ export const ComunidadPage = () => {
                           key={c.id}
                           className="rounded-lg bg-canvas p-3 text-xs text-ink"
                         >
-                          <div className="flex items-center gap-1.5 mb-1">
+                          <div className="mb-1 flex items-center gap-1.5">
                             <span className="font-semibold text-brand-teal">
                               {c.autor}
                             </span>
                             {c.insignia && (
-                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-brand-teal bg-brand-teal/10 px-1.5 py-0.2 rounded-full">
+                              <span className="inline-flex items-center gap-0.5 rounded-full bg-brand-teal/10 px-1.5 py-0.2 text-[9px] font-bold text-brand-teal">
                                 <Award size={10} />
                                 {c.insignia}
                               </span>

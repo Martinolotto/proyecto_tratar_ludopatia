@@ -1,8 +1,9 @@
 /*
  * Pantalla de Mi perfil (/perfil) personalizable.
- * Corrección de maquetado: alineación limpia del avatar sobre el banner y espacio holgado para el nombre.
+ * Incluye redirección activa al cerrar sesión, selección de insignias y datos de cuenta.
  */
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import {
   User,
   Shield,
@@ -24,7 +25,6 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-// Opciones de color con clases directas
 const OPCIONES_COLOR = [
   { id: "teal", bg: "bg-brand-teal", label: "Teal" },
   { id: "navy", bg: "bg-brand-navy", label: "Navy" },
@@ -87,6 +87,8 @@ const LISTA_LOGROS = [
 ];
 
 export const PerfilPage = () => {
+  const navigate = useNavigate();
+
   const [alias, setAlias] = useState("Estudiante");
   const [colorAvatar, setColorAvatar] = useState("bg-brand-teal");
   const [bio, setBio] = useState(
@@ -120,6 +122,11 @@ export const PerfilPage = () => {
     setTimeout(() => setGuardado(false), 2500);
   };
 
+  // Función para cerrar sesión y redirigir al login
+  const handleCerrarSesion = () => {
+    navigate("/login");
+  };
+
   const insigniaObjetoEquipada = LISTA_LOGROS.find(
     (l) => l.id === insigniaEquipadaId,
   );
@@ -128,7 +135,6 @@ export const PerfilPage = () => {
     <section className="mx-auto max-w-3xl space-y-6">
       {/* Banner y Encabezado de Perfil */}
       <div className="overflow-hidden rounded-xl border border-brand-navy/10 bg-surface shadow-sm">
-        {/* Banner */}
         <div className="relative h-40 w-full bg-brand-navy/20">
           {bannerPerfil ? (
             <img
@@ -155,11 +161,9 @@ export const PerfilPage = () => {
           </label>
         </div>
 
-        {/* Avatar e Información del usuario */}
         <div className="px-6 pb-6 pt-3">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-              {/* Avatar superpuesto sólo en la imagen */}
               <div className="relative -mt-14 self-start sm:self-auto">
                 <div
                   className={`flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-surface font-heading text-3xl font-bold text-white shadow-md ${
@@ -192,7 +196,6 @@ export const PerfilPage = () => {
                 </label>
               </div>
 
-              {/* Nombre y Meta con espacio de separación del banner */}
               <div className="mt-1 sm:mt-0 sm:pb-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="font-heading text-2xl font-bold text-brand-navy">
@@ -318,10 +321,6 @@ export const PerfilPage = () => {
               />
               Color de Avatar
             </h2>
-            <p className="mt-1 text-xs text-ink/70">
-              Elegí el color base para tus iniciales.
-            </p>
-
             <div className="mt-4 flex flex-wrap gap-3">
               {OPCIONES_COLOR.map((color) => (
                 <button
@@ -433,10 +432,12 @@ export const PerfilPage = () => {
           </div>
         </div>
 
+        {/* Acciones del formulario */}
         <div className="flex items-center justify-between pt-2">
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-ink/70 transition hover:bg-surface-soft"
+            onClick={handleCerrarSesion}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-500"
           >
             <LogOut size={18} aria-hidden="true" />
             Cerrar sesión
