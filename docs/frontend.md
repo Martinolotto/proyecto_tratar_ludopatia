@@ -35,7 +35,7 @@ No duplicar la definición de rutas en componentes individuales.
 
 **PublicLayout.jsx:** estructura compartida por las páginas públicas.
 
-**AppLayout.jsx:** estructura compartida de las páginas de la aplicación, con navegación, encabezado y área de contenido. Es el lugar previsto para disponer del Dashboard global desplegable. Actualmente no verifica sesión: “layout autenticado” describe su destino funcional, no una protección ya implementada.
+**AppLayout.jsx:** estructura compartida de las páginas de la aplicación. Monta `Navbar` y el panel global `Dashboard`, y entrega `openDashboard` a las páginas mediante el contexto de `Outlet`. Actualmente no verifica sesión: “layout autenticado” describe su destino funcional, no una protección ya implementada.
 
 Los layouts no deben contener la lógica particular de los ejes funcionales.
 
@@ -45,6 +45,10 @@ Los layouts no deben contener la lógica particular de los ejes funcionales.
 
 **components/navigation/:** componentes relacionados con la navegación, incluida la adaptación a escritorio y móvil.
 
+- `AppNavigation.jsx`: enlaces a Inicio, Prevención y Comunidad.
+- `Navbar.jsx`: cabecera global con esa navegación, botón de herramientas y acceso secundario a Perfil.
+- `Dashboard.jsx`: panel de herramientas con diálogo nativo; cierra por botón, Escape, fondo o navegación. Maneja los extremos de Tab/Shift+Tab y el layout enfoca el contenido al cambiar de página. Se presenta lateralmente en escritorio y a ancho completo en móvil.
+
 No crear componentes compartidos cuando su reutilización no tenga una finalidad concreta.
 
 ### Páginas
@@ -52,7 +56,10 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 - **home/:** Home autenticada; entrada integrada de los tres ejes, con resúmenes, accesos y contenidos destacados según los RF. La página actual solo presenta accesos iniciales.
 - **prevencion/:** páginas del eje funcional de Prevención/Concientización.
 - **comunidad/:** páginas del eje de Vinculación y apoyo entre pares.
-- **mi-espacio/:** página inicial existente asociada a `/mi-espacio`; permanece como parte de la base anterior, pendiente de adaptar a la decisión vigente del Dashboard. No define la navegación definitiva del eje 2.
+- **mi-espacio/:** página inicial existente, conservada intacta en `/mi-espacio` durante la transición. Ya no aparece como cuarta entrada principal ni es el destino de herramientas de Home.
+- **mi-actividad/:** página inicial de Mi actividad en `/mi-actividad`.
+- **historial-y-progreso/:** página inicial de Historial y progreso en `/historial-y-progreso`.
+- **escudo-digital/:** página inicial de Escudo digital en `/escudo-digital`.
 - **onboarding/:** experiencia inicial del usuario.
 - **perfil/:** identidad y configuración de la cuenta.
 - **publicas/:** landing, inicio de sesión y registro.
@@ -68,9 +75,9 @@ El responsable del proyecto definió Dashboard como un panel disponible desde el
 
 El panel no debe concentrar los formularios o gráficos completos. Puede priorizar accesos con el contexto del onboarding, sin ocultar herramientas. Esta precisión de interacción sustituye la interpretación anterior del Dashboard como página, conservando las capacidades aprobadas del eje 2.
 
-**Diferencia con el código actual:** `AppRouter.jsx` conserva `/mi-espacio`; `AppNavigation.jsx` lo presenta como cuarta entrada y `HomePage.jsx` enlaza allí. `AppLayout.jsx` aún no contiene el panel desplegable. Estos archivos se mantienen intactos en esta etapa documental; su adaptación debe realizarse coordinadamente en una tarea posterior, sin borrar o renombrar la página de forma aislada. Las páginas de herramientas todavía no existen y no se fijan nuevas URLs en esta guía.
+**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; `HomePage.jsx` conserva las entradas a Prevención y Comunidad y abre el mismo Dashboard global para herramientas personales. `AppRouter.jsx` mantiene las rutas anteriores y agrega las tres páginas iniciales de herramientas bajo `AppLayout`. Estas páginas solo tienen su encabezado: no hay registros, gráficos, recursos simulados ni integración funcional. `/mi-espacio` sigue disponible para conservar la página existente, sin usarla como Dashboard.
 
-La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md), confirma el Dashboard global desplegable y colapsable; no cambia la adaptación del código que sigue pendiente.
+La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La navegación compartida sigue el Dashboard global desplegable y colapsable de la [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md); la implementación funcional de las herramientas y la validación del resto de las pantallas siguen pendientes.
 
 ### Límites funcionales relevantes
 

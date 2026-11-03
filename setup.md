@@ -2,7 +2,7 @@
 
 Checklist de la base compartida para tres integrantes. Las reglas permanentes están en [AGENTS.md](AGENTS.md), la [constitución](docs/CONSTITUTION.md) y los archivos específicos de cada proyecto. Los comandos están en el [README](README.md).
 
-`[x]` significa comprobado durante la preparación del repositorio. Esta revisión documental conserva los resultados anteriores; no vuelve a presentar esas ejecuciones como pruebas nuevas ni marca integraciones no verificadas. No implica sincronización remota ni preparación para usuarios reales.
+`[x]` significa comprobado durante la preparación del repositorio. Se conservan los resultados anteriores y se distinguen las comprobaciones de la etapa de navegación compartida. No implica integración funcional, sincronización remota ni preparación para usuarios reales.
 
 ## Hito A — Código base compartido
 
@@ -33,15 +33,22 @@ Frontend y backend ejecutables, estructura modular organizada, navegación inici
 - [x] Servidor temporal de backend: `GET /` respondió HTTP 200 con el JSON esperado; proceso detenido al finalizar.
 - [x] Inspeccionar los scripts reales: frontend tiene `dev`, `lint`, `build` y `preview`; backend tiene `dev`, `start` y un `test` de ejemplo que falla y no es una suite.
 
-Estas verificaciones no prueban navegación manual completa, autenticación, permisos ni integración de Supabase. Se usaron las dependencias ya instaladas; no se realizó una instalación limpia.
+Lint y build se ejecutaron nuevamente para la navegación compartida; los resultados del backend corresponden a su verificación anterior. No prueban autenticación, permisos ni integración de Supabase. Se usaron las dependencias ya instaladas; no se realizó una instalación limpia.
+
+### Navegación compartida comprobada
+
+- [x] Adaptar conjuntamente `AppLayout.jsx`, `AppNavigation.jsx` y `HomePage.jsx`: Navbar global con Inicio, Prevención y Comunidad; Dashboard como panel independiente de Home y Perfil.
+- [x] Conservar `App.jsx`, las páginas anteriores y `/mi-espacio`; esta última queda fuera de los accesos principales, sin borrar su código.
+- [x] Preparar páginas iniciales y rutas de Mi actividad, Historial y progreso y Escudo digital. Solo estructura navegable, sin implementar sus RF ni datos ficticios.
+- [x] Revisar apertura desde Navbar y Home; cierre con botón, Escape, fondo y navegación; ciclo de Tab/Shift+Tab, retorno de foco y foco en el contenido tras cambiar de página.
+- [x] Revisar navegación en escritorio y móvil, anchos de 360, 390, 768, 1280 y 1440 px sin desborde horizontal; panel a ancho completo en móvil y lateral en escritorio.
+- [x] Revisar enlaces principales, Perfil, las tres herramientas, rutas públicas existentes, ruta inexistente, Atrás/Adelante y recarga directa de una herramienta.
 
 ### Pendiente para cerrar la base compartida
 
-- [ ] Adaptar conjuntamente `AppLayout.jsx`, `AppNavigation.jsx`, `HomePage.jsx` y la ruta/página de Mi espacio al Dashboard desplegable; revisar navegación móvil y escritorio.
-- [ ] Preparar las carpetas, páginas y archivos iniciales de herramientas cuya estructura haya sido aprobada por el equipo; no exige implementar todavía sus RF.
 - [ ] Aplicar y validar la guía 1.1 en la interfaz: resolver tokens semánticos pendientes, comprobar contrastes reales y revisar navegación/estados en móvil y escritorio. Conservar sus pendientes de contraste con RF y confirmación de permisos; no darlos por resueltos por la incorporación del archivo.
 - [ ] Acordar las configuraciones generales de Express necesarias para la base, como CORS, entorno o prefijos, y documentar sus valores; no agregar configuración arbitraria ni servicios inexistentes.
-- [ ] Verificar la navegación inicial completa y una instalación limpia de frontend/backend con la configuración de la base.
+- [ ] Verificar una instalación limpia de frontend/backend con la configuración de la base.
 - [ ] Verificar sincronización con GitHub; no comprobada en esta tarea.
 - [ ] Revisar cambios preparados y crear commits pequeños solo con autorización.
 - [ ] Publicar `develop` y crear ramas funcionales desde ella solo cuando corresponda y exista autorización expresa.
@@ -68,4 +75,4 @@ Implementación progresiva de las capacidades aprobadas sobre la base compartida
 
 Cada capacidad se verifica con sus RF y criterios de aceptación antes de considerarse terminada; la preparación de carpetas o pantallas no prueba integración de datos, autenticación ni autorización.
 
-Esta revisión conserva los estados reales y no implementa ninguno de estos pendientes. No se modificó código fuente ni se instalaron dependencias; tampoco se realizaron commits o push.
+La etapa de navegación modifica únicamente su estructura frontend y sincroniza estas referencias. No implementa funcionalidades de los ejes, backend, Supabase ni autenticación. No se instalaron dependencias ni se realizaron commits o push.

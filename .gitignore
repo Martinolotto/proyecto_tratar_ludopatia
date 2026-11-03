@@ -1,0 +1,16 @@
+# Dependencias
+node_modules/
+# Compilaciones
+dist/
+build/
+# Variables de entorno privadas
+.env
+.env.*
+!.env.example
+# Archivos temporales y registros
+*.log
+.DS_Store
+
+.aws
+.agents
+.codex

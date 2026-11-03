@@ -91,4 +91,4 @@ El proxy `/api` de Vite aún no corresponde a rutas funcionales de Express. Tamp
 
 Seguir Conventional Commits con mensajes en español, en pasado y descriptivos. Los agentes requieren autorización para alterar ramas, crear commits, hacer push o merge, conforme a las reglas raíz.
 
-La decisión vigente del Dashboard es un panel global desplegable desde el layout autenticado. El código todavía conserva `/mi-espacio` como página: su adaptación queda pendiente y está explicada en la guía de frontend. No se impone SDD, TDD ni otro paradigma obligatorio.
+El Dashboard está preparado como panel global desplegable desde el layout de la aplicación, con páginas iniciales independientes para sus tres herramientas. `/mi-espacio` se conserva durante la transición, fuera de la navegación principal. Los detalles están en la guía de frontend; la lógica funcional y la autenticación siguen pendientes. No se impone SDD, TDD ni otro paradigma obligatorio.
