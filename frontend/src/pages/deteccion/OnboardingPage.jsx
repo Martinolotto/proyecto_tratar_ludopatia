@@ -1,6 +1,6 @@
 /*
- * Pantalla inicial de /onboarding; actualmente AppRouter la coloca en PublicLayout.
- * Solo reserva la página: aún no está conectada al registro ni guarda respuestas.
+ * Primera pantalla prevista después del registro, a cargo del eje de Detección.
+ * AppRouter muestra /onboarding en PublicLayout; aún no conecta el registro ni guarda respuestas.
  */
 // Página inicial de Onboarding.
 // Su contenido funcional se implementará posteriormente.
