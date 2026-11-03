@@ -13,22 +13,22 @@ import { PublicLayout } from "../layouts/PublicLayout.jsx";
 // Página principal de la aplicación.
 import { HomePage } from "../pages/home/HomePage.jsx";
 
-// Páginas iniciales de los tres ejes y del perfil.
+// Páginas iniciales de Prevención, Comunidad y Perfil.
 import { PrevencionPage } from "../pages/prevencion/PrevencionPage.jsx";
 import { ComunidadPage } from "../pages/comunidad/ComunidadPage.jsx";
-import { MiEspacioPage } from "../pages/mi-espacio/MiEspacioPage.jsx";
 import { PerfilPage } from "../pages/perfil/PerfilPage.jsx";
 
-// Las herramientas tienen páginas propias; el Dashboard permanece en AppLayout.
-import { MiActividadPage } from "../pages/mi-actividad/MiActividadPage.jsx";
-import { HistorialYProgresoPage } from "../pages/historial-y-progreso/HistorialYProgresoPage.jsx";
-import { EscudoDigitalPage } from "../pages/escudo-digital/EscudoDigitalPage.jsx";
+// Las herramientas comparten carpeta por eje, pero cada una tiene su propia ruta.
+// El Dashboard permanece como panel global en AppLayout.
+import { MiActividadPage } from "../pages/deteccion/MiActividadPage.jsx";
+import { HistorialYProgresoPage } from "../pages/deteccion/HistorialYProgresoPage.jsx";
+import { EscudoDigitalPage } from "../pages/deteccion/EscudoDigitalPage.jsx";
 
 // Páginas públicas y flujo inicial.
 import { LandingPage } from "../pages/publicas/LandingPage.jsx";
 import { LoginPage } from "../pages/publicas/LoginPage.jsx";
 import { RegisterPage } from "../pages/publicas/RegisterPage.jsx";
-import { OnboardingPage } from "../pages/onboarding/OnboardingPage.jsx";
+import { OnboardingPage } from "../pages/deteccion/OnboardingPage.jsx";
 
 // Página para direcciones que no existen.
 import { NotFoundPage } from "../pages/errores/NotFoundPage.jsx";
@@ -43,7 +43,7 @@ export const AppRouter = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/registro" element={<RegisterPage />} />
-          {/* Ubicación actual del onboarding: aún no hay flujo posterior al registro. */}
+          {/* Onboarding será la primera pantalla tras el registro; la conexión sigue pendiente. */}
           <Route path="/onboarding" element={<OnboardingPage />} />
           {/* El comodín muestra la página de error si ninguna ruta concreta coincide. */}
           <Route path="*" element={<NotFoundPage />} />
@@ -54,8 +54,6 @@ export const AppRouter = () => {
           <Route path="/inicio" element={<HomePage />} />
           <Route path="/prevencion" element={<PrevencionPage />} />
           <Route path="/comunidad" element={<ComunidadPage />} />
-          {/* Ruta conservada durante la transición; no representa el Dashboard global. */}
-          <Route path="/mi-espacio" element={<MiEspacioPage />} />
           <Route path="/perfil" element={<PerfilPage />} />
           {/* Cada herramienta ocupa una página completa dentro del mismo layout. */}
           <Route path="/mi-actividad" element={<MiActividadPage />} />
