@@ -26,8 +26,6 @@ import {
   Award,
   RefreshCw,
   HeartHandshake,
-  Shield,
-  FileText,
   Target,
   X,
 } from "lucide-react";

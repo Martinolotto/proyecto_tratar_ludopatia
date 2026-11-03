@@ -8,7 +8,6 @@ import {
   User,
   Shield,
   Eye,
-  Bell,
   LogOut,
   Check,
   Palette,
