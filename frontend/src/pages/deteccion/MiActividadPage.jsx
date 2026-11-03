@@ -154,7 +154,8 @@ export const MiActividadPage = () => {
               Sobre las apuestas de hoy
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-ink">Completá solo lo que quieras declarar.</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {/* La columna móvil puede reducirse al ancho disponible sin ensanchar la página. */}
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="activity-time" className="block text-sm font-medium text-ink">Tiempo dedicado</label>
                 <div className="mt-1 flex gap-2">
