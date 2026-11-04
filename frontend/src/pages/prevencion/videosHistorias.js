@@ -60,8 +60,8 @@ export const videosHistoriasReales = [
     publicationDate: "31 de agosto de 2024",
     sourceUrl:
       "https://tn.com.ar/sociedad/2024/08/31/tenia-14-anos-perdio-us400-mil-en-apuestas-y-hoy-esta-en-recuperacion-el-peligro-de-la-ludopatia-infantil/",
-    embedUrl:
-      "https://api.vodgc.net/player/v2/embed/playerId/HKA9Y71614802794/contentId/1670532",
+    nativeVideoUrl:
+      "https://vod.vodgc.net/gid1/vod/Artear/TN/144/1-398-mFekVR1725157044138_360P.mp4",
     aspect: "horizontal",
     formatLabel: "Testimonio en un reportaje",
     actionLabel: "Abrir publicación original en TN",

@@ -648,6 +648,10 @@
   background: var(--prevention-navy);
 }
 
+.prevention-video-native {
+  object-fit: contain;
+}
+
 .prevention-video-card__media--horizontal {
   aspect-ratio: 16 / 9;
 }

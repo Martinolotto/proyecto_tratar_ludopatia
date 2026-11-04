@@ -683,14 +683,27 @@ export const PrevencionPage = () => {
               >
                 {(!video.requiresContentConsent ||
                   approvedSensitiveVideos.includes(video.id)) && (
-                  <iframe
-                    className="prevention-embed"
-                    src={video.embedUrl}
-                    title={`${video.title} — ${video.publisher}`}
-                    loading="lazy"
-                    allow="encrypted-media; picture-in-picture; fullscreen"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                  />
+                  video.nativeVideoUrl ? (
+                    <video
+                      className="prevention-embed prevention-video-native"
+                      controls
+                      preload="none"
+                      playsInline
+                      aria-label={`${video.title} — ${video.publisher}`}
+                    >
+                      <source src={video.nativeVideoUrl} type="video/mp4" />
+                      Tu navegador no puede reproducir este video.
+                    </video>
+                  ) : (
+                    <iframe
+                      className="prevention-embed"
+                      src={video.embedUrl}
+                      title={`${video.title} — ${video.publisher}`}
+                      loading="lazy"
+                      allow="encrypted-media; picture-in-picture; fullscreen"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                    />
+                  )
                 )}
               </div>
               <p className="prevention-video-card__summary">{video.summary}</p>
