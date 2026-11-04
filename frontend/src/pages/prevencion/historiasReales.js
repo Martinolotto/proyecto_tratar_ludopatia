@@ -34,6 +34,9 @@ export const historiasReales = [
     reflection:
       "¿Qué cambios en sus actividades cotidianas te ayudan a notar que la situación empezó a afectarlo?",
     sourcePublisher: "Revista GENTE",
+    sourceTitle:
+      "“Me estaba arruinando la vida”: El infierno de un ludópata y cómo le “ganó” a la adicción a las apuestas online",
+    publicationDate: "17 de junio de 2024",
     sourceLanguage: "Fuente original en español",
     sourceUrl:
       "https://www.revistagente.com/actualidad/me-estaba-arruinando-la-vida-el-infierno-de-un-ludopata-y-como-le-gano-a-la-adiccion-a-las-apuestas-online/",
@@ -67,6 +70,8 @@ export const historiasReales = [
     reflection:
       "¿Qué podría ayudar a una familia a buscar información y apoyo sin juzgar a quien está atravesando una dificultad?",
     sourcePublisher: "BBC",
+    sourceTitle: "How my son went from gamer to compulsive gambler",
+    publicationDate: "8 de octubre de 2019",
     sourceLanguage: "Fuente original en inglés",
     sourceUrl: "https://www.bbc.com/news/stories-49941610",
   },
