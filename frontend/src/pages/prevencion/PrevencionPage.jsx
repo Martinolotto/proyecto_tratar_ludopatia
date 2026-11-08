@@ -735,6 +735,17 @@ export const PrevencionPage = () => {
                   {video.actionLabel}
                   <ExternalLink size={16} aria-hidden="true" />
                 </a>
+                {video.referenceUrl && (
+                  <a
+                    className="prevention-video-card__play"
+                    href={video.referenceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {video.referenceLabel}
+                    <ExternalLink size={16} aria-hidden="true" />
+                  </a>
+                )}
               </div>
             </article>
           ))}
