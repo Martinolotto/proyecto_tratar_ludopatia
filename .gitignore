@@ -14,3 +14,7 @@ build/
 .aws
 .agents
 .codex
+
+# Herramientas personales del proyecto (no compartidas)
+/agents/
+/.impeccable/
