@@ -53,21 +53,26 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 
 ### Páginas
 
-- **home/:** Home autenticada; entrada integrada de los tres ejes, con resúmenes, accesos y contenidos destacados según los RF. La página actual solo presenta accesos iniciales.
-- **prevencion/:** páginas del eje funcional de Prevención/Concientización.
+- **home/:** entrada integrada de los tres ejes en `/inicio`; ofrece accesos, una guía interactiva y contenidos destacados de Prevención. Todavía no muestra resúmenes personales basados en datos de una cuenta.
+- **prevencion/:** páginas y contenido del eje de Prevención/Concientización.
 - **comunidad/:** páginas del eje de Vinculación y apoyo entre pares.
-- **mi-espacio/:** página inicial existente, conservada intacta en `/mi-espacio` durante la transición. Ya no aparece como cuarta entrada principal ni es el destino de herramientas de Home.
-- **mi-actividad/:** página inicial de Mi actividad en `/mi-actividad`.
-- **historial-y-progreso/:** página inicial de Historial y progreso en `/historial-y-progreso`.
-- **escudo-digital/:** página inicial de Escudo digital en `/escudo-digital`.
-- **onboarding/:** experiencia inicial del usuario.
-- **perfil/:** identidad y configuración de la cuenta.
-- **publicas/:** landing, inicio de sesión y registro.
+- **deteccion/:** Onboarding, Mi actividad, Historial y progreso y Escudo digital. Cada página conserva su ruta independiente; `onboardingQuestions.js` reúne el contenido de las cinco preguntas.
+- **perfil/:** identidad y configuración de la cuenta; su interfaz no acredita autenticación ni persistencia.
+- **publicas/:** landing, inicio de sesión y registro. Registro e inicio de sesión siguen como páginas iniciales, sin creación de cuentas ni sesiones.
 - **errores/:** páginas de error y rutas inexistentes.
+
+Mi espacio y su ruta fueron retirados por decisión del responsable; no hay una cuarta página principal ni un reemplazo del Dashboard como panel.
 
 Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la experiencia; Dashboard es un panel global desplegable de accesos; Perfil mantiene identidad y configuración de la cuenta.
 
-Las páginas iniciales son componentes mínimos conectados al router. Sus funcionalidades se implementarán posteriormente según los RF aprobados.
+### Estado actual del eje de Detección/Orientación
+
+- **Onboarding (`/onboarding`):** recorrido de cinco preguntas con selección, progreso, retroceso conservando respuestas, omisión individual o completa y cierre local con acceso a Inicio. Las respuestas se descartan al salir o recargar. La opción «18 años o más» fue aprobada por el responsable como opción seleccionable; no implementa por sí misma una política de acceso ni cambia el segmento objetivo de 13–17. La conexión posterior al registro, la persistencia por cuenta, la realización única y el uso de las respuestas para priorizar accesos siguen pendientes.
+- **Mi actividad (`/mi-actividad`):** interacción local para declarar apuestas y ganas de apostar, cantidades separadas, situaciones y observación opcional. Los campos de apuestas aparecen condicionalmente y las cantidades omitidas no se convierten en cero. Todavía no hay guardado, validación completa del registro, unicidad por usuario y día, cierre del día ni edición de una entrada persistida.
+- **Historial y progreso (`/historial-y-progreso`):** selección local de día, semana y mes y espacios informativos de métricas, calendario y logros. No hay registros conectados ni filtros efectivos sobre datos, cálculos, gráficos, rachas u observaciones implementados.
+- **Escudo digital (`/escudo-digital`):** tres categorías desplegables: restringir acceso a apuestas, reducir estímulos y encontrar apoyo. No hay catálogo verificado conectado, fichas de recursos ni marcado persistente de medidas realizadas.
+
+Estas capacidades visuales no equivalen al cumplimiento completo de los RF. No hay cliente Supabase, sesión real ni operaciones de datos conectadas en este código.
 
 ### Decisión vigente: Dashboard global desplegable
 
@@ -75,13 +80,13 @@ El responsable del proyecto definió Dashboard como un panel disponible desde el
 
 El panel no debe concentrar los formularios o gráficos completos. Puede priorizar accesos con el contexto del onboarding, sin ocultar herramientas. Esta precisión de interacción sustituye la interpretación anterior del Dashboard como página, conservando las capacidades aprobadas del eje 2.
 
-**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; `HomePage.jsx` conserva las entradas a Prevención y Comunidad y abre el mismo Dashboard global para herramientas personales. `AppRouter.jsx` mantiene las rutas anteriores y agrega las tres páginas iniciales de herramientas bajo `AppLayout`. Estas páginas solo tienen su encabezado: no hay registros, gráficos, recursos simulados ni integración funcional. `/mi-espacio` sigue disponible para conservar la página existente, sin usarla como Dashboard.
+**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; Home abre el mismo Dashboard global que Navbar. `AppRouter.jsx` conecta las tres herramientas bajo `AppLayout`, con navegación compartida. Onboarding permanece bajo `PublicLayout`. El router no verifica sesiones: disponer de estas rutas no implica autenticación o autorización sobre datos.
 
 La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La navegación compartida sigue el Dashboard global desplegable y colapsable de la [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md); la implementación funcional de las herramientas y la validación del resto de las pantallas siguen pendientes.
 
 ### Límites funcionales relevantes
 
-- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. La ruta actual todavía está bajo `PublicLayout` y su página es inicial, sin flujo ni sesión implementados.
+- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual ya existe bajo `PublicLayout`; la realización única por cuenta y el inicio automático tras registrarse todavía no están implementados.
 - Mi actividad permite una entrada del día actual por usuario, actualizable ese día y sin creación, edición o eliminación retroactiva. Historial y progreso interpreta únicamente información declarada; un día sin registro no es un día sin apostar.
 - Escudo digital organiza medidas y recursos prácticos; coordinar sus recursos con Prevención. Compartir logros es voluntario y depende de Comunidad, sin publicar registros completos.
 - Chatbot global y “Necesito ayuda ahora” siguen pendientes. Laboratorio de decisiones no es herramienta aprobada del MVP.

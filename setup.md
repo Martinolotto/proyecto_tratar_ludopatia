@@ -10,7 +10,7 @@ Frontend y backend ejecutables, estructura modular organizada, navegación inici
 
 ### Base local verificada
 
-- [x] Repositorio Git existente y rama actual `develop`, sin reinicializar proyectos ni alterar ramas.
+- [x] Durante la preparación inicial se verificó el repositorio existente en `develop`, sin reinicializar proyectos. Esta es una comprobación histórica, no una afirmación sobre la rama actual de cada integrante.
 - [x] Frontend React + Vite con JavaScript/ESModules, React Router, Tailwind 4 y ESLint existentes.
 - [x] Dependencias locales resueltas: React/React DOM, Router, Tailwind y plugin Vite, fuentes Inter/Manrope, Lucide y herramientas de lint/build; comprobadas con `npm --prefix frontend ls --depth=0`.
 - [x] Router, layouts, navegación y páginas iniciales presentes; son base de interfaz, no funcionalidades completas.
@@ -38,8 +38,8 @@ Lint y build se ejecutaron nuevamente para la navegación compartida; los result
 ### Navegación compartida comprobada
 
 - [x] Adaptar conjuntamente `AppLayout.jsx`, `AppNavigation.jsx` y `HomePage.jsx`: Navbar global con Inicio, Prevención y Comunidad; Dashboard como panel independiente de Home y Perfil.
-- [x] Conservar `App.jsx`, las páginas anteriores y `/mi-espacio`; esta última queda fuera de los accesos principales, sin borrar su código.
-- [x] Preparar páginas iniciales y rutas de Mi actividad, Historial y progreso y Escudo digital. Solo estructura navegable, sin implementar sus RF ni datos ficticios.
+- [x] En la etapa inicial se conservaron `App.jsx`, las páginas anteriores y `/mi-espacio`. Posteriormente, el responsable autorizó retirar Mi espacio y su ruta; ya no forman parte de la estructura actual.
+- [x] Preparar páginas iniciales y rutas de Mi actividad, Historial y progreso y Escudo digital. Esa verificación correspondía a la estructura navegable; el avance visual posterior se detalla abajo y no acredita RF completos.
 - [x] Revisar apertura desde Navbar y Home; cierre con botón, Escape, fondo y navegación; ciclo de Tab/Shift+Tab, retorno de foco y foco en el contenido tras cambiar de página.
 - [x] Revisar navegación en escritorio y móvil, anchos de 360, 390, 768, 1280 y 1440 px sin desborde horizontal; panel a ancho completo en móvil y lateral en escritorio.
 - [x] Revisar enlaces principales, Perfil, las tres herramientas, rutas públicas existentes, ruta inexistente, Atrás/Adelante y recarga directa de una herramienta.
@@ -49,9 +49,10 @@ Lint y build se ejecutaron nuevamente para la navegación compartida; los result
 - [ ] Aplicar y validar la guía 1.1 en la interfaz: resolver tokens semánticos pendientes, comprobar contrastes reales y revisar navegación/estados en móvil y escritorio. Conservar sus pendientes de contraste con RF y confirmación de permisos; no darlos por resueltos por la incorporación del archivo.
 - [ ] Acordar las configuraciones generales de Express necesarias para la base, como CORS, entorno o prefijos, y documentar sus valores; no agregar configuración arbitraria ni servicios inexistentes.
 - [ ] Verificar una instalación limpia de frontend/backend con la configuración de la base.
-- [ ] Verificar sincronización con GitHub; no comprobada en esta tarea.
+- [ ] Verificar sincronización con GitHub al integrar; comparar referencias guardadas localmente no sustituye una consulta reciente al remoto.
 - [ ] Revisar cambios preparados y crear commits pequeños solo con autorización.
-- [ ] Publicar `develop` y crear ramas funcionales desde ella solo cuando corresponda y exista autorización expresa.
+- [x] Comprobar la existencia local de `develop` y de las ramas `feat/deteccion`, `feat/prevencion` y `feat/comunidad` en la revisión del 2026-11-08.
+- [ ] Publicar o integrar nuevos cambios solo cuando corresponda y exista autorización expresa; la existencia de ramas no acredita su sincronización remota.
 
 ### Criterio de cierre del Hito A
 
@@ -75,4 +76,17 @@ Implementación progresiva de las capacidades aprobadas sobre la base compartida
 
 Cada capacidad se verifica con sus RF y criterios de aceptación antes de considerarse terminada; la preparación de carpetas o pantallas no prueba integración de datos, autenticación ni autorización.
 
-La etapa de navegación modifica únicamente su estructura frontend y sincroniza estas referencias. No implementa funcionalidades de los ejes, backend, Supabase ni autenticación. No se instalaron dependencias ni se realizaron commits o push.
+## Estado inspeccionado del eje 2 — 2026-11-08
+
+Las comprobaciones de capacidades corresponden a lectura del código, no a una nueva validación interactiva en navegador. En esta revisión también pasaron lint del frontend, build con `--configLoader native` y salida temporal fuera del repositorio, y `node --check backend/app.js`; no acreditan autenticación ni cumplimiento completo de RF.
+
+- [x] Confirmar las cuatro páginas en `frontend/src/pages/deteccion/`, sus rutas y el contenido separado de preguntas de Onboarding.
+- [x] Confirmar el recorrido local de cinco preguntas de Onboarding con retroceso y omisión; no hay guardado ni control por cuenta.
+- [x] Confirmar campos condicionales y estado local en Mi actividad; no hay registro persistido ni validación completa de guardado.
+- [x] Confirmar períodos locales y espacios informativos en Historial; no hay métricas ni gráficos con datos conectados.
+- [x] Confirmar las tres categorías desplegables de Escudo; no hay catálogo ni marcado de medidas conectado.
+- [x] Confirmar acceso al Dashboard desde Navbar y Home; Home incluye guía interactiva y contenidos destacados de Prevención, sin resúmenes personales conectados.
+- [ ] Contrastar la implementación con RF-DO-01 a RF-DO-13 y sus criterios vigentes antes de cerrar capacidades.
+- [ ] Repetir la verificación de navegador, teclado y adaptación móvil de las pantallas actuales.
+
+El detalle de las capacidades visuales y de sus límites permanece en [docs/frontend.md](docs/frontend.md). La autenticación, los datos y los permisos siguen dentro del Hito B; esta actualización no cambia las reglas funcionales ni la arquitectura aprobada.
