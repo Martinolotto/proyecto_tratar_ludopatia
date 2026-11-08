@@ -15,6 +15,10 @@ main:has(> .modus-landing) {
   padding: clamp(1rem, 2svh, 1.5rem) 0;
 }
 
+html:has(.modus-landing) {
+  scroll-behavior: smooth;
+}
+
 .modus-landing > :is(
   .landing-purpose,
   .landing-axes,
@@ -27,10 +31,10 @@ main:has(> .modus-landing) {
 
 .modus-landing--reveal-ready [data-scroll-reveal] {
   opacity: 0;
-  transform: translateY(1.25rem);
+  transform: translateY(clamp(1rem, 2vw, 1.5rem)) scale(0.985);
   transition:
-    opacity 460ms ease,
-    transform 620ms var(--landing-ease);
+    opacity 560ms ease,
+    transform 760ms var(--landing-ease);
 }
 
 .modus-landing--reveal-ready [data-scroll-reveal].is-visible {
@@ -53,12 +57,11 @@ main:has(> .modus-landing) {
   grid-template-columns: minmax(0, 1.08fr) minmax(22rem, 0.92fr);
   align-items: center;
   gap: clamp(2rem, 4.5vw, 6rem);
-  min-height: 80vh;
-  min-height: 80svh;
+  min-height: 88vh;
+  min-height: 88svh;
   overflow: hidden;
   padding: clamp(3rem, 6.5vw, 7rem);
   border: 1px solid color-mix(in srgb, var(--landing-light) 16%, transparent);
-  border-radius: clamp(1.5rem, 3vw, 3.25rem) 1.1rem clamp(1.5rem, 3vw, 3.25rem) 1.1rem;
   background:
     radial-gradient(ellipse at 82% 50%, color-mix(in srgb, var(--landing-accent) 15%, transparent), transparent 43%),
     var(--landing-dark);
@@ -158,6 +161,18 @@ main:has(> .modus-landing) {
   opacity: 0.14;
 }
 
+.modus-landing--motion-enabled .landing-hero.is-motion-active .landing-hero__glow--one {
+  animation: landing-glow-drift 9s ease-in-out infinite;
+}
+
+.modus-landing--motion-enabled .landing-hero.is-motion-active .landing-hero__glow--two {
+  animation: landing-glow-drift 12s 1.5s ease-in-out infinite reverse;
+}
+
+.modus-landing--motion-enabled .landing-hero.is-motion-active .landing-hero__glow--three {
+  animation: landing-glow-drift 10s 2s ease-in-out infinite;
+}
+
 .landing-hero__content,
 .landing-map {
   position: relative;
@@ -186,9 +201,9 @@ main:has(> .modus-landing) {
   color: var(--landing-light);
   font-family: var(--font-heading);
   font-size: clamp(3.2rem, 6.15vw, 6rem);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.06em;
-  line-height: 0.99;
+  line-height: 0.95;
 }
 
 .landing-hero h1 span,
@@ -212,6 +227,12 @@ main:has(> .modus-landing) {
   align-items: center;
   gap: 0.75rem;
   margin-top: 1.75rem;
+}
+
+.landing-hero__actions .landing-button {
+  min-height: 3.5rem;
+  padding-inline: 1.3rem;
+  font-size: 1rem;
 }
 
 .landing-button {
@@ -253,13 +274,17 @@ main:has(> .modus-landing) {
   outline-offset: 4px;
 }
 
+.landing-modal .landing-button:focus-visible {
+  outline-color: var(--modus-brand-teal);
+}
+
 .landing-button:focus:not(:focus-visible),
 .landing-scroll:focus:not(:focus-visible),
-.landing-footer a:focus:not(:focus-visible) {
+.landing-footer :is(a, button):focus:not(:focus-visible) {
   outline: none;
 }
 
-.landing-footer a:focus-visible {
+.landing-footer :is(a, button):focus-visible {
   outline: 3px solid var(--modus-brand-teal);
   outline-offset: 4px;
 }
@@ -299,7 +324,8 @@ main:has(> .modus-landing) {
 .landing-map {
   width: 100%;
   max-width: 49rem;
-  min-height: clamp(28rem, 62svh, 46rem);
+  min-height: 0;
+  aspect-ratio: 520 / 420;
   justify-self: end;
   margin: 0;
   animation: landing-map-in 1050ms 100ms var(--landing-ease) both;
@@ -318,7 +344,7 @@ main:has(> .modus-landing) {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   stroke-linecap: round;
-  stroke-width: 1.7;
+  stroke-width: 2;
   animation: landing-route-draw 1.7s 240ms var(--landing-ease) forwards;
 }
 
@@ -326,14 +352,14 @@ main:has(> .modus-landing) {
   stroke: var(--landing-route-strong);
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  stroke-width: 1.2;
+  stroke-width: 1.5;
   animation-delay: 520ms;
 }
 
 .landing-map__point {
   position: absolute;
   display: inline-flex;
-  min-height: 2.9rem;
+  min-height: 3.1rem;
   align-items: center;
   gap: 0.55rem;
   padding: 0.45rem 0.8rem 0.45rem 0.5rem;
@@ -341,12 +367,38 @@ main:has(> .modus-landing) {
   border-radius: 999px 0.75rem 0.75rem 999px;
   background: color-mix(in srgb, var(--landing-dark) 91%, transparent);
   color: var(--landing-light);
-  font-size: 0.83rem;
+  font-size: 0.9rem;
   font-weight: 600;
+  text-decoration: none;
   box-shadow:
     0 0.65rem 1.5rem color-mix(in srgb, var(--landing-dark) 30%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--landing-light) 12%, transparent);
-  animation: landing-node-arrive 480ms var(--landing-ease) both;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    scale 180ms var(--landing-ease);
+  animation: landing-node-arrive 560ms var(--landing-ease) both;
+}
+
+.landing-map__point:hover,
+.landing-map__point:focus-visible {
+  z-index: 2;
+  border-color: var(--landing-light);
+  background: color-mix(in srgb, var(--landing-accent) 28%, var(--landing-dark));
+  box-shadow:
+    0 0.9rem 2rem color-mix(in srgb, var(--landing-dark) 38%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--landing-light) 24%, transparent);
+  scale: 1.08;
+}
+
+.landing-map__point:focus-visible {
+  outline: 3px solid var(--landing-light);
+  outline-offset: 4px;
+}
+
+.landing-map__point:active {
+  scale: 1.02;
 }
 
 .landing-map__point--one {
@@ -363,7 +415,7 @@ main:has(> .modus-landing) {
 
 .landing-map__point-index {
   display: grid;
-  width: 1.85rem;
+  width: 2rem;
   aspect-ratio: 1;
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--landing-dark) 14%, transparent);
@@ -380,13 +432,13 @@ main:has(> .modus-landing) {
 }
 
 .landing-map__point--two {
-  right: 1%;
-  bottom: 23%;
+  right: 4%;
+  bottom: 72%;
 }
 
 .landing-map__point--three {
-  bottom: 17%;
-  left: 14%;
+  bottom: 22%;
+  left: 6%;
 }
 
 .landing-map__center {
@@ -394,7 +446,7 @@ main:has(> .modus-landing) {
   top: 48%;
   left: 51%;
   display: grid;
-  width: clamp(8rem, 12vw, 11rem);
+  width: clamp(8rem, 13vw, 12rem);
   aspect-ratio: 1;
   place-items: center;
   overflow: hidden;
@@ -413,6 +465,22 @@ main:has(> .modus-landing) {
     0 1.5rem 4rem color-mix(in srgb, var(--landing-dark) 38%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--landing-light) 24%, transparent);
   animation: landing-center-settle 800ms 680ms var(--landing-ease) both;
+}
+
+.modus-landing--motion-enabled .landing-hero.is-motion-active .landing-map__center::after {
+  animation: landing-map-orbit 22s linear infinite;
+}
+
+.modus-landing--motion-enabled .landing-hero.is-motion-active .landing-map__point-index {
+  animation: landing-number-breathe 4.5s ease-in-out infinite;
+}
+
+.modus-landing--motion-enabled .landing-hero.is-motion-active .landing-map__point--two .landing-map__point-index {
+  animation-delay: 1.2s;
+}
+
+.modus-landing--motion-enabled .landing-hero.is-motion-active .landing-map__point--three .landing-map__point-index {
+  animation-delay: 2.4s;
 }
 
 .landing-map__center::after {
@@ -502,7 +570,12 @@ main:has(> .modus-landing) {
 }
 
 .landing-footer__brand span {
+  display: inline-block;
   color: var(--modus-brand-teal);
+}
+
+.modus-landing--motion-enabled .landing-footer.is-motion-active .landing-footer__brand span {
+  animation: landing-number-breathe 4.5s ease-in-out infinite;
 }
 
 .landing-eyebrow--dark {
@@ -566,6 +639,11 @@ main:has(> .modus-landing) {
   border-radius: 50%;
   content: "";
   transform: translate(-50%, -50%);
+}
+
+.modus-landing--motion-enabled .landing-purpose__audience.is-motion-active::before {
+  scale: 1;
+  animation: landing-orbit-breathe 8s ease-in-out infinite;
 }
 
 .landing-purpose__audience::after {
@@ -708,6 +786,11 @@ main:has(> .modus-landing) {
     transform 500ms var(--landing-ease);
 }
 
+.modus-landing--motion-enabled .landing-axis.is-motion-active::before {
+  scale: 1;
+  animation: landing-orbit-breathe 7s ease-in-out infinite;
+}
+
 .landing-axis:nth-child(2) {
   --landing-axis-accent: var(--modus-brand-navy);
 
@@ -740,6 +823,11 @@ main:has(> .modus-landing) {
   box-shadow:
     0 0.35rem 0.9rem color-mix(in srgb, var(--modus-brand-navy) 10%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--modus-surface) 68%, transparent);
+}
+
+.modus-landing--motion-enabled .landing-axis.is-motion-active .landing-axis__number {
+  scale: 1;
+  animation: landing-number-breathe 6s ease-in-out infinite;
 }
 
 .landing-axis__category {
@@ -837,6 +925,11 @@ main:has(> .modus-landing) {
   transform: translateY(-50%);
 }
 
+.modus-landing--motion-enabled .landing-boundaries.is-motion-active::before {
+  scale: 1;
+  animation: landing-orbit-breathe 9s ease-in-out infinite;
+}
+
 .landing-boundaries::after {
   position: absolute;
   z-index: -1;
@@ -932,7 +1025,13 @@ main:has(> .modus-landing) {
   min-height: 2.75rem;
   align-items: center;
   gap: 0.4rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
   text-decoration: none;
+  cursor: pointer;
+  transition: color 180ms ease;
 }
 
 .landing-footer__top:hover {
@@ -1092,7 +1191,7 @@ body:has(.modus-landing) header a[href="/login"] {
 
 .landing-form__visibility {
   justify-self: start;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding: 0.35rem 0;
   border: 0;
   background: transparent;
@@ -1217,6 +1316,32 @@ body:has(.modus-landing) header a[href="/login"] {
   }
 }
 
+@keyframes landing-glow-drift {
+  50% {
+    opacity: 0.42;
+    transform: translate3d(0, -1.1rem, 0) scale(1.1);
+  }
+}
+
+@keyframes landing-map-orbit {
+  to {
+    transform: rotate(372deg);
+  }
+}
+
+@keyframes landing-orbit-breathe {
+  50% {
+    scale: 1.04;
+    opacity: 0.72;
+  }
+}
+
+@keyframes landing-number-breathe {
+  50% {
+    scale: 1.075;
+  }
+}
+
 @keyframes landing-rise-in {
   from {
     opacity: 0;
@@ -1273,7 +1398,6 @@ body:has(.modus-landing) header a[href="/login"] {
 
   .landing-map {
     width: min(100%, 44rem);
-    min-height: clamp(18rem, 40svh, 26rem);
     justify-self: center;
     margin-top: 0;
   }
@@ -1288,21 +1412,6 @@ body:has(.modus-landing) header a[href="/login"] {
 
   .landing-hero__glow--three {
     display: none;
-  }
-
-  .landing-map__point--one {
-    top: 9%;
-    left: 1%;
-  }
-
-  .landing-map__point--two {
-    right: 0;
-    bottom: 24%;
-  }
-
-  .landing-map__point--three {
-    bottom: 14%;
-    left: 3%;
   }
 
   .landing-map__center {
@@ -1435,7 +1544,7 @@ body:has(.modus-landing) header a[href="/login"] {
   }
 
   .landing-map {
-    min-height: clamp(15rem, 34svh, 19rem);
+    width: min(100%, 44rem);
   }
 
   .landing-map__point {
@@ -1449,9 +1558,20 @@ body:has(.modus-landing) header a[href="/login"] {
     width: 1.6rem;
   }
 
+  .landing-map__point--one {
+    top: 17%;
+    left: 1%;
+  }
+
   .landing-map__point--two {
-    right: -0.15rem;
-    bottom: 23%;
+    right: 5%;
+    bottom: 68%;
+  }
+
+  .landing-map__point--three {
+    top: auto;
+    bottom: 18%;
+    left: 1%;
   }
 
   .landing-map__center {
@@ -1531,6 +1651,10 @@ body:has(.modus-landing) header a[href="/login"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html:has(.modus-landing) {
+    scroll-behavior: auto;
+  }
+
   .modus-landing *,
   .modus-landing *::before,
   .modus-landing *::after {

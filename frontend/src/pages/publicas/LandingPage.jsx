@@ -61,25 +61,54 @@ export const LandingPage = () => {
     }
 
     const revealTargets = landing.querySelectorAll("[data-scroll-reveal]");
-    const observer = new IntersectionObserver(
+    const motionTargets = landing.querySelectorAll(
+      ".landing-hero, .landing-purpose__audience, .landing-axis, " +
+        ".landing-boundaries, .landing-footer",
+    );
+    const revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
 
           entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
+          revealObserver.unobserve(entry.target);
         });
       },
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
     );
+    const motionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle(
+            "is-motion-active",
+            entry.isIntersecting,
+          );
+        });
+      },
+      { threshold: 0.08 },
+    );
+    const syncPageVisibility = () => {
+      landing.classList.toggle("modus-landing--motion-enabled", !document.hidden);
+    };
 
     landing.classList.add("modus-landing--reveal-ready");
-    revealTargets.forEach((target) => observer.observe(target));
+    syncPageVisibility();
+    revealTargets.forEach((target) => revealObserver.observe(target));
+    motionTargets.forEach((target) => motionObserver.observe(target));
+    document.addEventListener("visibilitychange", syncPageVisibility);
 
     return () => {
-      observer.disconnect();
-      landing.classList.remove("modus-landing--reveal-ready");
+      revealObserver.disconnect();
+      motionObserver.disconnect();
+      document.removeEventListener("visibilitychange", syncPageVisibility);
+      landing.classList.remove(
+        "modus-landing--reveal-ready",
+        "modus-landing--motion-enabled",
+      );
       revealTargets.forEach((target) => target.classList.remove("is-visible"));
+      motionTargets.forEach((target) =>
+        target.classList.remove("is-motion-active"),
+      );
     };
   }, []);
 
@@ -121,6 +150,14 @@ export const LandingPage = () => {
     window.clearTimeout(closeTimerRef.current);
     setIsClosing(false);
     setAccessMode(mode);
+  };
+
+  const scrollToTop = () => {
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
   };
 
   return (
@@ -187,18 +224,27 @@ export const LandingPage = () => {
               d="M83 95C144 130 154 236 222 259C284 280 329 119 423 143"
             />
           </svg>
-          <span className="landing-map__point landing-map__point--one">
+          <a
+            className="landing-map__point landing-map__point--one"
+            href="#prevencion"
+          >
             <span className="landing-map__point-index">01</span>
             Prevención
-          </span>
-          <span className="landing-map__point landing-map__point--two">
+          </a>
+          <a
+            className="landing-map__point landing-map__point--two"
+            href="#comunidad"
+          >
             <span className="landing-map__point-index">02</span>
             Comunidad
-          </span>
-          <span className="landing-map__point landing-map__point--three">
+          </a>
+          <a
+            className="landing-map__point landing-map__point--three"
+            href="#orientacion"
+          >
             <span className="landing-map__point-index">03</span>
             Orientación
-          </span>
+          </a>
           <span className="landing-map__center" aria-hidden="true">
             MODUS
           </span>
@@ -321,9 +367,13 @@ export const LandingPage = () => {
           MODUS<span>.</span>
         </Link>
         <p>Educación, orientación y acompañamiento para adolescentes.</p>
-        <a href="#landing-title" className="landing-footer__top">
+        <button
+          className="landing-footer__top"
+          type="button"
+          onClick={scrollToTop}
+        >
           Volver arriba <span aria-hidden="true">↑</span>
-        </a>
+        </button>
       </footer>
 
       <dialog
