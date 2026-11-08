@@ -167,10 +167,6 @@ export const LandingPage = () => {
               Iniciar sesión
             </button>
           </div>
-          <p className="landing-hero__notice">
-            Los formularios son una interfaz de muestra; todavía no crean
-            cuentas ni inician sesión.
-          </p>
         </div>
 
         <figure className="landing-map" aria-labelledby="landing-map-caption">
@@ -182,10 +178,12 @@ export const LandingPage = () => {
           >
             <path
               className="landing-map__route"
+              pathLength="1"
               d="M75 310C143 278 128 191 210 184C288 177 299 271 377 242C428 223 420 146 469 101"
             />
             <path
               className="landing-map__route landing-map__route--secondary"
+              pathLength="1"
               d="M83 95C144 130 154 236 222 259C284 280 329 119 423 143"
             />
           </svg>
