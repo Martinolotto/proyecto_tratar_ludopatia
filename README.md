@@ -6,12 +6,13 @@ Proyecto universitario desarrollado por tres integrantes para adolescentes de 13
 
 - `frontend/`: React + Vite, JavaScript/ESModules, React Router y Tailwind CSS 4; navegación compartida, pantallas de los tres ejes e interacciones locales. La presencia de una pantalla no acredita integración funcional.
 - `backend/`: Express con `app.js` como entrada y una ruta de comprobación `GET /`.
+- `supabase/`: configuración local y ocho migraciones aplicadas; las pruebas previas siguen sin versionar.
 - `docs/`: constitución y guías del equipo.
 - `setup.md`: preparación verificada y pendientes de la base común.
 
 La [guía de diseño MODUS, versión 1.1](docs/design/DESIGN_GUIDELINES.md), es la base visual aceptada; su aplicación y validación siguen pendientes según el checklist de preparación.
 
-Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). Existe un cliente Supabase preparado en frontend y un entorno local con migraciones; las pantallas todavía no están conectadas a autenticación ni persistencia. La preparación local y sus limitaciones están en [base de datos](docs/base-de-datos.md#9-entorno-local-y-verificaciones).
+Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). Existe un cliente Supabase preparado en frontend y un entorno local con migraciones; las pantallas todavía no están conectadas a autenticación ni persistencia. El almacenamiento y los permisos se explican en [base de datos](docs/base-de-datos.md#persistencia-y-permisos-actuales-guía-para-el-equipo); su sección 9 detalla el estado y las limitaciones locales.
 
 ## Incorporarse al equipo: Git y ramas
 

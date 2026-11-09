@@ -320,13 +320,39 @@ El contenido retirado no se devuelve en listados, búsquedas, resúmenes, tarjet
 
 Home y Dashboard no necesitan tablas propias. Historial, calendario, totales, promedios, comparaciones y rachas se obtienen de sus fuentes. Los promedios usan únicamente datos declarados: 100, 200 y `NULL` producen promedio 150; cero declarado sí participa. La frecuencia inicial del onboarding no cuenta como actividad real.
 
+### Persistencia y permisos actuales: guía para el equipo
+
+**Qué funciona hoy:** PostgreSQL local tiene el esquema y sus permisos aplicados. React tiene un cliente preparado, pero sus páginas todavía no crean cuentas, inician sesión ni guardan registros. Las selecciones actuales de Onboarding y Mi actividad viven en el estado de React y se pierden al salir o recargar. Crear tablas no conectó automáticamente esas pantallas.
+
+**Elegir el entorno antes de conectar:** la base local y el proyecto remoto son bases independientes. Las variables de `frontend/.env` determinan a cuál apunta el cliente; disponer de tablas locales no cambia esas variables. En la copia inspeccionada el cliente apuntaba al remoto. Antes de implementar acceso se acordará el destino y se comprobará que URL y clave pública correspondan al mismo entorno. No se copian valores de `.env` al documento ni se cambia ese archivo en esta revisión.
+
+El flujo previsto es: React envía una solicitud mediante `supabase-js`; Supabase identifica la sesión; PostgreSQL comprueba permisos y RLS antes de consultar o guardar. `GRANT` habilita una operación sobre una tabla o determinadas columnas; RLS limita las filas permitidas. Ambos controles son necesarios. `anon` representa el acceso sin sesión y `authenticated` el acceso con sesión. `auth.uid()` obtiene la identidad de esa sesión: un identificador enviado en un formulario no basta para autorizar una operación.
+
+- **Cuenta:** Supabase Auth administra correo, contraseña y sesión en sus estructuras. Al registrar una cuenta con `username`, un trigger crea `perfiles` en la misma operación; el nombre se valida y es único sin distinguir mayúsculas. La aplicación no crea ni consulta contraseñas en tablas propias. La confirmación de correo está activada en el entorno local; sus mensajes quedan en Mailpit.
+- **Perfil:** cualquier cuenta autenticada puede leer las columnas de identidad de `perfiles`; cada persona puede actualizar únicamente su propio `username` y `avatar_path`. Esa tabla no contiene correo, respuestas ni actividad personal. El navegador no tiene permiso directo para insertar perfiles.
+- **Onboarding:** cada cuenta puede consultar e insertar su única finalización, con respuestas opcionales. No tiene permisos de actualización ni eliminación. La clave de usuario evita una segunda fila y las políticas impiden acceder a las respuestas ajenas.
+- **Mi actividad:** solo el dueño consulta sus registros. Puede crear o actualizar la entrada del día argentino; no tiene borrado del registro. Las cantidades omitidas se conservan como `NULL`, el dinero apostado y perdido son distintos y tiempo/unidad deben estar presentes o ausentes juntos. `registro_conductas` asocia las opciones seleccionadas y permite cambiar esas asociaciones solo durante el día vigente.
+- **Guardado conjunto de actividad:** `guardar_actividad_hoy` reúne la entrada y sus conductas en una transacción; si falla una parte, se revierte esa llamada completa. También hay permisos de escritura directa sobre columnas autorizadas: al integrar la pantalla debe usarse el contrato acordado para no separar operaciones que deban guardarse juntas. La existencia de la función no vuelve atómicas varias solicitudes independientes.
+- **Participación:** el usuario solo consulta su `participacion_diaria`; la escritura corresponde a operaciones internas que acreditan acciones válidas. Guardar actividad acredita como máximo un día; iniciar sesión no lo acredita. No es un contador de días sin apostar.
+- **Recursos y medidas:** `recursos` permite lectura de filas publicadas incluso sin sesión. Las medidas asociadas a recursos publicados se leen con sesión. Cada cuenta consulta, crea y actualiza únicamente sus estados en `medidas_usuario`; desmarcar cambia el estado a falso, sin borrar la fila ni afirmar que se comprobó una instalación. Los usuarios normales no editan el catálogo.
+- **Vínculos e invitaciones:** las solicitudes se limitan a las cuentas implicadas y responde su destinatario. Un integrante aceptado invita a un compañero con vínculo aceptado; solo el invitado responde. Una invitación pendiente permite consultar la información mínima del tablero, no sus publicaciones internas.
+- **Publicaciones, comentarios y reacciones:** Comunidad general se lee con sesión; los tableros requieren pertenencia aceptada. Crear o retirar contenido usa funciones con comprobaciones de identidad y destino. La autoría real está en `private`, separada de la identidad visible. Las reacciones se escriben para la propia cuenta y los conteos se consultan mediante una función autorizada. Estas estructuras no conectan la interfaz de Comunidad.
+- **Logros:** se permite leer un logro compartido cuando se puede consultar su publicación vigente. No hay inserción libre de logros desde el cliente. Existe la retirada de los asociados a una medida desmarcada; la operación de generación/publicación y sus reglas siguen pendientes.
+- **Avatares:** la imagen se guarda como objeto de Storage, no como bytes en `perfiles`; `avatar_path` conserva su ruta. El bucket privado `avatares` admite JPEG, PNG y WebP de hasta 2 MiB. Las cuentas autenticadas pueden leer; cada propietario escribe, reemplaza y elimina en la carpeta de su UUID. Un visitante sin sesión no tiene lectura.
+
+`private` no está expuesto en la Data API y sus tablas no se conceden directamente a usuarios normales. Las funciones internas autorizadas realizan las comprobaciones necesarias; no debe confundirse el nombre del esquema con una protección automática. Asimismo, DbGate o el editor SQL con rol administrador pueden ver y modificar más que un usuario normal: ver un dato allí no significa que React tenga ese permiso. Las credenciales privilegiadas nunca se entregan al navegador.
+
+Los datos de PostgreSQL local persisten en el almacenamiento gestionado por Podman; las imágenes de Storage tienen almacenamiento propio del servicio. `modusdboff` conserva el entorno y sus datos. Las migraciones guardadas en Git describen la estructura y los permisos, pero no respaldan cuentas, registros o archivos de usuarios. Local y remoto no sincronizan esos datos mediante `git pull` ni por disponer del mismo SQL.
+
+Esta explicación refleja las reglas implementadas y su inspección; las comprobaciones funcionales por cuenta se completarán con cada historia. No certifica una auditoría completa de seguridad.
+
 ## 6. Migraciones: qué son y quién hace qué
 
 Una migración es un archivo SQL versionado que describe un cambio de la base: crear una tabla, agregar una restricción, definir políticas o modificar una función. El archivo no contiene una copia de toda la base ni los datos personales de los usuarios. Aplicarlo ejecuta esas instrucciones en una base concreta.
 
 Git conserva los archivos; Supabase registra qué migraciones fueron aplicadas. Hacer `pull` descarga SQL, pero no lo ejecuta ni sincroniza los datos entre bases. El código de React no debe aplicar migraciones al iniciar la aplicación.
 
-La estructura prevista, todavía sin crear en esta entrega, es:
+La estructura existente y versionada es:
 
 ```text
 supabase/
@@ -369,9 +395,9 @@ La siguiente etapa acordada es: lectura del responsable → revisión acotada po
 
 Las skills locales `backlog`, `story` y `pair`, adaptadas de hola-ai, acompañan ese flujo. La historia usa Como/Quiero/Para, Resumen, Contexto, criterios verificables y subtareas `FE · ...` o `BE · ...` solo cuando sean necesarias. No se fuerza Express ni una subtarea BE independiente cuando Supabase resuelve la operación.
 
-Primero se preparará el entorno reproducible y luego cuenta/perfil/onboarding; después Mi actividad, consultas y cálculos, recursos/medidas e integraciones coordinadas. La preparación técnica es un habilitador identificado como tal; una UI local no se presenta como capacidad completa de extremo a extremo. No se crea ahora un backlog técnico detallado de todo el proyecto.
+La estructura local ya está aplicada. La prioridad actual es conectar registro e inicio/cierre de sesión, resolver el recorrido de onboarding y después Home y las herramientas de Detección, una historia revisada por vez. La preparación técnica es un habilitador: una tabla o una UI local no equivalen a una funcionalidad integrada. El responsable elige la siguiente historia desde Jira; no se mantiene otro backlog en este documento.
 
-Este documento conserva el contexto de decisiones; Trello conserva RF y Jira las historias y resultados. Las futuras migraciones serán la referencia ejecutable de la estructura real. Al implementar una historia se actualizará este documento si cambian decisiones o estado, sin duplicar explicaciones extensas en otras guías. Las instrucciones personales de skills y agentes no se imponen al equipo.
+Este documento conserva el contexto de decisiones; Trello conserva RF y Jira las historias y resultados. Las ocho migraciones actuales son la referencia ejecutable de la estructura local; los cambios futuros se incorporarán en archivos nuevos. Al implementar una historia se actualizará este documento si cambian decisiones o estado, sin duplicar explicaciones extensas en otras guías. Las instrucciones personales de skills y agentes no se imponen al equipo.
 
 ### Comprobaciones que exigirán las historias
 

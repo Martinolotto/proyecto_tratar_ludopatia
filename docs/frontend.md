@@ -116,7 +116,7 @@ Los comentarios deben describir responsabilidades, reglas, decisiones y comporta
 
 Se permite crear carpetas, páginas y archivos iniciales que respondan a una estructura previamente aprobada por el equipo, aunque todavía no tengan lógica funcional. No generar capas, hooks, servicios, dependencias ni funcionalidades ficticias por iniciativa del agente.
 
-La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. El cliente está preparado, pero la integración de las pantallas todavía no existe. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
+La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. El cliente está preparado, pero la integración de las pantallas todavía no existe. Antes de conectar registro o sesión, acordar el entorno: la URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## 6. Diseño
 
