@@ -18,3 +18,4 @@ build/
 # Herramientas personales del proyecto (no compartidas)
 /agents/
 /.impeccable/
+/skills-lock.json
