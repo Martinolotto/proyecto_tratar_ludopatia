@@ -11,7 +11,7 @@ Proyecto universitario desarrollado por tres integrantes para adolescentes de 13
 
 La [guía de diseño MODUS, versión 1.1](docs/design/DESIGN_GUIDELINES.md), es la base visual aceptada; su aplicación y validación siguen pendientes según el checklist de preparación.
 
-Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). El repositorio todavía no integra un cliente Supabase ni autenticación o persistencia reales; estos flujos siguen previstos. El estado de un proyecto Supabase externo no se comprueba desde estos archivos.
+Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). Existe un cliente Supabase preparado en frontend y un entorno local con migraciones; las pantallas todavía no están conectadas a autenticación ni persistencia. La preparación local y sus limitaciones están en [base de datos](docs/base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## Incorporarse al equipo: Git y ramas
 
@@ -50,11 +50,12 @@ Usar Node.js compatible con los lockfiles y npm. La dependencia instalada de Rea
 Desde la raíz del repositorio local, al preparar una copia nueva:
 
 ```bash
+npm ci
 npm --prefix frontend ci
 npm --prefix backend ci
 ```
 
-Los proyectos ya existen: no ejecutar generadores de React, Vite o Express. Cada uno tiene su `package.json` y lockfile; no hay scripts npm en la raíz. Estos comandos de instalación son instrucciones para el equipo, no instalaciones realizadas en esta tarea.
+Los proyectos ya existen: no ejecutar generadores de React, Vite o Express. Cada uno tiene su `package.json` y lockfile; la raíz agrega la CLI local de Supabase y no tiene scripts npm. La CLI de la raíz se instaló para preparar el entorno local; frontend y backend conservan sus instalaciones independientes.
 
 ## Comandos
 

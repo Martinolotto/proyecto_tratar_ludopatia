@@ -24,7 +24,7 @@ Las carpetas vacías existen localmente, pero Git no conserva directorios sin ar
 
 ## Arquitectura aprobada: Supabase y Express
 
-Esta es la referencia principal de la arquitectura de datos y servidor de MODUS. El proyecto Supabase todavía no está configurado y no hay cliente `supabase-js` integrado. Los siguientes flujos son la arquitectura prevista, no conexiones existentes.
+Esta es la referencia principal de la arquitectura de datos y servidor de MODUS. Hay un cliente `supabase-js` preparado y un entorno Supabase local con migraciones. Las pantallas y Express todavía no están conectados a esos servicios: los siguientes flujos describen la arquitectura prevista. Ver [estado y ejecución local](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ### Supabase: backend administrado principal
 
@@ -60,10 +60,10 @@ Si la operación es protegida, Express debe verificar la identidad y los permiso
 - No crear endpoints Express que dupliquen innecesariamente operaciones cubiertas de forma segura por Supabase.
 - No usar Sequelize ni Prisma ni implementar autenticación JWT propia: la autenticación corresponde a Supabase Auth. Verificar una sesión emitida por Supabase no significa crear otro sistema de autenticación.
 - No exponer claves secretas ni credenciales privilegiadas en React; las restricciones visuales no reemplazan la autorización efectiva sobre los datos.
-- Gestionar posteriormente las modificaciones del esquema mediante SQL y migraciones, con las autorizaciones previstas en las reglas raíz.
+- Gestionar las modificaciones del esquema mediante SQL y migraciones, con las autorizaciones previstas en las reglas raíz.
 - Mantener una arquitectura simple, comprensible y ampliable, sin capas obligatorias.
 
-La configuración del proyecto, el cliente, las tablas, las políticas, las migraciones y las operaciones funcionales pertenecen al Hito B de [setup.md](../setup.md). Esta revisión solo documenta la decisión aprobada; no crea ninguna de esas integraciones.
+La preparación local de tablas, políticas y migraciones es parcial; la integración de las operaciones con la aplicación y la reconciliación del historial remoto siguen pendientes. Ver [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 Las reglas para agentes y código están en [backend/AGENTS.md](../backend/AGENTS.md); las autorizaciones generales, en [AGENTS.md](../AGENTS.md).
 

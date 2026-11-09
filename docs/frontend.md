@@ -72,7 +72,7 @@ Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la ex
 - **Historial y progreso (`/historial-y-progreso`):** selección local de día, semana y mes y espacios informativos de métricas, calendario y logros. No hay registros conectados ni filtros efectivos sobre datos, cálculos, gráficos, rachas u observaciones implementados.
 - **Escudo digital (`/escudo-digital`):** tres categorías desplegables: restringir acceso a apuestas, reducir estímulos y encontrar apoyo. No hay catálogo verificado conectado, fichas de recursos ni marcado persistente de medidas realizadas.
 
-Estas capacidades visuales no equivalen al cumplimiento completo de los RF. No hay cliente Supabase, sesión real ni operaciones de datos conectadas en este código.
+Estas capacidades visuales no equivalen al cumplimiento completo de los RF. Existe un cliente Supabase preparado, pero estas pantallas no tienen sesión real ni operaciones de datos conectadas.
 
 ### Decisión vigente: Dashboard global desplegable
 
@@ -116,7 +116,7 @@ Los comentarios deben describir responsabilidades, reglas, decisiones y comporta
 
 Se permite crear carpetas, páginas y archivos iniciales que respondan a una estructura previamente aprobada por el equipo, aunque todavía no tengan lógica funcional. No generar capas, hooks, servicios, dependencias ni funcionalidades ficticias por iniciativa del agente.
 
-La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. La integración todavía no existe; esta guía no autoriza crear clientes, tablas o endpoints en la revisión documental.
+La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. El cliente está preparado, pero la integración de las pantallas todavía no existe. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## 6. Diseño
 
