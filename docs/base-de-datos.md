@@ -2,7 +2,7 @@
 
 Actualización 2026-11-09 · Modelo implementado parcialmente en Supabase local para revisión; no aplicado al remoto.
 
-Este documento reúne el contexto, el Mermaid completo y las decisiones acordadas para la base compartida de MODUS. «Consolidado» significa que incorpora las decisiones de esta revisión; no implica que se hayan creado tablas ni que autorice aplicar SQL. El responsable revisará este documento y luego solicitará una revisión con agentes antes de comenzar la implementación.
+Este documento reúne el contexto, el Mermaid completo y las decisiones acordadas para la base compartida de MODUS. La sección 9 distingue la estructura aplicada localmente, las migraciones preparadas y las verificaciones pendientes; el modelo no acredita funcionalidades conectadas ni aplicación remota.
 
 ## 1. Contexto y responsabilidades
 
@@ -398,7 +398,7 @@ El cliente preparado no implica que las pantallas estén conectadas ni que el en
 
 ## 9. Entorno local y verificaciones
 
-La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene seis migraciones: cuentas y avatares; actividad; recursos; vínculos; publicaciones; y estructura de logros. `supabase/tests/` contiene las verificaciones locales. No se aplicaron al proyecto remoto ni conectaron las pantallas.
+La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene ocho archivos: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas preparadas. La base principal tiene aplicadas solo las seis iniciales. `supabase/tests/` contiene las verificaciones locales. No se aplicaron al proyecto remoto ni conectaron las pantallas.
 
 En el equipo preparado, las funciones personales de Fish se ejecutan así:
 
@@ -424,6 +424,23 @@ Se reconstruyó una base local vacía con las seis migraciones. Pasaron las comp
 **Historial remoto:** existe la migración remota `20261103191039 restrict_automatic_rls_trigger_execution`, asociada a `public.rls_auto_enable()` y al trigger `ensure_rls`, que no existen en una instancia local limpia. El historial aún no está reconciliado; no aplicar estas migraciones al remoto hasta investigar y acordar una estrategia que preserve sus objetos y antecedentes. No usar reparaciones automáticas ni reinicios remotos para resolverlo.
 
 Un reinicio de base (`supabase db reset`) borra datos locales: solo usarlo en una instancia de pruebas descartable y con autorización, nunca para sincronizar el remoto. Las claves administrativas permanecen fuera del frontend y de Git.
+
+### Revisión estructural y correcciones preparadas — 2026-11-09
+
+Trabajo técnico relacionado: [PTL-162 · Entorno y migraciones reproducibles](https://proyectopractica.atlassian.net/browse/PTL-162), dentro de [PTL-160 · Base compartida de Supabase](https://proyectopractica.atlassian.net/browse/PTL-160). La revisión comparó el SVG directamente con los metadatos de PostgreSQL local: coinciden las 21 tablas propias, sus campos y tipos. Las claves foráneas están declaradas; las 21 tablas tienen RLS activado. Esto no verifica por sí solo todos los comportamientos de las políticas.
+
+DbGate estaba mostrando únicamente `public`, que contiene 18 tablas. Las tres restantes —autorías de publicaciones, autorías de comentarios y orígenes de logros— están en `private`. La cuenta `auth_users` del dibujo representa `auth.users`, administrada por Supabase. Para comparar todas las relaciones, incluir esos tres esquemas y sus tablas en el diagrama del gestor. No mover las tablas privadas a `public` ni exponer `private` en la Data API para visualizarlas. Studio responde en `http://localhost:54323/project/default`.
+
+Se prepararon dos migraciones adicionales, sin reescribir las seis iniciales:
+
+- `20261109205711_corregir_integridad_tiempo_actividad.sql`: corrige el caso de cantidad de tiempo sin unidad. La presencia explícita de ambas columnas impide que un resultado `NULL` permita pasar el `CHECK`. Si hay filas incompatibles, aborta con su cantidad; no modifica datos automáticamente. La inspección previa encontró cero.
+- `20261109205718_completar_indices_relaciones.sql`: añade índices directos para creador de tablero, solicitante de vínculo y autor de invitación; no cambia datos, permisos ni relaciones.
+
+La revisión estática independiente no encontró errores y `git diff --check` pasó. **Estas dos migraciones todavía no están aplicadas.** La reproducción en una instancia local descartable falló en dos arranques antes de ejecutar las migraciones: la CLI 3.0.0 informó `ContainerCreateError` al copiar un archivo al contenedor de Podman (`failed to copy secret file into container`, `broken pipe`). Se detuvieron los intentos y se conservó la base principal. No se instalaron otras herramientas ni se sustituyó Podman.
+
+El alcance aprobado es cerrar estructura y permisos, con una comprobación aislada de reproducción; no crear una suite, usuarios ficticios ni conectar pantallas. Los archivos previos de `supabase/tests/` se conservaron sin cambios y sin commit. Las operaciones de negocio y las pruebas funcionales pendientes, incluido compartir logros y concurrencia, continúan en sus historias.
+
+Para terminar: resolver el arranque aislado con una decisión del responsable; reproducir los ocho archivos desde cero y comparar la estructura; después aplicar las dos pendientes a MODUS local y comprobar sus metadatos. No reiniciar la base principal ni aplicar al remoto para resolver este impedimento. El cierre reproducible aún no está acreditado.
 
 ## Referencias
 

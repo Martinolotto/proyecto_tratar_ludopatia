@@ -90,3 +90,12 @@ Las comprobaciones de capacidades corresponden a lectura del código, no a una n
 - [ ] Repetir la verificación de navegador, teclado y adaptación móvil de las pantallas actuales.
 
 El detalle de las capacidades visuales y de sus límites permanece en [docs/frontend.md](docs/frontend.md). La autenticación, los datos y los permisos siguen dentro del Hito B; esta actualización no cambia las reglas funcionales ni la arquitectura aprobada.
+
+## Revisión de estructura Supabase local — 2026-11-09
+
+- [x] Comparar las 21 tablas propias, campos y tipos locales con `docs/bd-grafico.svg`; distinguir 18 tablas en `public`, tres en `private` y la referencia a `auth.users`.
+- [x] Preparar dos migraciones correctivas con comentarios en español y revisión estática: tiempo/unidad e índices de relaciones.
+- [ ] Reproducir los ocho archivos en una instancia aislada. Dos arranques fallaron al copiar un archivo al contenedor de Podman; requiere resolver el impedimento antes de continuar.
+- [ ] Aplicar las dos migraciones pendientes a la base principal local después de esa comprobación.
+
+La base principal conserva las seis migraciones iniciales. Este avance no acredita conexión de pantallas, cierre de operaciones funcionales ni aplicación remota. El detalle está en [docs/base-de-datos.md](docs/base-de-datos.md#revisión-estructural-y-correcciones-preparadas--2026-11-09).
