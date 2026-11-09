@@ -1,6 +1,6 @@
 # MODUS — Modelo de datos y trabajo con Supabase
 
-Actualización 2026-11-09 · Modelo implementado parcialmente en Supabase local para revisión; no aplicado al remoto.
+Actualización 2026-11-09 · Estructura del modelo aplicada y revisada en Supabase local; conexión funcional y reproducción aislada pendientes.
 
 Este documento reúne el contexto, el Mermaid completo y las decisiones acordadas para la base compartida de MODUS. La sección 9 distingue la estructura aplicada localmente, las migraciones preparadas y las verificaciones pendientes; el modelo no acredita funcionalidades conectadas ni aplicación remota.
 
@@ -398,7 +398,7 @@ El cliente preparado no implica que las pantallas estén conectadas ni que el en
 
 ## 9. Entorno local y verificaciones
 
-La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene ocho archivos: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas preparadas. La base principal tiene aplicadas solo las seis iniciales. `supabase/tests/` contiene las verificaciones locales. No se aplicaron al proyecto remoto ni conectaron las pantallas.
+La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene ocho archivos: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal tiene aplicadas las ocho migraciones. `supabase/tests/` contiene las verificaciones locales. No se aplicaron al proyecto remoto ni conectaron las pantallas.
 
 En el equipo preparado, las funciones personales de Fish se ejecutan así:
 
@@ -425,22 +425,30 @@ Se reconstruyó una base local vacía con las seis migraciones. Pasaron las comp
 
 Un reinicio de base (`supabase db reset`) borra datos locales: solo usarlo en una instancia de pruebas descartable y con autorización, nunca para sincronizar el remoto. Las claves administrativas permanecen fuera del frontend y de Git.
 
-### Revisión estructural y correcciones preparadas — 2026-11-09
+### Revisión estructural y correcciones — 2026-11-09
 
 Trabajo técnico relacionado: [PTL-162 · Entorno y migraciones reproducibles](https://proyectopractica.atlassian.net/browse/PTL-162), dentro de [PTL-160 · Base compartida de Supabase](https://proyectopractica.atlassian.net/browse/PTL-160). La revisión comparó el SVG directamente con los metadatos de PostgreSQL local: coinciden las 21 tablas propias, sus campos y tipos. Las claves foráneas están declaradas; las 21 tablas tienen RLS activado. Esto no verifica por sí solo todos los comportamientos de las políticas.
 
 DbGate estaba mostrando únicamente `public`, que contiene 18 tablas. Las tres restantes —autorías de publicaciones, autorías de comentarios y orígenes de logros— están en `private`. La cuenta `auth_users` del dibujo representa `auth.users`, administrada por Supabase. Para comparar todas las relaciones, incluir esos tres esquemas y sus tablas en el diagrama del gestor. No mover las tablas privadas a `public` ni exponer `private` en la Data API para visualizarlas. Studio responde en `http://localhost:54323/project/default`.
 
-Se prepararon dos migraciones adicionales, sin reescribir las seis iniciales:
+Se prepararon y aplicaron dos migraciones adicionales, sin reescribir las seis iniciales:
 
 - `20261109205711_corregir_integridad_tiempo_actividad.sql`: corrige el caso de cantidad de tiempo sin unidad. La presencia explícita de ambas columnas impide que un resultado `NULL` permita pasar el `CHECK`. Si hay filas incompatibles, aborta con su cantidad; no modifica datos automáticamente. La inspección previa encontró cero.
 - `20261109205718_completar_indices_relaciones.sql`: añade índices directos para creador de tablero, solicitante de vínculo y autor de invitación; no cambia datos, permisos ni relaciones.
 
-La revisión estática independiente no encontró errores y `git diff --check` pasó. **Estas dos migraciones todavía no están aplicadas.** La reproducción en una instancia local descartable falló en dos arranques antes de ejecutar las migraciones: la CLI 3.0.0 informó `ContainerCreateError` al copiar un archivo al contenedor de Podman (`failed to copy secret file into container`, `broken pipe`). Se detuvieron los intentos y se conservó la base principal. No se instalaron otras herramientas ni se sustituyó Podman.
+La revisión estática independiente no encontró errores y `git diff --check` pasó. La reproducción en una instancia local descartable falló en dos arranques antes de ejecutar las migraciones: la CLI 3.0.0 informó `ContainerCreateError` al copiar un archivo al contenedor de Podman (`failed to copy secret file into container`, `broken pipe`). Se detuvieron los intentos y se conservó la base principal. No se instalaron otras herramientas ni se sustituyó Podman.
 
-El alcance aprobado es cerrar estructura y permisos, con una comprobación aislada de reproducción; no crear una suite, usuarios ficticios ni conectar pantallas. Los archivos previos de `supabase/tests/` se conservaron sin cambios y sin commit. Las operaciones de negocio y las pruebas funcionales pendientes, incluido compartir logros y concurrencia, continúan en sus historias.
+El alcance aprobado es cerrar la estructura y sus permisos definidos, sin crear una suite, usuarios ficticios ni conectar pantallas. El responsable decidió postergar la reproducción aislada y autorizó aplicar las correcciones sobre la base local existente; esa comprobación dejó de ser condición previa para esta entrega. Los archivos previos de `supabase/tests/` se conservaron sin cambios y sin commit. Las operaciones de negocio y las pruebas funcionales pendientes, incluido compartir logros y concurrencia, continúan en sus historias.
 
-Para terminar: resolver el arranque aislado con una decisión del responsable; reproducir los ocho archivos desde cero y comparar la estructura; después aplicar las dos pendientes a MODUS local y comprobar sus metadatos. No reiniciar la base principal ni aplicar al remoto para resolver este impedimento. El cierre reproducible aún no está acreditado.
+Diagnóstico posterior del impedimento: Podman 5.8.9 incorpora Buildah 1.43.5, cuyo copiador contiene el fallo de procesamiento del relleno de un TAR documentado en [Buildah #6573](https://github.com/podman-container-tools/buildah/issues/6573). Una reproducción controlada copió el mismo archivo inocuo a un contenedor descartable sin iniciarlo: el TAR de 10.240 bytes devolvió HTTP 500 con el error exacto; el TAR de 2.048 bytes, sin relleno adicional, devolvió HTTP 200. El contenedor se retiró y no se tocaron las bases. Esto identifica el fallo de transferencia previo al SQL.
+
+La [corrección #6678](https://github.com/podman-container-tools/buildah/pull/6678) se incorpora en Buildah 1.44.0 y Podman 6.0.0. Se inspeccionaron las rutas activas de Supabase CLI 3.0.0, 3.1.0 y 2.122.1: las tres copian el secreto mediante el mismo mecanismo afectado. Evaluar el paquete 2.122.1 en una carpeta temporal no cambió la dependencia compartida; no se justifica actualizar o bajar la CLI esperando resolver esta copia. No se modificaron binarios ni se activaron funciones experimentales.
+
+La consulta actualizada de los repositorios configurados de Fedora 44 devolvió Podman 5.8.9 como paquete más reciente. Una actualización del motor a una versión que incorpore el arreglo debe planificarse a nivel del equipo, considerando los otros contenedores y volúmenes; no mezclar paquetes de otra versión de Fedora ni añadir repositorios por iniciativa del agente. La dependencia del proyecto sigue fijada en Supabase CLI 3.0.0.
+
+**Cierre de la entrega estructural local:** se aplicaron las dos correctivas mediante `migration up` de la CLI 3.0.0 al destino local `127.0.0.1:54322`, sin reiniciar la base ni modificar datos declarados. Quedaron ocho migraciones registradas, la nueva restricción de tiempo validada, la anterior retirada y los tres índices nuevos válidos. La comparación final con el SVG confirmó 21 tablas propias, 103 campos con sus tipos, 32 claves foráneas y RLS activado en las 21 tablas. PostgreSQL permaneció saludable.
+
+La estructura local del modelo queda preparada para abordar las conexiones por historias. La reproducción de los ocho archivos desde cero sigue pendiente, al igual que la validación funcional completa de políticas y operaciones. El responsable decidió mantener Podman y esperar un paquete corregido de Fedora 44. No se declara cerrada la tarea de reproducibilidad ni se aplican cambios al remoto por este avance.
 
 ## Referencias
 
@@ -449,4 +457,4 @@ Para terminar: resolver el arranque aislado con una decisión del responsable; r
 - PostgreSQL: [restricciones](https://www.postgresql.org/docs/17/ddl-constraints.html) y [tipos numéricos](https://www.postgresql.org/docs/17/datatype-numeric.html).
 - RF: [onboarding](https://trello.com/c/GvkSf6nr), [Mi actividad](https://trello.com/c/yckKkt9n), [compartir logros](https://trello.com/c/ceu95Y6z), [Escudo](https://trello.com/c/bkG4LmiA), [medidas](https://trello.com/c/ToxK425G), [Home](https://trello.com/c/vRsSSxAH), [tableros](https://trello.com/c/HoDRN3jl) y [racha grupal](https://trello.com/c/x0QcOuY2).
 
-Se aplicaron las skills de Supabase y PostgreSQL como guía técnica. Las decisiones del responsable y los RF vigentes conservan prioridad. Las seis migraciones de esta preparación se aplicaron únicamente al entorno local.
+Se aplicaron las skills de Supabase y PostgreSQL como guía técnica. Las decisiones del responsable y los RF vigentes conservan prioridad. Las ocho migraciones de esta preparación se aplicaron únicamente al entorno local.

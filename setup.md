@@ -64,7 +64,7 @@ Implementación progresiva de las capacidades aprobadas sobre la base compartida
 
 - [ ] Configurar el proyecto Supabase y sus variables de entorno, sin exponer credenciales privilegiadas.
 - [ ] Integrar Supabase Auth y verificar autenticación real, sin sesiones simuladas.
-- [ ] Preparar el esquema inicial de PostgreSQL, SQL y migraciones con aprobación previa.
+- [x] Preparar el esquema inicial de PostgreSQL, SQL y migraciones con aprobación previa: ocho migraciones aplicadas y estructura revisada en el entorno local; aplicación remota pendiente.
 - [ ] Definir y comprobar permisos y políticas RLS para acceso efectivo a datos.
 - [ ] Integrar las operaciones habituales de datos mediante Data API y `supabase-js` cuando sea seguro.
 - [ ] Implementar progresivamente los RF aprobados en las páginas y módulos correspondientes.
@@ -95,7 +95,7 @@ El detalle de las capacidades visuales y de sus límites permanece en [docs/fron
 
 - [x] Comparar las 21 tablas propias, campos y tipos locales con `docs/bd-grafico.svg`; distinguir 18 tablas en `public`, tres en `private` y la referencia a `auth.users`.
 - [x] Preparar dos migraciones correctivas con comentarios en español y revisión estática: tiempo/unidad e índices de relaciones.
-- [ ] Reproducir los ocho archivos en una instancia aislada. Dos arranques fallaron al copiar un archivo al contenedor de Podman; requiere resolver el impedimento antes de continuar.
-- [ ] Aplicar las dos migraciones pendientes a la base principal local después de esa comprobación.
+- [ ] Reproducir los ocho archivos en una instancia aislada. Dos arranques fallaron al copiar un archivo al contenedor de Podman; el responsable decidió postergar esta comprobación y mantener el sistema.
+- [x] Aplicar las dos migraciones correctivas a la base principal local con autorización de continuar sin reproducción aislada previa. Se validaron la restricción de tiempo y los tres índices.
 
-La base principal conserva las seis migraciones iniciales. Este avance no acredita conexión de pantallas, cierre de operaciones funcionales ni aplicación remota. El detalle está en [docs/base-de-datos.md](docs/base-de-datos.md#revisión-estructural-y-correcciones-preparadas--2026-11-09).
+La base principal tiene ocho migraciones aplicadas. La comparación final confirmó 21 tablas, 103 campos y sus tipos, 32 claves foráneas y RLS activo en todas las tablas propias. Este avance cierra la entrega estructural local; no acredita conexión de pantallas, reproducción desde cero, validación funcional completa de permisos ni aplicación remota. El detalle está en [docs/base-de-datos.md](docs/base-de-datos.md#revisión-estructural-y-correcciones--2026-11-09).
