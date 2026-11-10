@@ -5,7 +5,6 @@ export const categoriasVideosHistorias = [
   "Consecuencias personales y emocionales",
   "Historias de recuperación",
   "Duelo y suicidio",
-  "Prevención y campañas",
 ];
 
 export const videoIntroduccionPrevencion = {
@@ -18,6 +17,41 @@ export const videoIntroduccionPrevencion = {
   embedUrl: "https://www.youtube.com/embed/5OGZNxsejRY",
   aspect: "vertical",
 };
+
+export const spotsPrevencion = [
+  {
+    ...videoIntroduccionPrevencion,
+    id: "mpt-las-apuestas-no-son-un-juego",
+    formatLabel: "Campaña institucional",
+    provider: "youtube",
+    awarenessMessage:
+      "Cuando las apuestas están a un clic, pueden mezclarse con la rutina y las decisiones sin que siempre sea fácil advertirlo. Entender cómo funcionan y hablarlo a tiempo ayuda a mirar la situación con más claridad y a pedir acompañamiento sin vergüenza.",
+    categories: ["Prevención y campañas"],
+    actionLabel: "Conocer la campaña en el MPT",
+  },
+  {
+    id: "campana-movistar-faro-tiktok",
+    title: "No pierdas tu adolescencia apostando",
+    person: "Campaña de Fundación Telefónica Movistar y Faro Digital",
+    summary:
+      "Pieza de concientización sobre las apuestas durante la adolescencia. La descripción de la publicación menciona un informe de la Defensoría del Pueblo de la Ciudad de Buenos Aires y remite a una guía de LA NACIÓN.",
+    categories: ["Prevención y campañas"],
+    publisher:
+      "LA NACIÓN · campaña de Fundación Telefónica Movistar y Faro Digital",
+    sourceUrl:
+      "https://www.tiktok.com/@lanacioncom/video/7466161560210164998",
+    embedUrl:
+      "https://www.tiktok.com/player/v1/7466161560210164998?description=1&music_info=0",
+    aspect: "vertical",
+    referenceUrl: "https://www.lanacion.com.ar/chicosyapuestas",
+    referenceLabel: "Consultar la guía de LA NACIÓN",
+    formatLabel: "Campaña de concientización",
+    provider: "tiktok",
+    awarenessMessage:
+      "Una apuesta puede parecer una forma rápida de ganar o resolver algo. También vale preguntarse qué lugar empieza a ocupar en el tiempo, la plata y los vínculos. No hace falta esperar a estar mal para conversar y buscar apoyo.",
+    actionLabel: "Abrir video original en TikTok",
+  },
+];
 
 export const videosHistoriasReales = [
   {
@@ -88,7 +122,6 @@ export const videosHistoriasReales = [
     embedUrl:
       "https://www.tiktok.com/player/v1/7685891241732607252?description=1&music_info=0",
     aspect: "vertical",
-    requiresContentConsent: true,
     formatLabel: "Testimonio familiar",
     actionLabel: "Abrir video original en TikTok",
   },
@@ -185,29 +218,10 @@ export const videosHistoriasReales = [
     embedUrl:
       "https://www.tiktok.com/player/v1/7445501100033199365?description=1&music_info=0",
     aspect: "vertical",
-    requiresContentConsent: true,
     referenceUrl:
       "https://www.infobae.com/reportajes/2024/12/07/el-flagelo-de-la-ludopatia-y-la-mama-que-se-interno-cuando-su-hijo-le-dijo-que-se-queria-morir-mama-no-quiero-que-juegues-mas/",
     referenceLabel: "Leer la entrevista de Infobae",
     formatLabel: "Entrevista en silueta",
-    actionLabel: "Abrir video original en TikTok",
-  },
-  {
-    id: "campana-movistar-faro-tiktok",
-    title: "No pierdas tu adolescencia apostando",
-    person: "Campaña de Fundación Telefónica Movistar y Faro Digital",
-    summary:
-      "Pieza de concientización sobre la ludopatía adolescente que invita a reflexionar sobre las apuestas durante esta etapa. La descripción de la publicación menciona un informe de la Defensoría del Pueblo de la Ciudad de Buenos Aires y remite a una guía de LA NACIÓN. El eslogan pertenece a la campaña de Fundación Telefónica Movistar y Faro Digital.",
-    categories: ["Prevención y campañas"],
-    publisher: "LA NACIÓN · campaña de Fundación Telefónica Movistar y Faro Digital",
-    sourceUrl:
-      "https://www.tiktok.com/@lanacioncom/video/7466161560210164998",
-    embedUrl:
-      "https://www.tiktok.com/player/v1/7466161560210164998?description=1&music_info=0",
-    aspect: "vertical",
-    referenceUrl: "https://www.lanacion.com.ar/chicosyapuestas",
-    referenceLabel: "Consultar la guía de LA NACIÓN",
-    formatLabel: "Campaña de concientización",
     actionLabel: "Abrir video original en TikTok",
   },
   {
