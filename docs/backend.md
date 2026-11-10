@@ -24,7 +24,7 @@ Las carpetas vacías existen localmente, pero Git no conserva directorios sin ar
 
 ## Arquitectura aprobada: Supabase y Express
 
-Esta es la referencia principal de la arquitectura de datos y servidor de MODUS. Hay un cliente `supabase-js` preparado y las migraciones están aplicadas en Supabase local y en el proyecto remoto de desarrollo. Las pantallas y Express todavía no están conectados a esos servicios: los siguientes flujos describen la arquitectura prevista. Ver [estado y ejecución local](base-de-datos.md#9-entorno-local-y-verificaciones).
+Esta es la referencia principal de la arquitectura de datos y servidor de MODUS. Hay un cliente `supabase-js` preparado y las migraciones están aplicadas en Supabase local y en el proyecto remoto de desarrollo. La página de acceso usa Supabase Auth para registro e inicio; Express y las herramientas de Detección aún no están conectados. Los siguientes flujos describen la arquitectura prevista. Ver [estado y ejecución local](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ### Supabase: backend administrado principal
 

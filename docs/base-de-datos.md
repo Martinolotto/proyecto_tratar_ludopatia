@@ -322,7 +322,7 @@ Home y Dashboard no necesitan tablas propias. Historial, calendario, totales, pr
 
 ### Persistencia y permisos actuales: guía para el equipo
 
-**Qué funciona hoy:** PostgreSQL local tiene el esquema y sus permisos aplicados. React tiene un cliente preparado, pero sus páginas todavía no crean cuentas, inician sesión ni guardan registros. Las selecciones actuales de Onboarding y Mi actividad viven en el estado de React y se pierden al salir o recargar. Crear tablas no conectó automáticamente esas pantallas.
+**Qué funciona hoy:** PostgreSQL local tiene el esquema y sus permisos aplicados. React conecta el registro y el inicio de sesión mediante Supabase Auth; sus herramientas todavía no guardan registros. Las selecciones actuales de Onboarding y Mi actividad viven en el estado de React y se pierden al salir o recargar. Crear tablas no conectó automáticamente esas pantallas.
 
 **Elegir el entorno antes de conectar:** la base local y el proyecto remoto son bases independientes. Las variables de `frontend/.env` determinan a cuál apunta el cliente; disponer de tablas locales no cambia esas variables. En la copia inspeccionada el cliente apuntaba al remoto. Antes de implementar acceso se acordará el destino y se comprobará que URL y clave pública correspondan al mismo entorno. No se copian valores de `.env` al documento ni se cambia ese archivo en esta revisión.
 
@@ -420,11 +420,11 @@ No se añaden tablas para artículos, noticias, videos, reflexiones editoriales,
 
 El código de Comunidad admite adjuntos, aunque RF-VP-02 los excluye. Perfil muestra ejemplos de tests, ahorro e insignias no aprobados. RF-VP-11 mantiene una referencia antigua a Detección en definición; se coordinará con RF-DO-09. Estas diferencias se informan para revisión y no autorizan modificar las páginas de compañeros.
 
-El cliente preparado y las migraciones remotas no implican que las pantallas estén conectadas ni que las operaciones funcionales estén verificadas.
+La página de acceso está conectada a Auth; las herramientas no están conectadas y las operaciones funcionales requieren verificaciones propias.
 
 ## 9. Entorno local y verificaciones
 
-La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene nueve archivos: un antecedente remoto y ocho archivos propios: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal local y el remoto tienen aplicadas las ocho migraciones propias. `supabase/tests/` contiene las verificaciones locales no versionadas. Las pantallas aún no están conectadas.
+La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene nueve archivos: un antecedente remoto y ocho archivos propios: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal local y el remoto tienen aplicadas las ocho migraciones propias. `supabase/tests/` contiene las verificaciones locales no versionadas. Las herramientas de Detección aún no están conectadas.
 
 En el equipo preparado, las funciones personales de Fish se ejecutan así:
 
@@ -482,7 +482,7 @@ Las ocho migraciones propias se aplicaron en orden al proyecto `modus` (`jmtgahb
 
 El bucket `avatares` es privado y admite JPEG, PNG y WebP hasta 2 MiB. El asesor de seguridad informó tres tablas internas de `private` con RLS sin políticas: no se concede acceso directo de lectura o escritura a `anon` ni `authenticated` sobre esas tablas. `authenticated` sí tiene permiso de uso del esquema para las funciones previstas; esto no equivale a acceso directo a sus tablas. La revisión funcional de permisos sigue pendiente.
 
-Auth mantiene habilitado el registro por correo y contraseña con confirmación. La URL principal es `http://localhost:5173` y se admiten los retornos `http://localhost:5173/` y `http://127.0.0.1:5173/`. No se configuró SMTP: el envío de confirmaciones se resolverá al implementar PTL-168. La inspección estructural no sustituye las pruebas de registro ni de acceso por usuario.
+Auth remoto permite el registro por correo y contraseña sin confirmación, por decisión del responsable; el entorno local conserva su configuración de confirmación. La URL principal es `http://localhost:5173` y se admiten los retornos `http://localhost:5173/` y `http://127.0.0.1:5173/`. No se configuró SMTP; el envío de correos para recuperación de cuentas queda pendiente. La inspección estructural no sustituye las pruebas de registro ni de acceso por usuario.
 
 ## Referencias
 

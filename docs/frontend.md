@@ -15,7 +15,7 @@ El objetivo es facilitar el desarrollo colaborativo, mantener un código compren
 - Tailwind CSS 4 para estilos.
 - Lucide React para iconografía.
 - ESLint para analizar el código.
-- Supabase para autenticación y operaciones de datos, cuando se integre.
+- Supabase para autenticación y operaciones de datos.
 
 ## 3. Organización del código
 
@@ -58,7 +58,7 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 - **comunidad/:** páginas del eje de Vinculación y apoyo entre pares.
 - **deteccion/:** Onboarding, Mi actividad, Historial y progreso y Escudo digital. Cada página conserva su ruta independiente; `onboardingQuestions.js` reúne el contenido de las cinco preguntas.
 - **perfil/:** identidad y configuración de la cuenta; su interfaz no acredita autenticación ni persistencia.
-- **publicas/:** landing, inicio de sesión y registro. Registro e inicio de sesión siguen como páginas iniciales, sin creación de cuentas ni sesiones.
+- **publicas/:** Landing y página `/login`, con formularios de registro e inicio de sesión conectados a Supabase Auth. Los accesos de la Landing seleccionan el formulario mediante `?modo=registro` o `?modo=ingreso`.
 - **errores/:** páginas de error y rutas inexistentes.
 
 Mi espacio y su ruta fueron retirados por decisión del responsable; no hay una cuarta página principal ni un reemplazo del Dashboard como panel.
@@ -67,12 +67,12 @@ Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la ex
 
 ### Estado actual del eje de Detección/Orientación
 
-- **Onboarding (`/onboarding`):** recorrido de cinco preguntas con selección, progreso, retroceso conservando respuestas, omisión individual o completa y cierre local con acceso a Inicio. Las respuestas se descartan al salir o recargar. La opción «18 años o más» fue aprobada por el responsable como opción seleccionable; no implementa por sí misma una política de acceso ni cambia el segmento objetivo de 13–17. La conexión posterior al registro, la persistencia por cuenta, la realización única y el uso de las respuestas para priorizar accesos siguen pendientes.
+- **Onboarding (`/onboarding`):** recorrido de cinco preguntas con selección, progreso, retroceso conservando respuestas, omisión individual o completa y cierre local con acceso a Inicio. Las respuestas se descartan al salir o recargar. La opción «18 años o más» fue aprobada por el responsable como opción seleccionable; no implementa por sí misma una política de acceso ni cambia el segmento objetivo de 13–17. El registro dirige a esta pantalla; la persistencia por cuenta, la realización única y el uso de las respuestas para priorizar accesos siguen pendientes.
 - **Mi actividad (`/mi-actividad`):** interacción local para declarar apuestas y ganas de apostar, cantidades separadas, situaciones y observación opcional. Los campos de apuestas aparecen condicionalmente y las cantidades omitidas no se convierten en cero. Todavía no hay guardado, validación completa del registro, unicidad por usuario y día, cierre del día ni edición de una entrada persistida.
 - **Historial y progreso (`/historial-y-progreso`):** selección local de día, semana y mes y espacios informativos de métricas, calendario y logros. No hay registros conectados ni filtros efectivos sobre datos, cálculos, gráficos, rachas u observaciones implementados.
 - **Escudo digital (`/escudo-digital`):** tres categorías desplegables: restringir acceso a apuestas, reducir estímulos y encontrar apoyo. No hay catálogo verificado conectado, fichas de recursos ni marcado persistente de medidas realizadas.
 
-Estas capacidades visuales no equivalen al cumplimiento completo de los RF. Existe un cliente Supabase preparado, pero estas pantallas no tienen sesión real ni operaciones de datos conectadas.
+Estas capacidades visuales no equivalen al cumplimiento completo de los RF. Registro e ingreso utilizan Supabase Auth; las herramientas de Detección aún no guardan datos por cuenta.
 
 ### Decisión vigente: Dashboard global desplegable
 
@@ -86,7 +86,7 @@ La documentación visual anterior que muestre cuatro páginas principales debe t
 
 ### Límites funcionales relevantes
 
-- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual ya existe bajo `PublicLayout`; la realización única por cuenta y el inicio automático tras registrarse todavía no están implementados.
+- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual ya existe bajo `PublicLayout`; la realización única por cuenta todavía no está implementada; el registro dirige al recorrido visual.
 - Mi actividad permite una entrada del día actual por usuario, actualizable ese día y sin creación, edición o eliminación retroactiva. Historial y progreso interpreta únicamente información declarada; un día sin registro no es un día sin apostar.
 - Escudo digital organiza medidas y recursos prácticos; coordinar sus recursos con Prevención. Compartir logros es voluntario y depende de Comunidad, sin publicar registros completos.
 - Chatbot global y “Necesito ayuda ahora” siguen pendientes. Laboratorio de decisiones no es herramienta aprobada del MVP.
@@ -116,7 +116,7 @@ Los comentarios deben describir responsabilidades, reglas, decisiones y comporta
 
 Se permite crear carpetas, páginas y archivos iniciales que respondan a una estructura previamente aprobada por el equipo, aunque todavía no tengan lógica funcional. No generar capas, hooks, servicios, dependencias ni funcionalidades ficticias por iniciativa del agente.
 
-La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. El cliente está preparado, pero la integración de las pantallas todavía no existe. Antes de conectar registro o sesión, acordar el entorno: la URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
+La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; cierre de sesión, protección de rutas y persistencia del onboarding siguen pendientes. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## 6. Diseño
 

@@ -104,6 +104,13 @@ La base principal tiene ocho migraciones aplicadas. La comparación final confir
 
 - [x] Aplicar las ocho migraciones al proyecto de desarrollo conservando el antecedente remoto.
 - [x] Comprobar 21 tablas, 103 columnas, 32 claves foráneas, RLS y configuración del bucket privado mediante metadatos.
-- [x] Configurar las URL locales de Auth y conservar la confirmación de correo.
-- [ ] Configurar el envío de correos y comprobar registro y sesión al implementar PTL-168.
+- [x] Configurar las URL locales de Auth; posteriormente se desactivó la confirmación de correo en el remoto por decisión del responsable.
+- [ ] Configurar el envío de correos cuando se implemente la recuperación de cuenta.
 - [ ] Reproducir todas las migraciones desde cero en local y verificar funcionalmente los permisos.
+
+## Acceso con Supabase — 2026-11-10
+
+- [x] Conectar los formularios de registro e inicio de sesión a Supabase Auth.
+- [x] Comprobar en el remoto de desarrollo registro con sesión, perfil, ingreso y rechazo de contraseña incorrecta y nombre repetido usando una cuenta ficticia retirada al finalizar.
+- [ ] Verificar el recorrido completo desde el navegador, el cierre de sesión y la protección de rutas.
+- [ ] Conectar la persistencia y realización única del onboarding mediante PTL-115.
