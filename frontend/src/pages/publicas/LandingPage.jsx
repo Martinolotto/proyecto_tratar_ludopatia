@@ -1,4 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+/*
+ * Presenta MODUS y sus ejes en la página pública.
+ * Los accesos llevan a LoginPage; sus formularios viven en una ruta independiente.
+ */
+import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 import "./LandingPage.css";
 
@@ -30,26 +34,9 @@ const axes = [
 ];
 
 export const LandingPage = () => {
-  const [accessMode, setAccessMode] = useState(null);
-  const [showPasswords, setShowPasswords] = useState(false);
-  const [formNotice, setFormNotice] = useState("");
-  const [isClosing, setIsClosing] = useState(false);
   const landingRef = useRef(null);
-  const dialogRef = useRef(null);
-  const openerRef = useRef(null);
-  const closeTimerRef = useRef(null);
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog || !accessMode) return;
-
-    if (!dialog.open) dialog.showModal();
-    setIsClosing(false);
-    setShowPasswords(false);
-    setFormNotice("");
-    dialog.querySelector("[data-autofocus]")?.focus();
-  }, [accessMode]);
-
+  // Animación progresiva para las secciones visibles de la página.
   useEffect(() => {
     const landing = landingRef.current;
     if (
@@ -83,46 +70,6 @@ export const LandingPage = () => {
     };
   }, []);
 
-  const openAccessModal = (mode, event) => {
-    openerRef.current = event.currentTarget;
-    setAccessMode(mode);
-  };
-
-  const closeAccessModal = () => {
-    const dialog = dialogRef.current;
-    if (!dialog?.open || isClosing) return;
-
-    window.clearTimeout(closeTimerRef.current);
-    setIsClosing(true);
-    closeTimerRef.current = window.setTimeout(() => {
-      if (dialog.open) {
-        dialog.close();
-        openerRef.current?.focus();
-      }
-    }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 170);
-  };
-
-  const handleModalClose = () => {
-    window.clearTimeout(closeTimerRef.current);
-    setAccessMode(null);
-    setShowPasswords(false);
-    setFormNotice("");
-    setIsClosing(false);
-  };
-
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    setFormNotice(
-      "Este formulario todavía no está conectado. No se enviaron tus datos.",
-    );
-  };
-
-  const switchAccessMode = (mode) => {
-    window.clearTimeout(closeTimerRef.current);
-    setIsClosing(false);
-    setAccessMode(mode);
-  };
-
   return (
     <div className="modus-landing" ref={landingRef}>
       <section className="landing-hero" aria-labelledby="landing-title">
@@ -151,26 +98,20 @@ export const LandingPage = () => {
             role="group"
             aria-label="Acceso a MODUS"
           >
-            <button
-              type="button"
+            <Link
+              to="/login?modo=registro"
               className="landing-button landing-button--primary"
-              onClick={(event) => openAccessModal("register", event)}
             >
               Registrarse
               <span aria-hidden="true">↗</span>
-            </button>
-            <button
-              type="button"
+            </Link>
+            <Link
+              to="/login?modo=ingreso"
               className="landing-button landing-button--secondary"
-              onClick={(event) => openAccessModal("login", event)}
             >
               Iniciar sesión
-            </button>
+            </Link>
           </div>
-          <p className="landing-hero__notice">
-            Los formularios son una interfaz de muestra; todavía no crean
-            cuentas ni inician sesión.
-          </p>
         </div>
 
         <figure className="landing-map" aria-labelledby="landing-map-caption">
@@ -306,15 +247,13 @@ export const LandingPage = () => {
           psicológico.
         </p>
         <div className="landing-boundaries__action" data-scroll-reveal>
-          <button
+          <Link
             className="landing-button landing-button--primary"
-            type="button"
-            onClick={(event) => openAccessModal("register", event)}
+            to="/login?modo=registro"
           >
-            Ver formulario de muestra
+            Crear una cuenta
             <span aria-hidden="true">↗</span>
-          </button>
-          <p>El acceso real todavía no está disponible.</p>
+          </Link>
         </div>
       </section>
 
@@ -328,193 +267,6 @@ export const LandingPage = () => {
         </a>
       </footer>
 
-      <dialog
-        ref={dialogRef}
-        className={`landing-modal${isClosing ? " landing-modal--closing" : ""}`}
-        aria-labelledby="landing-modal-title"
-        aria-describedby="landing-modal-description"
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            closeAccessModal();
-          }
-        }}
-        onCancel={(event) => {
-          event.preventDefault();
-          closeAccessModal();
-        }}
-        onClose={handleModalClose}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) closeAccessModal();
-        }}
-      >
-        <section className="landing-modal__panel">
-          <div className="landing-modal__heading">
-            <div>
-              <p className="landing-eyebrow landing-eyebrow--dark">
-                MODUS <span aria-hidden="true">/</span>{" "}
-                {accessMode === "register" ? "Crear cuenta" : "Tu espacio"}
-              </p>
-              <h2 id="landing-modal-title">
-                {accessMode === "register"
-                  ? "Registrarse"
-                  : "Iniciar sesión"}
-              </h2>
-            </div>
-            <button
-              className="landing-modal__close"
-              type="button"
-              aria-label="Cerrar ventana"
-              onClick={closeAccessModal}
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-
-          <p id="landing-modal-description" className="landing-modal__intro">
-            {accessMode === "register"
-              ? "Completá tus datos para crear una cuenta."
-              : "Ingresá tus datos para acceder a tu cuenta."}
-          </p>
-
-          {accessMode === "register" ? (
-            <form
-              className="landing-form"
-              onSubmit={handleFormSubmit}
-              onChange={() => setFormNotice("")}
-            >
-              <label className="landing-form__field">
-                <span>Nombre</span>
-                <input
-                  autoComplete="name"
-                  data-autofocus
-                  name="name"
-                  placeholder="Tu nombre"
-                  required
-                  type="text"
-                />
-              </label>
-
-              <label className="landing-form__field">
-                <span>Correo electrónico</span>
-                <input
-                  autoComplete="email"
-                  name="email"
-                  placeholder="nombre@correo.com"
-                  required
-                  type="email"
-                />
-              </label>
-
-              <label className="landing-form__field">
-                <span>Contraseña</span>
-                <input
-                  autoComplete="new-password"
-                  name="password"
-                  placeholder="Ingresá una contraseña"
-                  required
-                  type={showPasswords ? "text" : "password"}
-                />
-              </label>
-
-              <label className="landing-form__field">
-                <span>Confirmar contraseña</span>
-                <input
-                  autoComplete="new-password"
-                  name="passwordConfirmation"
-                  placeholder="Volvé a ingresar la contraseña"
-                  required
-                  type={showPasswords ? "text" : "password"}
-                />
-              </label>
-
-              <button
-                className="landing-form__visibility"
-                type="button"
-                aria-pressed={showPasswords}
-                onClick={() => setShowPasswords((visible) => !visible)}
-              >
-                {showPasswords ? "Ocultar contraseñas" : "Mostrar contraseñas"}
-              </button>
-
-              <button
-                className="landing-button landing-button--primary landing-form__submit"
-                type="submit"
-              >
-                Registrarse
-              </button>
-            </form>
-          ) : (
-            <form
-              className="landing-form"
-              onSubmit={handleFormSubmit}
-              onChange={() => setFormNotice("")}
-            >
-              <label className="landing-form__field">
-                <span>Correo electrónico</span>
-                <input
-                  autoComplete="email"
-                  data-autofocus
-                  name="email"
-                  placeholder="nombre@correo.com"
-                  required
-                  type="email"
-                />
-              </label>
-
-              <label className="landing-form__field">
-                <span>Contraseña</span>
-                <input
-                  autoComplete="current-password"
-                  name="password"
-                  placeholder="Ingresá tu contraseña"
-                  required
-                  type={showPasswords ? "text" : "password"}
-                />
-              </label>
-
-              <button
-                className="landing-form__visibility"
-                type="button"
-                aria-pressed={showPasswords}
-                onClick={() => setShowPasswords((visible) => !visible)}
-              >
-                {showPasswords ? "Ocultar contraseña" : "Mostrar contraseña"}
-              </button>
-
-              <button
-                className="landing-button landing-button--primary landing-form__submit"
-                type="submit"
-              >
-                Iniciar sesión
-              </button>
-            </form>
-          )}
-
-          <p className="landing-form__notice" role="status" aria-live="polite">
-            {formNotice ||
-              "La autenticación todavía no está disponible. Este formulario no envía tus datos."}
-          </p>
-
-          <p className="landing-modal__switch">
-            {accessMode === "register"
-              ? "¿Ya tenés una cuenta?"
-              : "¿Todavía no tenés cuenta?"}{" "}
-            <button
-              type="button"
-              onClick={() =>
-                switchAccessMode(
-                  accessMode === "register" ? "login" : "register",
-                )
-              }
-            >
-              {accessMode === "register"
-                ? "Iniciar sesión"
-                : "Registrarse"}
-            </button>
-          </p>
-        </section>
-      </dialog>
     </div>
   );
 };

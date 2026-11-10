@@ -1,0 +1,229 @@
+/* Presentación y transición de LoginPage; reutiliza los colores de marca de MODUS. */
+main:has(> .access-page) {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
+.access-page {
+  display: grid;
+  min-height: calc(100svh - 4.5rem);
+  padding: clamp(1.25rem, 5vw, 4rem) 1rem;
+  place-items: center;
+  background: radial-gradient(ellipse at 80% 90%, color-mix(in srgb, var(--modus-brand-teal) 40%, var(--modus-brand-navy)), var(--modus-brand-navy) 64%);
+}
+
+.access-shell {
+  position: relative;
+  display: grid;
+  width: min(100%, 55rem);
+  min-height: 37rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: var(--modus-surface);
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 20%);
+}
+
+/* La superficie se traslada, mientras el contenido conserva un orden de lectura simple. */
+.access-panel {
+  position: absolute;
+  inset: 0 0 0 50%;
+  border: 0.5rem solid var(--modus-surface);
+  border-radius: 1.4rem;
+  background: radial-gradient(ellipse at 30% 110%, var(--modus-brand-teal), var(--modus-brand-navy) 75%);
+  transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.access-shell--register .access-panel {
+  transform: translateX(-100%);
+}
+/* Distribuye el formulario y la invitación sobre el panel animado. */
+.access-content, .access-invitation {
+  grid-area: 1 / 1;
+  width: 50%;
+  transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.access-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.6rem, 4vw, 3.5rem);
+  color: var(--modus-ink);
+}
+.access-shell--register .access-content {
+  transform: translateX(100%);
+}
+.access-content h1 {
+  margin: 0;
+  color: var(--modus-brand-navy);
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 1.15;
+}
+.access-content h1:focus {
+  outline: none;
+}
+.access-intro {
+  margin: 0.75rem 0 1.5rem;
+  line-height: 1.5;
+}
+.access-invitation {
+  z-index: 1;
+  display: grid;
+  padding: 2.5rem;
+  place-items: center;
+  color: var(--modus-surface);
+  text-align: center;
+  transform: translateX(100%);
+}
+.access-shell--register .access-invitation {
+  transform: translateX(0);
+}
+.access-invitation h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.2;
+}
+.access-invitation p {
+  margin: 1rem 0 1.5rem;
+  line-height: 1.6;
+}
+.access-invitation button {
+  min-height: 2.9rem;
+  padding: 0.65rem 1.5rem;
+  border: 1px solid var(--modus-surface);
+  border-radius: 0.7rem;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.access-invitation button:hover {
+  background: var(--modus-surface);
+  color: var(--modus-brand-navy);
+}
+/* Campos, mensajes y controles comparten la misma estructura visual. */
+.access-form {
+  display: grid;
+  gap: 0.9rem;
+}
+.access-form > label, .access-field {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.access-form input {
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--modus-ink) 35%, var(--modus-surface));
+  border-radius: 0.5rem;
+  background: var(--modus-surface);
+  color: var(--modus-ink);
+  font: inherit;
+  font-weight: 400;
+}
+/* El botón de visibilidad se ubica dentro del campo sin formar parte de su etiqueta. */
+.access-password {
+  position: relative;
+  display: block;
+}
+.access-password input {
+  padding-right: 3rem;
+}
+.access-password button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  width: 2.8rem;
+  height: 100%;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--modus-ink);
+  cursor: pointer;
+}
+/* Los estados de acción y foco permiten reconocer cómo interactuar. */
+.access-submit {
+  min-height: 3rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: var(--modus-brand-navy);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+.access-submit:hover {
+  background: var(--modus-brand-teal);
+}
+.access-page button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.access-page :is(button, input):focus-visible {
+  outline: 3px solid var(--modus-brand-teal);
+  outline-offset: 3px;
+}
+.access-invitation button:focus-visible {
+  outline-color: white;
+}
+.access-message {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--modus-surface-soft);
+  color: var(--modus-brand-navy);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.access-switch-mobile {
+  display: none;
+}
+
+/* En móvil se conserva el cambio de formulario sin desplazar paneles fuera de pantalla. */
+@media (max-width: 700px) {
+  .access-page {
+    align-items: start;
+    min-height: calc(100svh - 4.5rem);
+  }
+  .access-shell {
+    display: block;
+    min-height: 0;
+    max-width: 30rem;
+  }
+  .access-panel, .access-invitation {
+    display: none;
+  }
+  .access-content {
+    width: 100%;
+    padding: 2rem 1.5rem;
+  }
+  .access-shell--register .access-content {
+    transform: none;
+  }
+  .access-switch-mobile {
+    display: block;
+    margin: 1.5rem 0 0;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .access-switch-mobile button {
+    border: 0;
+    background: transparent;
+    color: var(--modus-brand-teal);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .access-panel, /* Distribuye el formulario y la invitación sobre el panel animado. */
+.access-content, .access-invitation {
+    transition: none;
+  }
+}

@@ -1,3 +1,4 @@
+/* Estilos de la página pública LandingPage y de sus secciones informativas. */
 .modus-landing {
   --landing-light: var(--modus-canvas);
   --landing-dark: var(--modus-brand-navy);
@@ -235,14 +236,6 @@ main:has(> .modus-landing) {
 .landing-button--secondary:hover {
   border-color: var(--landing-light);
   background: color-mix(in srgb, var(--landing-light) 10%, transparent);
-}
-
-.landing-hero__notice {
-  max-width: 34rem;
-  margin: 0.9rem 0 0;
-  color: color-mix(in srgb, var(--landing-light) 75%, transparent);
-  font-size: 0.79rem;
-  line-height: 1.5;
 }
 
 .landing-map {
@@ -670,251 +663,6 @@ main:has(> .modus-landing) {
   color: var(--modus-brand-teal);
 }
 
-body:has(.modus-landing) header a[href="/login"] {
-  display: none;
-}
-
-.landing-modal {
-  width: min(100% - 2rem, 34rem);
-  max-width: none;
-  max-height: min(92dvh, 52rem);
-  margin: auto;
-  padding: 0;
-  overflow: auto;
-  border: 0;
-  border-radius: 1.15rem;
-  background: transparent;
-  color: var(--modus-ink);
-  box-shadow: 0 1.5rem 5rem color-mix(in srgb, var(--modus-brand-navy) 28%, transparent);
-}
-
-.landing-modal[open] {
-  animation: landing-dialog-enter 180ms ease-out both;
-}
-
-.landing-modal::backdrop {
-  background: color-mix(in srgb, var(--modus-brand-navy) 70%, transparent);
-  backdrop-filter: blur(0.35rem);
-}
-
-.landing-modal[open]::backdrop {
-  animation: landing-backdrop-enter 180ms ease-out both;
-}
-
-.landing-modal[open].landing-modal--closing {
-  animation: landing-dialog-exit 170ms ease-in both;
-}
-
-.landing-modal[open].landing-modal--closing::backdrop {
-  animation: landing-backdrop-exit 170ms ease-in both;
-}
-
-.landing-modal__panel {
-  padding: clamp(1.35rem, 5vw, 2.25rem);
-  border: 1px solid color-mix(in srgb, var(--modus-brand-navy) 12%, transparent);
-  border-radius: inherit;
-  background:
-    radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--modus-surface-soft) 64%, transparent), transparent 48%),
-    var(--modus-canvas);
-}
-
-.landing-modal__heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.landing-modal__heading .landing-eyebrow {
-  margin-bottom: 0.55rem;
-  font-size: 0.68rem;
-}
-
-.landing-modal__heading h2 {
-  margin: 0;
-  color: var(--modus-brand-navy);
-  font-family: var(--font-heading);
-  font-size: clamp(1.7rem, 7vw, 2.25rem);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1.12;
-}
-
-.landing-modal__close {
-  display: grid;
-  width: 2.75rem;
-  min-width: 2.75rem;
-  height: 2.75rem;
-  place-items: center;
-  border: 1px solid color-mix(in srgb, var(--modus-brand-navy) 18%, transparent);
-  border-radius: 0.7rem;
-  background: var(--modus-surface);
-  color: var(--modus-brand-navy);
-  font-family: inherit;
-  font-size: 1.8rem;
-  line-height: 1;
-  cursor: pointer;
-  transition:
-    border-color 180ms ease,
-    background-color 180ms ease,
-    transform 180ms ease;
-}
-
-.landing-modal__close:hover {
-  transform: rotate(4deg);
-  border-color: var(--modus-brand-teal);
-  background: var(--modus-surface-soft);
-}
-
-.landing-modal__close:focus-visible,
-.landing-form button:focus-visible,
-.landing-modal__switch button:focus-visible {
-  outline: 3px solid var(--modus-brand-teal);
-  outline-offset: 3px;
-}
-
-.landing-modal__intro {
-  margin: 0.75rem 0 1.4rem;
-  color: var(--modus-ink);
-  font-size: 0.94rem;
-  line-height: 1.6;
-}
-
-.landing-form {
-  display: grid;
-  gap: 1rem;
-}
-
-.landing-form__field {
-  display: grid;
-  gap: 0.45rem;
-  color: var(--modus-brand-navy);
-  font-size: 0.86rem;
-  font-weight: 600;
-}
-
-.landing-form__field input {
-  width: 100%;
-  min-height: 2.9rem;
-  padding: 0.75rem 0.85rem;
-  border: 1px solid color-mix(in srgb, var(--modus-brand-navy) 26%, transparent);
-  border-radius: 0.65rem;
-  background: var(--modus-surface);
-  color: var(--modus-ink);
-  font: inherit;
-  font-size: 0.95rem;
-  font-weight: 400;
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.landing-form__field input::placeholder {
-  color: color-mix(in srgb, var(--modus-ink) 70%, var(--modus-surface));
-  opacity: 1;
-}
-
-.landing-form__field input:focus-visible {
-  border-color: var(--modus-brand-teal);
-  outline: 0;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--modus-brand-teal) 20%, transparent);
-}
-
-.landing-form__visibility {
-  justify-self: start;
-  min-height: 2.5rem;
-  padding: 0.35rem 0;
-  border: 0;
-  background: transparent;
-  color: var(--modus-brand-teal);
-  font: inherit;
-  font-size: 0.86rem;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
-  cursor: pointer;
-}
-
-.landing-form__submit {
-  width: 100%;
-  min-height: 3rem;
-  margin-top: 0.1rem;
-}
-
-.landing-form__notice {
-  min-height: 2.5rem;
-  margin: 1rem 0 0;
-  padding: 0.65rem 0.75rem;
-  border-left: 3px solid var(--modus-brand-teal);
-  background: color-mix(in srgb, var(--modus-surface-soft) 72%, var(--modus-canvas));
-  color: var(--modus-ink);
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.landing-modal__switch {
-  margin: 1.15rem 0 0;
-  color: var(--modus-ink);
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.landing-modal__switch button {
-  padding: 0.2rem;
-  border: 0;
-  background: transparent;
-  color: var(--modus-brand-teal);
-  font: inherit;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 0.18em;
-  cursor: pointer;
-}
-
-@keyframes landing-dialog-enter {
-  from {
-    opacity: 0;
-    transform: translateY(0.7rem) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes landing-dialog-exit {
-  from {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: translateY(0.5rem) scale(0.985);
-  }
-}
-
-@keyframes landing-backdrop-enter {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes landing-backdrop-exit {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
-
 @keyframes landing-light-shift {
   from {
     transform: translate3d(-2%, 1%, 0) scale(1);
@@ -1131,10 +879,6 @@ body:has(.modus-landing) header a[href="/login"] {
     font-size: 0.86rem;
   }
 
-  .landing-modal .landing-button {
-    width: 100%;
-  }
-
   .landing-button--secondary {
     justify-content: center;
   }
@@ -1147,10 +891,6 @@ body:has(.modus-landing) header a[href="/login"] {
     margin-top: 1.15rem;
     font-size: 0.96rem;
     line-height: 1.6;
-  }
-
-  .landing-hero__notice {
-    font-size: 0.75rem;
   }
 
   .landing-map {
@@ -1228,10 +968,4 @@ body:has(.modus-landing) header a[href="/login"] {
     transition: none;
   }
 
-  .landing-modal[open],
-  .landing-modal[open].landing-modal--closing,
-  .landing-modal[open]::backdrop,
-  .landing-modal--closing::backdrop {
-    animation: none;
-  }
 }
