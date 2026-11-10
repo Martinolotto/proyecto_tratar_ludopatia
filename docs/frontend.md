@@ -33,7 +33,7 @@ No duplicar la definición de rutas en componentes individuales.
 
 ### Layouts
 
-**PublicLayout.jsx:** estructura compartida por las páginas públicas.
+**PublicLayout.jsx:** estructura compartida por las páginas públicas; incorpora la cabecera de acceso y el pie común. Onboarding utiliza el pie sin montar la cabecera.
 
 **AppLayout.jsx:** estructura compartida de las páginas de la aplicación. Monta `Navbar` y el panel global `Dashboard`, y entrega `openDashboard` a las páginas mediante el contexto de `Outlet`. Actualmente no verifica sesión: “layout autenticado” describe su destino funcional, no una protección ya implementada.
 
