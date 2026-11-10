@@ -48,27 +48,64 @@ export const LandingPage = () => {
     }
 
     const revealTargets = landing.querySelectorAll("[data-scroll-reveal]");
-    const observer = new IntersectionObserver(
+    const motionTargets = landing.querySelectorAll(
+      ".landing-hero, .landing-purpose__audience, .landing-axis, " +
+        ".landing-boundaries, .landing-footer",
+    );
+    const revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
 
           entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
+          revealObserver.unobserve(entry.target);
         });
       },
       { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
     );
+    const motionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle(
+            "is-motion-active",
+            entry.isIntersecting,
+          );
+        });
+      },
+      { threshold: 0.08 },
+    );
+    const syncPageVisibility = () => {
+      landing.classList.toggle("modus-landing--motion-enabled", !document.hidden);
+    };
 
     landing.classList.add("modus-landing--reveal-ready");
-    revealTargets.forEach((target) => observer.observe(target));
+    syncPageVisibility();
+    revealTargets.forEach((target) => revealObserver.observe(target));
+    motionTargets.forEach((target) => motionObserver.observe(target));
+    document.addEventListener("visibilitychange", syncPageVisibility);
 
     return () => {
-      observer.disconnect();
-      landing.classList.remove("modus-landing--reveal-ready");
+      revealObserver.disconnect();
+      motionObserver.disconnect();
+      document.removeEventListener("visibilitychange", syncPageVisibility);
+      landing.classList.remove(
+        "modus-landing--reveal-ready",
+        "modus-landing--motion-enabled",
+      );
       revealTargets.forEach((target) => target.classList.remove("is-visible"));
+      motionTargets.forEach((target) =>
+        target.classList.remove("is-motion-active"),
+      );
     };
   }, []);
+
+  const scrollToTop = () => {
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  };
 
   return (
     <div className="modus-landing" ref={landingRef}>
@@ -123,25 +160,27 @@ export const LandingPage = () => {
           >
             <path
               className="landing-map__route"
+              pathLength="1"
               d="M75 310C143 278 128 191 210 184C288 177 299 271 377 242C428 223 420 146 469 101"
             />
             <path
               className="landing-map__route landing-map__route--secondary"
+              pathLength="1"
               d="M83 95C144 130 154 236 222 259C284 280 329 119 423 143"
             />
           </svg>
-          <span className="landing-map__point landing-map__point--one">
+          <a className="landing-map__point landing-map__point--one" href="#prevencion">
             <span className="landing-map__point-index">01</span>
             Prevención
-          </span>
-          <span className="landing-map__point landing-map__point--two">
+          </a>
+          <a className="landing-map__point landing-map__point--two" href="#comunidad">
             <span className="landing-map__point-index">02</span>
             Comunidad
-          </span>
-          <span className="landing-map__point landing-map__point--three">
+          </a>
+          <a className="landing-map__point landing-map__point--three" href="#orientacion">
             <span className="landing-map__point-index">03</span>
             Orientación
-          </span>
+          </a>
           <span className="landing-map__center" aria-hidden="true">
             MODUS
           </span>
@@ -259,9 +298,13 @@ export const LandingPage = () => {
 
       {/* Se conserva el acceso para volver al inicio; el pie común vive en PublicLayout. */}
       <div className="landing-footer">
-        <a href="#landing-title" className="landing-footer__top">
+        <button
+          className="landing-footer__top"
+          type="button"
+          onClick={scrollToTop}
+        >
           Volver arriba <span aria-hidden="true">↑</span>
-        </a>
+        </button>
       </div>
 
     </div>

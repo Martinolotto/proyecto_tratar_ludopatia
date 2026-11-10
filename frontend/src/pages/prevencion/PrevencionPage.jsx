@@ -16,9 +16,9 @@ import {
 import { formatosHistorias, historiasReales } from "./historiasReales.js";
 import {
   categoriasVideosHistorias,
-  videoIntroduccionPrevencion,
   videosHistoriasReales,
 } from "./videosHistorias.js";
+import { SpotsCarousel } from "./SpotsCarousel.jsx";
 import "./PrevencionPage.css";
 
 const normalizeText = (text) =>
@@ -27,6 +27,9 @@ const normalizeText = (text) =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("es");
 
+const isTikTokEmbed = (video) =>
+  video.embedUrl?.includes("tiktok.com/player/");
+
 export const PrevencionPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("todos");
   const [searchText, setSearchText] = useState("");
@@ -34,7 +37,9 @@ export const PrevencionPage = () => {
   const [selectedStoryFormat, setSelectedStoryFormat] = useState("todos");
   const [selectedStory, setSelectedStory] = useState(null);
   const [selectedVideoCategory, setSelectedVideoCategory] = useState("todos");
-  const [approvedSensitiveVideos, setApprovedSensitiveVideos] = useState([]);
+  const [loadedTikTokVideos, setLoadedTikTokVideos] = useState(() => new Set());
+  const [tiktokReloadCounts, setTiktokReloadCounts] = useState({});
+  const videoStoriesRef = useRef(null);
   const articleRef = useRef(null);
   const articleHeadingRef = useRef(null);
   const explorerRef = useRef(null);
@@ -55,6 +60,56 @@ export const PrevencionPage = () => {
       : videosHistoriasReales.filter((video) =>
           video.categories.includes(selectedVideoCategory),
         );
+
+  useEffect(() => {
+    const mediaNodes = videoStoriesRef.current?.querySelectorAll(
+      "[data-tiktok-video-id]",
+    );
+    if (!mediaNodes?.length) return undefined;
+
+    if (!("IntersectionObserver" in window)) {
+      const visibleMedia = [...mediaNodes].filter((node) => {
+        const bounds = node.getBoundingClientRect();
+        return bounds.top < window.innerHeight && bounds.bottom > 0;
+      });
+
+      if (visibleMedia.length) {
+        setLoadedTikTokVideos((current) => {
+          const next = new Set(current);
+          visibleMedia.forEach((node) => next.add(node.dataset.tiktokVideoId));
+          return next;
+        });
+      }
+
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const newlyVisible = entries
+          .filter((entry) => entry.isIntersecting)
+          .map((entry) => entry.target);
+
+        if (!newlyVisible.length) return;
+
+        setLoadedTikTokVideos((current) => {
+          const next = new Set(current);
+          newlyVisible.forEach((node) => next.add(node.dataset.tiktokVideoId));
+          return next;
+        });
+        newlyVisible.forEach((node) => observer.unobserve(node));
+      },
+      { threshold: 0.01 },
+    );
+
+    mediaNodes.forEach((node) => {
+      if (!loadedTikTokVideos.has(node.dataset.tiktokVideoId)) {
+        observer.observe(node);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [loadedTikTokVideos, selectedVideoCategory]);
   const visibleContents = useMemo(() => {
     const query = normalizeText(searchText.trim());
 
@@ -155,45 +210,52 @@ export const PrevencionPage = () => {
         </div>
       </section>
 
+      <nav className="prevention-section-links" aria-label="Ir a una sección">
+        <a href="#prevention-spots">Spots</a>
+        <a href="#prevention-explorer-title">Explorar temas</a>
+        <a href="#prevention-stories-title">Historias reales</a>
+      </nav>
+
       <section
-        className="prevention-section prevention-intro-video"
-        aria-labelledby="prevention-intro-video-title"
+        id="prevention-spots"
+        className="prevention-section prevention-spots"
+        aria-label="Campañas audiovisuales de prevención"
       >
-        <div className="prevention-intro-video__layout">
-          <div className="prevention-intro-video__copy">
-            <p className="prevention-eyebrow">Antes de explorar</p>
-            <h2 id="prevention-intro-video-title">
-              Una primera mirada a las apuestas online
-            </h2>
-            <p>{videoIntroduccionPrevencion.summary}</p>
-            <a
-              className="prevention-intro-video__source"
-              href={videoIntroduccionPrevencion.sourceUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+        <SpotsCarousel />
+        <div className="prevention-spots__filters">
+          <p className="prevention-spots__filters-label">
+            Filtrar testimonios por tema
+          </p>
+          <div
+            className="prevention-video-filters"
+            role="group"
+            aria-label="Filtrar testimonios de video por tema"
+          >
+            <button
+              type="button"
+              className="prevention-filter"
+              aria-pressed={selectedVideoCategory === "todos"}
+              onClick={() => setSelectedVideoCategory("todos")}
             >
-              Conocer la campaña en el MPT
-              <ExternalLink size={16} aria-hidden="true" />
-            </a>
-            <p className="prevention-intro-video__fallback">
-              La reproducción depende de YouTube y del navegador. Si no se
-              inicia, podés abrir la campaña original en el sitio del MPT.
-            </p>
-          </div>
-          <div className="prevention-intro-video__media">
-            <iframe
-              className={`prevention-embed prevention-embed--${videoIntroduccionPrevencion.aspect}`}
-              src={videoIntroduccionPrevencion.embedUrl}
-              title={`${videoIntroduccionPrevencion.title} — ${videoIntroduccionPrevencion.publisher}`}
-              loading="lazy"
-              allow="encrypted-media; picture-in-picture; fullscreen"
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
+              Todas las experiencias
+            </button>
+            {categoriasVideosHistorias.map((category) => (
+              <button
+                key={category}
+                type="button"
+                className="prevention-filter"
+                aria-pressed={selectedVideoCategory === category}
+                onClick={() => setSelectedVideoCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
       <section
+        id="prevention-learning"
         className="prevention-section"
         aria-labelledby="prevention-explorer-title"
       >
@@ -386,6 +448,7 @@ export const PrevencionPage = () => {
       </section>
 
       <section
+        id="prevention-stories"
         className="prevention-section prevention-stories"
         aria-labelledby="prevention-stories-title"
       >
@@ -582,6 +645,8 @@ export const PrevencionPage = () => {
       </section>
 
       <section
+        id="prevention-video-testimonials"
+        ref={videoStoriesRef}
         className="prevention-section prevention-video-stories"
         aria-labelledby="prevention-video-stories-title"
       >
@@ -596,32 +661,6 @@ export const PrevencionPage = () => {
             Los videos se reproducen aquí desde los reproductores oficiales de
             sus publicaciones. MODUS no descarga ni recorta el material.
           </p>
-        </div>
-
-        <div
-          className="prevention-video-filters"
-          role="group"
-          aria-label="Filtrar videos por tema"
-        >
-          <button
-            type="button"
-            className="prevention-filter"
-            aria-pressed={selectedVideoCategory === "todos"}
-            onClick={() => setSelectedVideoCategory("todos")}
-          >
-            Todas las experiencias
-          </button>
-          {categoriasVideosHistorias.map((category) => (
-            <button
-              key={category}
-              type="button"
-              className="prevention-filter"
-              aria-pressed={selectedVideoCategory === category}
-              onClick={() => setSelectedVideoCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
         </div>
 
         <p className="prevention-results-count" aria-live="polite">
@@ -646,64 +685,41 @@ export const PrevencionPage = () => {
                   {video.contentNote}
                 </p>
               )}
-              {video.requiresContentConsent && (
-                <div className="prevention-video-card__consent">
-                  <p>
-                    El reproductor permanecerá oculto hasta que elijas verlo.
-                  </p>
-                  <button
-                    type="button"
-                    className="prevention-video-card__play"
-                    aria-controls={`prevention-video-${video.id}`}
-                    aria-expanded={approvedSensitiveVideos.includes(video.id)}
-                    onClick={() =>
-                      setApprovedSensitiveVideos((previous) =>
-                        previous.includes(video.id)
-                          ? previous.filter((id) => id !== video.id)
-                          : [...previous, video.id],
-                      )
-                    }
-                  >
-                    <Play size={17} aria-hidden="true" />
-                    {approvedSensitiveVideos.includes(video.id)
-                      ? "Ocultar reproductor"
-                      : "Entiendo, mostrar reproductor"}
-                  </button>
-                </div>
-              )}
               <div
                 id={`prevention-video-${video.id}`}
+                data-tiktok-video-id={
+                  isTikTokEmbed(video) ? video.id : undefined
+                }
                 className={`prevention-video-card__media prevention-video-card__media--${video.aspect}`}
                 role="region"
                 aria-label={`Reproductor de ${video.title}`}
-                hidden={
-                  video.requiresContentConsent &&
-                  !approvedSensitiveVideos.includes(video.id)
-                }
               >
-                {(!video.requiresContentConsent ||
-                  approvedSensitiveVideos.includes(video.id)) && (
-                  video.nativeVideoUrl ? (
-                    <video
-                      className="prevention-embed prevention-video-native"
-                      controls
-                      preload="none"
-                      playsInline
-                      aria-label={`${video.title} — ${video.publisher}`}
-                    >
-                      <source src={video.nativeVideoUrl} type="video/mp4" />
-                      Tu navegador no puede reproducir este video.
-                    </video>
-                  ) : (
-                    <iframe
-                      className="prevention-embed"
-                      src={video.embedUrl}
-                      title={`${video.title} — ${video.publisher}`}
-                      loading="lazy"
-                      allow="encrypted-media; picture-in-picture; fullscreen"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                    />
-                  )
+                {video.nativeVideoUrl ? (
+                  <video
+                    className="prevention-embed prevention-video-native"
+                    controls
+                    preload="none"
+                    playsInline
+                    aria-label={`${video.title} — ${video.publisher}`}
+                  >
+                    <source src={video.nativeVideoUrl} type="video/mp4" />
+                    Tu navegador no puede reproducir este video.
+                  </video>
+                ) : isTikTokEmbed(video) && !loadedTikTokVideos.has(video.id) ? (
+                  <div className="prevention-video-card__load" role="status">
+                    <Play size={22} aria-hidden="true" />
+                    El video se cargará al llegar aquí
+                  </div>
+                ) : (
+                  <iframe
+                    key={`${video.id}-${tiktokReloadCounts[video.id] || 0}`}
+                    className="prevention-embed"
+                    src={video.embedUrl}
+                    title={`${video.title} — ${video.publisher}`}
+                    loading="lazy"
+                    allow="encrypted-media; picture-in-picture; fullscreen; autoplay"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
                 )}
               </div>
               <p className="prevention-video-card__summary">{video.summary}</p>
@@ -726,6 +742,20 @@ export const PrevencionPage = () => {
                   .join(" · ")}
               </p>
               <div className="prevention-video-card__actions">
+                {isTikTokEmbed(video) && loadedTikTokVideos.has(video.id) && (
+                    <button
+                      className="prevention-video-card__play"
+                      type="button"
+                      onClick={() =>
+                        setTiktokReloadCounts((counts) => ({
+                          ...counts,
+                          [video.id]: (counts[video.id] || 0) + 1,
+                        }))
+                      }
+                    >
+                      Reintentar video
+                    </button>
+                  )}
                 <a
                   className="prevention-video-card__play"
                   href={video.sourceUrl}
@@ -735,6 +765,17 @@ export const PrevencionPage = () => {
                   {video.actionLabel}
                   <ExternalLink size={16} aria-hidden="true" />
                 </a>
+                {video.referenceUrl && (
+                  <a
+                    className="prevention-video-card__play"
+                    href={video.referenceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {video.referenceLabel}
+                    <ExternalLink size={16} aria-hidden="true" />
+                  </a>
+                )}
               </div>
             </article>
           ))}
