@@ -1,459 +1,287 @@
 /*
- * Pantalla de Mi perfil (/perfil) personalizable.
- * Incluye redirección activa al cerrar sesión, selección de insignias y datos de cuenta.
+ * Muestra y permite actualizar los datos reales de la cuenta en /perfil.
+ * Supabase Auth identifica la sesión; perfiles y Storage conservan alias y avatar.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  User,
-  Shield,
-  Eye,
-  LogOut,
-  Check,
-  Palette,
-  MessageSquareQuote,
-  Trophy,
-  Award,
-  Camera,
-  Image as ImageIcon,
-  Medal,
-  Sparkles,
-  Zap,
-  Heart,
-  Target,
-  CheckCircle2,
-} from "lucide-react";
+import { Camera, Eye, Image as ImageIcon, LogOut, Palette, Shield, Sparkles, User } from "lucide-react";
+import { supabase } from "../../lib/supabase.js";
 
-const OPCIONES_COLOR = [
-  { id: "teal", bg: "bg-brand-teal", label: "Teal" },
-  { id: "navy", bg: "bg-brand-navy", label: "Navy" },
-  { id: "indigo", bg: "bg-indigo-600", label: "Índigo" },
-  { id: "emerald", bg: "bg-emerald-600", label: "Esmeralda" },
-  { id: "amber", bg: "bg-amber-600", label: "Ámbar" },
-  { id: "rose", bg: "bg-rose-600", label: "Rosa" },
-];
-
-const LISTA_LOGROS = [
-  {
-    id: "primer-paso",
-    titulo: "Primer Paso",
-    descripcion: "Te uniste a la comunidad de MODUS.",
-    icono: Trophy,
-    desbloqueado: true,
-  },
-  {
-    id: "escudo-activo",
-    titulo: "Escudo Activo",
-    descripcion: "Configuraste tus primeras herramientas de control.",
-    icono: Shield,
-    desbloqueado: true,
-  },
-  {
-    id: "voz-de-apoyo",
-    titulo: "Voz de Apoyo",
-    descripcion: "Publicaste o comentaste en la comunidad.",
-    icono: Award,
-    desbloqueado: true,
-  },
-  {
-    id: "mente-clara",
-    titulo: "Mente Clara",
-    descripcion: "Completaste el test de autoobservación sin omitir pasos.",
-    icono: Zap,
-    desbloqueado: true,
-  },
-  {
-    id: "constancia-7",
-    titulo: "Constancia 7 Días",
-    descripcion: "Completaste 7 días seguidos registrando tu actividad.",
-    icono: Medal,
-    desbloqueado: false,
-  },
-  {
-    id: "compañero-fiel",
-    titulo: "Compañero Fiel",
-    descripcion: "Diste 10 apoyos en publicaciones de la comunidad.",
-    icono: Heart,
-    desbloqueado: false,
-  },
-  {
-    id: "en-meta",
-    titulo: "En Meta",
-    descripcion: "Cumpliste tu objetivo de ahorro personal del mes.",
-    icono: Target,
-    desbloqueado: false,
-  },
-];
+// El bucket admite solo estos formatos y un máximo de dos mebibytes.
+const FORMATOS_AVATAR = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+const MAXIMO_AVATAR = 2 * 1024 * 1024;
 
 export const PerfilPage = () => {
   const navigate = useNavigate();
-
-  const [alias, setAlias] = useState("Estudiante");
-  const [colorAvatar, setColorAvatar] = useState("bg-brand-teal");
-  const [bio, setBio] = useState(
-    "Tratando de mantener malos hábitos lejos y enfocarme en mis proyectos.",
-  );
-  const [motivacion, setMotivacion] = useState(
-    "Ahorrar para mi primera computadora.",
-  );
-
-  const [insigniaEquipadaId, setInsigniaEquipadaId] = useState("escudo-activo");
-
+  const [usuarioId, setUsuarioId] = useState(null);
+  const [alias, setAlias] = useState("");
+  const [aliasGuardado, setAliasGuardado] = useState("");
+  const [rutaAvatar, setRutaAvatar] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
-  const [bannerPerfil, setBannerPerfil] = useState(null);
+  const [imagenElegida, setImagenElegida] = useState(null);
+  const [estado, setEstado] = useState("cargando");
+  const [mensaje, setMensaje] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  const [cerrando, setCerrando] = useState(false);
 
-  const [esAnonimo, setEsAnonimo] = useState(true);
-  const [guardado, setGuardado] = useState(false);
+  // Obtener la cuenta validada por Auth antes de consultar su perfil por identificador.
+  // La política de la base, además, controla qué datos puede modificar cada sesión.
+  useEffect(() => {
+    let vigente = true;
+    const cargarPerfil = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (!vigente) return;
+      if (error && error.name !== "AuthSessionMissingError") {
+        setMensaje("No pudimos comprobar tu sesión. Revisá tu conexión e intentá de nuevo.");
+        setEstado("error");
+        return;
+      }
+      if (!data.user) {
+        navigate("/login", { replace: true });
+        return;
+      }
+      const { data: perfil, error: errorPerfil } = await supabase
+        .from("perfiles")
+        .select("username, avatar_path")
+        .eq("usuario_id", data.user.id)
+        .maybeSingle();
+      if (!vigente) return;
+      if (errorPerfil || !perfil) {
+        setMensaje("No pudimos cargar tu perfil. Intentá nuevamente más tarde.");
+        setEstado("error");
+        return;
+      }
+      setUsuarioId(data.user.id);
+      setAlias(perfil.username);
+      setAliasGuardado(perfil.username);
+      setRutaAvatar(perfil.avatar_path);
+      setEstado("listo");
+    };
+    cargarPerfil();
+    return () => { vigente = false; };
+  }, [navigate]);
 
-  const handleFotoUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) setFotoPerfil(URL.createObjectURL(file));
+  // El bucket es privado: se descarga con la sesión y se crea una dirección temporal
+  // del navegador; al cambiar de imagen o salir se libera esa dirección de memoria.
+  useEffect(() => {
+    if (!rutaAvatar) return undefined;
+    let vigente = true;
+    let direccionTemporal;
+    const cargarAvatar = async () => {
+      const { data, error } = await supabase.storage.from("avatares").download(rutaAvatar);
+      if (!vigente) return;
+      if (error) {
+        setFotoPerfil(null);
+        setMensaje("No pudimos cargar tu foto. Podés intentar nuevamente más tarde.");
+        return;
+      }
+      direccionTemporal = URL.createObjectURL(data);
+      setFotoPerfil(direccionTemporal);
+    };
+    cargarAvatar();
+    return () => {
+      vigente = false;
+      if (direccionTemporal) URL.revokeObjectURL(direccionTemporal);
+    };
+  }, [rutaAvatar]);
+
+  // El archivo se valida antes de subirlo; elegirlo aún no guarda cambios remotos.
+  const handleFotoUpload = (event) => {
+    const archivo = event.target.files?.[0];
+    event.target.value = "";
+    if (!archivo) return;
+    if (!FORMATOS_AVATAR[archivo.type] || archivo.size > MAXIMO_AVATAR) {
+      setImagenElegida(null);
+      setMensaje("Elegí una imagen JPEG, PNG o WebP de hasta 2 MiB.");
+      return;
+    }
+    setImagenElegida(archivo);
+    setMensaje("Foto seleccionada. Guardá los cambios para subirla.");
   };
 
-  const handleBannerUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) setBannerPerfil(URL.createObjectURL(file));
-  };
-
-  const handleSubmit = (event) => {
+  // Primero subimos un archivo con nombre único y luego vinculamos su ruta al perfil.
+  // Si la base rechaza el nombre duplicado, retiramos el archivo nuevo cuando sea posible.
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setGuardado(true);
-    setTimeout(() => setGuardado(false), 2500);
+    if (guardando || cerrando || !usuarioId) return;
+    const nuevoAlias = alias.trim();
+    if (!nuevoAlias || nuevoAlias.length > 64) {
+      setMensaje("Ingresá un nombre de usuario de entre 1 y 64 caracteres.");
+      return;
+    }
+    setGuardando(true);
+    setMensaje("");
+    let nuevaRuta = null;
+    try {
+      if (imagenElegida) {
+        nuevaRuta = `${usuarioId}/${crypto.randomUUID()}.${FORMATOS_AVATAR[imagenElegida.type]}`;
+        const { error } = await supabase.storage.from("avatares").upload(nuevaRuta, imagenElegida, {
+          contentType: imagenElegida.type,
+          upsert: false,
+        });
+        if (error) {
+          setMensaje("No pudimos subir la foto. No se guardaron los cambios.");
+          return;
+        }
+      }
+      const cambios = { username: nuevoAlias };
+      if (nuevaRuta) cambios.avatar_path = nuevaRuta;
+      const { data, error } = await supabase.from("perfiles")
+        .update(cambios)
+        .eq("usuario_id", usuarioId)
+        .select("username, avatar_path")
+        .single();
+      if (error || !data) {
+        // Solo una violación de unicidad confirma que la base rechazó el cambio.
+        // Un error de red puede llegar después de que la base haya guardado la ruta:
+        // en ese caso conservar el archivo evita que el perfil apunte a algo borrado.
+        if (error?.code === "23505") {
+          if (nuevaRuta) {
+            const { error: errorLimpieza } = await supabase.storage.from("avatares").remove([nuevaRuta]);
+            if (errorLimpieza) {
+              setMensaje("El nombre ya está en uso y no pudimos retirar la foto subida. Intentá más tarde.");
+              return;
+            }
+          }
+          setMensaje("Ese nombre de usuario ya está en uso. Elegí otro.");
+        } else {
+          setMensaje("No pudimos confirmar el guardado. Revisá tu perfil antes de intentar otra vez.");
+        }
+        return;
+      }
+      setAlias(data.username);
+      setAliasGuardado(data.username);
+      setRutaAvatar(data.avatar_path);
+      setImagenElegida(null);
+      setMensaje("Cambios guardados.");
+      // Solo el propietario puede eliminar; nunca borrar una ruta de otro usuario.
+      if (nuevaRuta && rutaAvatar && rutaAvatar.startsWith(`${usuarioId}/`) && rutaAvatar !== nuevaRuta) {
+        const { error: errorAnterior } = await supabase.storage.from("avatares").remove([rutaAvatar]);
+        if (errorAnterior) setMensaje("El perfil se guardó, pero no pudimos retirar la foto anterior.");
+      }
+    } catch {
+      // Un fallo de red puede dejar incierto el resultado: no asegurar que se guardó.
+      setMensaje("No pudimos confirmar el guardado. Revisá tu perfil antes de intentar otra vez.");
+    } finally {
+      setGuardando(false);
+    }
   };
 
-  // Función para cerrar sesión y redirigir al login
-  const handleCerrarSesion = () => {
-    navigate("/login");
+  // El alcance local cierra esta sesión sin terminar sesiones de otros dispositivos.
+  const handleCerrarSesion = async () => {
+    if (guardando || cerrando) return;
+    setCerrando(true);
+    setMensaje("");
+    try {
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) {
+        setMensaje("No pudimos cerrar la sesión. Intentá nuevamente.");
+        return;
+      }
+      navigate("/login", { replace: true });
+    } catch {
+      setMensaje("No pudimos cerrar la sesión. Revisá tu conexión e intentá nuevamente.");
+    } finally {
+      setCerrando(false);
+    }
   };
 
-  const insigniaObjetoEquipada = LISTA_LOGROS.find(
-    (l) => l.id === insigniaEquipadaId,
-  );
+  if (estado === "cargando") {
+    return <p role="status" className="mx-auto max-w-3xl p-6">Cargando tu perfil…</p>;
+  }
+  if (estado === "error") {
+    return <p role="alert" className="mx-auto max-w-3xl p-6">{mensaje}</p>;
+  }
 
   return (
     <section className="mx-auto max-w-3xl space-y-6">
-      {/* Banner y Encabezado de Perfil */}
+      {/* Encabezado existente: la portada todavía no tiene persistencia aprobada. */}
       <div className="overflow-hidden rounded-xl border border-brand-navy/10 bg-surface shadow-sm">
-        <div className="relative h-40 w-full bg-brand-navy/20">
-          {bannerPerfil ? (
-            <img
-              src={bannerPerfil}
-              alt="Banner de perfil"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="h-full w-full bg-gradient-to-r from-brand-navy to-brand-teal opacity-90" />
-          )}
-          <label
-            htmlFor="banner-upload"
-            className="absolute right-3 top-3 flex cursor-pointer items-center gap-1.5 rounded-lg bg-surface/85 px-3 py-1.5 text-xs font-medium text-ink backdrop-blur-sm transition hover:bg-surface"
-          >
-            <ImageIcon size={14} aria-hidden="true" />
-            Cambiar portada
-            <input
-              id="banner-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleBannerUpload}
-              className="hidden"
-            />
-          </label>
+        <div className="relative h-40 w-full bg-gradient-to-r from-brand-navy to-brand-teal">
+          <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-lg bg-surface/85 px-3 py-1.5 text-xs font-medium text-ink">
+            <ImageIcon size={14} aria-hidden="true" /> Portada pendiente
+          </span>
         </div>
-
         <div className="px-6 pb-6 pt-3">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
-              <div className="relative -mt-14 self-start sm:self-auto">
-                <div
-                  className={`flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-surface font-heading text-3xl font-bold text-white shadow-md ${
-                    fotoPerfil ? "bg-surface" : colorAvatar
-                  }`}
-                >
-                  {fotoPerfil ? (
-                    <img
-                      src={fotoPerfil}
-                      alt={alias}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    alias.charAt(0).toUpperCase() || "U"
-                  )}
+            <div className="flex items-end gap-4">
+              <div className="relative -mt-14">
+                <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-brand-teal font-heading text-3xl font-bold text-white shadow-md">
+                  {fotoPerfil ? <img src={fotoPerfil} alt="Foto de perfil" className="h-full w-full object-cover" /> : aliasGuardado.charAt(0).toUpperCase()}
                 </div>
                 <label
                   htmlFor="foto-upload"
-                  className="absolute bottom-0 right-0 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-brand-teal text-white shadow transition hover:opacity-90"
+                  className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-brand-teal text-white shadow has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-teal"
                   title="Cambiar foto de perfil"
                 >
                   <Camera size={16} aria-hidden="true" />
+                  <span className="sr-only">Cambiar foto de perfil</span>
                   <input
                     id="foto-upload"
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleFotoUpload}
-                    className="hidden"
+                    className="sr-only"
+                    disabled={guardando || cerrando}
                   />
                 </label>
               </div>
-
-              <div className="mt-1 sm:mt-0 sm:pb-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="font-heading text-2xl font-bold text-brand-navy">
-                    {alias}
-                  </h1>
-
-                  {insigniaObjetoEquipada && (
-                    <span
-                      className="inline-flex items-center gap-1 rounded-full bg-brand-teal/10 px-2.5 py-0.5 text-xs font-semibold text-brand-teal"
-                      title={`Insignia equipada: ${insigniaObjetoEquipada.titulo}`}
-                    >
-                      <Award size={13} />
-                      {insigniaObjetoEquipada.titulo}
-                    </span>
-                  )}
-                </div>
-
-                {motivacion && (
-                  <p className="mt-1 text-xs font-medium text-brand-teal">
-                    🎯 Meta: {motivacion}
-                  </p>
-                )}
-              </div>
+              <h1 className="font-heading text-2xl font-bold text-brand-navy">{aliasGuardado}</h1>
             </div>
-
-            <span className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-brand-teal sm:self-end">
-              <Shield size={14} aria-hidden="true" />
-              Cuenta activa
-            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-brand-teal"><Shield size={14} aria-hidden="true" /> Cuenta activa</span>
           </div>
-
-          {bio && (
-            <p className="mt-4 border-t border-brand-navy/10 pt-3 text-sm leading-relaxed text-ink/80">
-              {bio}
-            </p>
-          )}
         </div>
       </div>
 
-      {/* Insignias y Logros */}
+      {/* Las secciones sin modelo conservan su lugar sin atribuir datos inventados. */}
       <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-        <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
-          <Sparkles size={20} className="text-brand-teal" aria-hidden="true" />
-          Insignias y Logros
-        </h2>
-        <p className="mt-1 text-xs text-ink/70">
-          Tocá cualquier insignia desbloqueada para equiparla y mostrarla en la
-          comunidad.
-        </p>
-
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {LISTA_LOGROS.map((logro) => {
-            const IconoLogro = logro.icono;
-            const estaEquipada = insigniaEquipadaId === logro.id;
-
-            return (
-              <div
-                key={logro.id}
-                onClick={() => {
-                  if (logro.desbloqueado) setInsigniaEquipadaId(logro.id);
-                }}
-                className={`relative flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition ${
-                  logro.desbloqueado
-                    ? estaEquipada
-                      ? "border-brand-teal bg-brand-teal/10 shadow-sm"
-                      : "border-brand-navy/10 bg-surface hover:border-brand-teal/50"
-                    : "cursor-not-allowed border-brand-navy/10 bg-canvas/40 opacity-60"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                      logro.desbloqueado
-                        ? estaEquipada
-                          ? "bg-brand-teal text-white"
-                          : "bg-surface-soft text-brand-teal"
-                        : "bg-brand-navy/10 text-ink/40"
-                    }`}
-                  >
-                    <IconoLogro size={20} aria-hidden="true" />
-                  </div>
-                  <div>
-                    <span className="block font-semibold text-xs text-ink">
-                      {logro.titulo}
-                    </span>
-                    <p className="mt-0.5 text-[11px] leading-tight text-ink/70">
-                      {logro.descripcion}
-                    </p>
-                  </div>
-                </div>
-
-                {logro.desbloqueado ? (
-                  estaEquipada ? (
-                    <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-brand-teal px-2 py-1 text-[10px] font-bold text-white">
-                      <CheckCircle2 size={12} />
-                      Equipada
-                    </span>
-                  ) : (
-                    <span className="shrink-0 text-[10px] font-medium text-brand-teal opacity-80 hover:underline">
-                      Equipar
-                    </span>
-                  )
-                ) : (
-                  <span className="shrink-0 rounded bg-brand-navy/10 px-2 py-0.5 text-[10px] font-medium text-ink/50">
-                    Bloqueado
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><Sparkles size={20} aria-hidden="true" /> Insignias y Logros</h2>
+        <p className="mt-2 text-sm text-ink">Esta sección todavía no está disponible.</p>
       </div>
-
-      {/* Formulario de Configuración */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {!fotoPerfil && (
-          <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-            <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
-              <Palette
-                size={20}
-                className="text-brand-teal"
-                aria-hidden="true"
-              />
-              Color de Avatar
-            </h2>
-            <div className="mt-4 flex flex-wrap gap-3">
-              {OPCIONES_COLOR.map((color) => (
-                <button
-                  key={color.id}
-                  type="button"
-                  onClick={() => setColorAvatar(color.bg)}
-                  aria-label={`Color ${color.label}`}
-                  className={`h-10 w-10 rounded-full transition ${color.bg} ${
-                    colorAvatar === color.bg
-                      ? "ring-4 ring-brand-teal/40 scale-110"
-                      : "opacity-80 hover:opacity-100"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
         <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
-            <User size={20} className="text-brand-teal" aria-hidden="true" />
-            Información y Presentación
-          </h2>
-
-          <div className="mt-4 space-y-4">
-            <div>
-              <label
-                htmlFor="alias-input"
-                className="block text-sm font-medium text-ink"
-              >
-                Alias o nombre público
-              </label>
-              <input
-                id="alias-input"
-                type="text"
-                value={alias}
-                onChange={(e) => setAlias(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-brand-navy/20 bg-canvas px-3 py-2 text-sm text-ink focus-visible:outline-2 focus-visible:outline-brand-teal"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="bio-input"
-                className="block text-sm font-medium text-ink"
-              >
-                Biografía corta
-              </label>
-              <textarea
-                id="bio-input"
-                rows={3}
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-brand-navy/20 bg-canvas px-3 py-2 text-sm text-ink focus-visible:outline-2 focus-visible:outline-brand-teal"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="motivacion-input"
-                className="block text-sm font-medium text-ink"
-              >
-                Meta principal
-              </label>
-              <div className="mt-1 flex items-center gap-2">
-                <MessageSquareQuote size={18} className="text-brand-teal" />
-                <input
-                  id="motivacion-input"
-                  type="text"
-                  value={motivacion}
-                  onChange={(e) => setMotivacion(e.target.value)}
-                  className="w-full rounded-lg border border-brand-navy/20 bg-canvas px-3 py-2 text-sm text-ink focus-visible:outline-2 focus-visible:outline-brand-teal"
-                />
-              </div>
-            </div>
-          </div>
+          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><Palette size={20} aria-hidden="true" /> Color de Avatar</h2>
+          <p className="mt-2 text-sm text-ink">La personalización del color todavía no está disponible.</p>
         </div>
-
         <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
-            <Eye size={20} className="text-brand-teal" aria-hidden="true" />
-            Privacidad en Comunidad
-          </h2>
-
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-surface-soft/40 p-4">
-            <div>
-              <span className="block text-sm font-medium text-ink">
-                Modo anónimo por defecto
-              </span>
-              <span className="text-xs text-ink/70">
-                Oculta tu alias personal en las publicaciones.
-              </span>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={esAnonimo}
-              onClick={() => setEsAnonimo(!esAnonimo)}
-              className={`relative flex h-6 w-11 items-center rounded-full transition-colors ${
-                esAnonimo ? "bg-brand-teal" : "bg-brand-navy/20"
-              }`}
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                  esAnonimo ? "translate-x-5.5" : "translate-x-0.5"
-                } shadow`}
-              />
-            </button>
-          </div>
+          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><User size={20} aria-hidden="true" /> Información y Presentación</h2>
+          <label htmlFor="alias-input" className="mt-4 block text-sm font-medium text-ink">Alias o nombre público</label>
+          <input
+            id="alias-input"
+            type="text"
+            value={alias}
+            maxLength={64}
+            onChange={(event) => setAlias(event.target.value)}
+            disabled={guardando || cerrando}
+            className="mt-1 w-full rounded-lg border border-brand-navy/20 bg-canvas px-3 py-2 text-sm text-ink focus-visible:outline-2 focus-visible:outline-brand-teal"
+          />
+          <p className="mt-4 text-sm text-ink">Biografía corta y meta principal: todavía no disponibles.</p>
         </div>
-
-        {/* Acciones del formulario */}
-        <div className="flex items-center justify-between pt-2">
+        <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
+          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><Eye size={20} aria-hidden="true" /> Privacidad en Comunidad</h2>
+          <p className="mt-2 text-sm text-ink">La configuración de anonimato por defecto todavía no está disponible.</p>
+        </div>
+        {mensaje && <p role="status" aria-live="polite" className="text-sm text-ink">{mensaje}</p>}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
           <button
             type="button"
             onClick={handleCerrarSesion}
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-red-500"
+            disabled={guardando || cerrando}
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-red-600 focus-visible:outline-2 focus-visible:outline-red-500 disabled:opacity-60"
           >
             <LogOut size={18} aria-hidden="true" />
-            Cerrar sesión
+            {cerrando ? "Cerrando sesión…" : "Cerrar sesión"}
           </button>
-
           <button
             type="submit"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+            disabled={guardando || cerrando}
+            className="rounded-lg bg-brand-teal px-5 py-2.5 text-sm font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal disabled:opacity-60"
           >
-            {guardado ? (
-              <>
-                <Check size={18} aria-hidden="true" />
-                Cambios guardados
-              </>
-            ) : (
-              "Guardar cambios"
-            )}
+            {guardando ? "Guardando…" : "Guardar cambios"}
           </button>
         </div>
       </form>
