@@ -257,15 +257,12 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      <footer className="landing-footer">
-        <Link className="landing-footer__brand" to="/" aria-label="MODUS, inicio">
-          MODUS<span>.</span>
-        </Link>
-        <p>Educación, orientación y acompañamiento para adolescentes.</p>
+      {/* Se conserva el acceso para volver al inicio; el pie común vive en PublicLayout. */}
+      <div className="landing-footer">
         <a href="#landing-title" className="landing-footer__top">
           Volver arriba <span aria-hidden="true">↑</span>
         </a>
-      </footer>
+      </div>
 
     </div>
   );

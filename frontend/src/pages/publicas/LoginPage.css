@@ -24,7 +24,9 @@ main:has(> .access-page) {
   min-height: 37rem;
   overflow: hidden;
   border-radius: 1rem;
-  background: var(--modus-surface);
+  /* Superficie apenas translúcida: el fondo aporta profundidad sin restar legibilidad. */
+  background: rgb(255 255 255 / 96%);
+  backdrop-filter: blur(12px);
   box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 20%);
 }
 
@@ -124,7 +126,7 @@ main:has(> .access-page) {
   padding: 0.6rem 0.75rem;
   border: 1px solid color-mix(in srgb, var(--modus-ink) 35%, var(--modus-surface));
   border-radius: 0.5rem;
-  background: var(--modus-surface);
+  background: rgb(255 255 255 / 96%);
   color: var(--modus-ink);
   font: inherit;
   font-weight: 400;

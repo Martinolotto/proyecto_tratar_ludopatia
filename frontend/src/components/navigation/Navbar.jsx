@@ -9,7 +9,9 @@ import logoModus from "../../assets/logo.jpg";
 
 export const Navbar = ({ onOpenDashboard }) => {
   return (
-    <header className="sticky top-0 z-10 border-b border-brand-navy/20 bg-surface">
+    // El fondo opaco asegura legibilidad; si el navegador soporta desenfoque,
+    // deja entrever suavemente el contenido al desplazarse bajo la cabecera.
+    <header className="sticky top-0 z-10 border-b border-brand-navy/20 bg-surface supports-[backdrop-filter:blur(1px)]:bg-surface/90 supports-[backdrop-filter:blur(1px)]:backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         {/* Marca con Iso-Logo */}
         <Link
