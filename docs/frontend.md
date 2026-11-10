@@ -80,13 +80,13 @@ El responsable del proyecto definió Dashboard como un panel disponible desde el
 
 El panel no debe concentrar los formularios o gráficos completos. Puede priorizar accesos con el contexto del onboarding, sin ocultar herramientas. Esta precisión de interacción sustituye la interpretación anterior del Dashboard como página, conservando las capacidades aprobadas del eje 2.
 
-**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; Home abre el mismo Dashboard global que Navbar. `AppRouter.jsx` conecta las tres herramientas bajo `AppLayout`, con navegación compartida. Onboarding permanece bajo `PublicLayout`. El router no verifica sesiones: disponer de estas rutas no implica autenticación o autorización sobre datos.
+**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; Home abre el mismo Dashboard global que Navbar. `AppRouter.jsx` conecta las tres herramientas bajo `AppLayout`, con navegación compartida. Onboarding se renderiza sin la cabecera pública ni la navegación principal. El router no verifica sesiones: disponer de estas rutas no implica autenticación o autorización sobre datos.
 
 La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La navegación compartida sigue el Dashboard global desplegable y colapsable de la [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md); la implementación funcional de las herramientas y la validación del resto de las pantallas siguen pendientes.
 
 ### Límites funcionales relevantes
 
-- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual ya existe bajo `PublicLayout`; la realización única por cuenta todavía no está implementada; el registro dirige al recorrido visual.
+- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual se muestra sin la cabecera pública; la realización única por cuenta todavía no está implementada; el registro dirige al recorrido visual.
 - Mi actividad permite una entrada del día actual por usuario, actualizable ese día y sin creación, edición o eliminación retroactiva. Historial y progreso interpreta únicamente información declarada; un día sin registro no es un día sin apostar.
 - Escudo digital organiza medidas y recursos prácticos; coordinar sus recursos con Prevención. Compartir logros es voluntario y depende de Comunidad, sin publicar registros completos.
 - Chatbot global y “Necesito ayuda ahora” siguen pendientes. Laboratorio de decisiones no es herramienta aprobada del MVP.

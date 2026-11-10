@@ -1,6 +1,6 @@
 /*
  * Primera experiencia visual del eje de Detección, basada en RF-DO-01.
- * AppRouter la muestra en /onboarding dentro de PublicLayout.
+ * AppRouter la muestra en /onboarding sin la cabecera de navegación pública.
  * Conserva respuestas solo en memoria durante el recorrido; no autentica, envía ni persiste datos.
  * El registro y la realización única por cuenta se integrarán cuando exista autenticación real.
  */

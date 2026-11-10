@@ -10,7 +10,11 @@ main:has(> .access-page) {
   min-height: calc(100svh - 4.5rem);
   padding: clamp(1.25rem, 5vw, 4rem) 1rem;
   place-items: center;
-  background: radial-gradient(ellipse at 80% 90%, color-mix(in srgb, var(--modus-brand-teal) 40%, var(--modus-brand-navy)), var(--modus-brand-navy) 64%);
+  /* La imagen decorativa cubre la pantalla; el color de marca queda como respaldo. */
+  background-color: var(--modus-brand-navy);
+  background-image: url("../../assets/fondo-login.png");
+  background-position: center;
+  background-size: cover;
 }
 
 .access-shell {

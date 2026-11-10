@@ -41,11 +41,19 @@ export const AppRouter = () => {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          {/* Onboarding será la primera pantalla tras el registro; la conexión sigue pendiente. */}
-          <Route path="/onboarding" element={<OnboardingPage />} />
           {/* El comodín muestra la página de error si ninguna ruta concreta coincide. */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+
+        {/* Onboarding se presenta por separado, sin la cabecera de acceso del layout público. */}
+        <Route
+          path="/onboarding"
+          element={
+            <main className="mx-auto max-w-5xl p-6 md:p-10">
+              <OnboardingPage />
+            </main>
+          }
+        />
 
         {/* Páginas de la aplicación con navegación compartida. */}
         <Route element={<AppLayout />}>
