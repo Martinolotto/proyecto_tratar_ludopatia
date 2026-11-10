@@ -64,7 +64,7 @@ Implementación progresiva de las capacidades aprobadas sobre la base compartida
 
 - [ ] Configurar el proyecto Supabase y sus variables de entorno, sin exponer credenciales privilegiadas.
 - [ ] Integrar Supabase Auth y verificar autenticación real, sin sesiones simuladas.
-- [x] Preparar el esquema inicial de PostgreSQL, SQL y migraciones con aprobación previa: ocho migraciones aplicadas y estructura revisada en el entorno local; aplicación remota pendiente.
+- [x] Preparar el esquema inicial de PostgreSQL, SQL y migraciones con aprobación previa: ocho migraciones propias aplicadas en local y en el remoto de desarrollo; estructura remota inspeccionada.
 - [ ] Definir y comprobar permisos y políticas RLS para acceso efectivo a datos.
 - [ ] Integrar las operaciones habituales de datos mediante Data API y `supabase-js` cuando sea seguro.
 - [ ] Implementar progresivamente los RF aprobados en las páginas y módulos correspondientes.
@@ -99,3 +99,11 @@ El detalle de las capacidades visuales y de sus límites permanece en [docs/fron
 - [x] Aplicar las dos migraciones correctivas a la base principal local con autorización de continuar sin reproducción aislada previa. Se validaron la restricción de tiempo y los tres índices.
 
 La base principal tiene ocho migraciones aplicadas. La comparación final confirmó 21 tablas, 103 campos y sus tipos, 32 claves foráneas y RLS activo en todas las tablas propias. Este avance cierra la entrega estructural local; no acredita conexión de pantallas, reproducción desde cero, validación funcional completa de permisos ni aplicación remota. El detalle está en [docs/base-de-datos.md](docs/base-de-datos.md#revisión-estructural-y-correcciones--2026-11-09).
+
+## Despliegue Supabase remoto — 2026-11-10
+
+- [x] Aplicar las ocho migraciones al proyecto de desarrollo conservando el antecedente remoto.
+- [x] Comprobar 21 tablas, 103 columnas, 32 claves foráneas, RLS y configuración del bucket privado mediante metadatos.
+- [x] Configurar las URL locales de Auth y conservar la confirmación de correo.
+- [ ] Configurar el envío de correos y comprobar registro y sesión al implementar PTL-168.
+- [ ] Reproducir todas las migraciones desde cero en local y verificar funcionalmente los permisos.

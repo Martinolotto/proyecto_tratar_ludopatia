@@ -24,7 +24,7 @@ Las carpetas vacías existen localmente, pero Git no conserva directorios sin ar
 
 ## Arquitectura aprobada: Supabase y Express
 
-Esta es la referencia principal de la arquitectura de datos y servidor de MODUS. Hay un cliente `supabase-js` preparado y un entorno Supabase local con migraciones. Las pantallas y Express todavía no están conectados a esos servicios: los siguientes flujos describen la arquitectura prevista. Ver [estado y ejecución local](base-de-datos.md#9-entorno-local-y-verificaciones).
+Esta es la referencia principal de la arquitectura de datos y servidor de MODUS. Hay un cliente `supabase-js` preparado y las migraciones están aplicadas en Supabase local y en el proyecto remoto de desarrollo. Las pantallas y Express todavía no están conectados a esos servicios: los siguientes flujos describen la arquitectura prevista. Ver [estado y ejecución local](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ### Supabase: backend administrado principal
 
@@ -63,7 +63,7 @@ Si la operación es protegida, Express debe verificar la identidad y los permiso
 - Gestionar las modificaciones del esquema mediante SQL y migraciones, con las autorizaciones previstas en las reglas raíz.
 - Mantener una arquitectura simple, comprensible y ampliable, sin capas obligatorias.
 
-La estructura local del modelo tiene ocho migraciones aplicadas y fue comparada con el diagrama acordado. La reproducción aislada, la validación funcional completa de permisos, la integración de las operaciones con la aplicación y la reconciliación del historial remoto siguen pendientes. Ver [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
+La estructura local del modelo tiene ocho migraciones aplicadas y fue comparada con el diagrama acordado. El remoto conserva el antecedente histórico y las ocho migraciones propias. La reproducción aislada completa, la validación funcional de permisos y la integración de las operaciones con la aplicación siguen pendientes. Ver [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 Las reglas para agentes y código están en [backend/AGENTS.md](../backend/AGENTS.md); las autorizaciones generales, en [AGENTS.md](../AGENTS.md).
 

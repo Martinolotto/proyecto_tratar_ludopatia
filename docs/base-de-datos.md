@@ -1,8 +1,8 @@
 # MODUS — Modelo de datos y trabajo con Supabase
 
-Actualización 2026-11-09 · Estructura del modelo aplicada y revisada en Supabase local; conexión funcional y reproducción aislada pendientes.
+Actualización 2026-11-10 · Modelo aplicado en Supabase local y en el remoto de desarrollo; conexión funcional y reproducción aislada pendientes.
 
-Este documento reúne el contexto, el Mermaid completo y las decisiones acordadas para la base compartida de MODUS. La sección 9 distingue la estructura aplicada localmente, las migraciones preparadas y las verificaciones pendientes; el modelo no acredita funcionalidades conectadas ni aplicación remota.
+Este documento reúne el contexto, el Mermaid completo y las decisiones acordadas para la base compartida de MODUS. La sección 9 distingue la estructura aplicada, las migraciones y las verificaciones pendientes; el modelo no acredita funcionalidades conectadas.
 
 ## 1. Contexto y responsabilidades
 
@@ -17,7 +17,7 @@ La arquitectura se conserva: React utiliza Supabase Auth y la Data API con su se
 - Constitución y reglas compartidas: [CONSTITUTION.md](CONSTITUTION.md), [AGENTS.md](../AGENTS.md) y guías técnicas.
 - [Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia): exportación pública consultada el 2026-11-09, con 8 RF de Prevención, 13 de Detección y 12 de Comunidad. El conector rechazó el acceso; la lectura pública sí fue posible.
 - Código local revisado en `develop`: biblioteca `supabase-js`, variables locales y cliente en `frontend/src/lib/supabase.js` preparados; ninguna solicitud desde ese cliente se verificó en esta revisión. Registro, inicio de sesión y protección real de rutas siguen pendientes.
-- La última consulta del proyecto remoto devolvió `public` sin tablas; esto no prueba que otros esquemas estén vacíos. Hay historial remoto existente pendiente de reconciliación, detallado en la sección 9. Las tablas nuevas se crearon únicamente en la instancia local.
+- El proyecto remoto de desarrollo `modus` (`jmtgahbjrvpwofwjbbui`) recibió las ocho migraciones el 2026-11-10. El historial previo se conservó; ver sección 9.
 - Prevención usa contenido en archivos JavaScript. Comunidad y Perfil contienen interacciones y ejemplos visuales locales; no son evidencia de persistencia o de requisitos adicionales.
 
 No se copian credenciales a este documento. `.env` queda local; `.env.example` contiene nombres de variables sin valores privados. Las skills y perfiles personales ignorados no forman parte de la documentación compartida del equipo.
@@ -420,11 +420,11 @@ No se añaden tablas para artículos, noticias, videos, reflexiones editoriales,
 
 El código de Comunidad admite adjuntos, aunque RF-VP-02 los excluye. Perfil muestra ejemplos de tests, ahorro e insignias no aprobados. RF-VP-11 mantiene una referencia antigua a Detección en definición; se coordinará con RF-DO-09. Estas diferencias se informan para revisión y no autorizan modificar las páginas de compañeros.
 
-El cliente preparado no implica que las pantallas estén conectadas ni que el entorno remoto haya recibido las migraciones.
+El cliente preparado y las migraciones remotas no implican que las pantallas estén conectadas ni que las operaciones funcionales estén verificadas.
 
 ## 9. Entorno local y verificaciones
 
-La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene ocho archivos: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal tiene aplicadas las ocho migraciones. `supabase/tests/` contiene las verificaciones locales. No se aplicaron al proyecto remoto ni conectaron las pantallas.
+La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene nueve archivos: un antecedente remoto y ocho archivos propios: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal local y el remoto tienen aplicadas las ocho migraciones propias. `supabase/tests/` contiene las verificaciones locales no versionadas. Las pantallas aún no están conectadas.
 
 En el equipo preparado, las funciones personales de Fish se ejecutan así:
 
@@ -447,7 +447,7 @@ Se reconstruyó una base local vacía con las seis migraciones. Pasaron las comp
 
 **Pendientes de revisión:** la prueba de escrituras concurrentes falló dos veces en la sincronización del propio test, sin demostrar un fallo ni el funcionamiento concurrente de la operación. No existe aún una operación aprobada para generar y compartir logros: la prueba de retirada usa un dato ficticio introducido por administración y no comprueba la carrera compartir/desmarcar. Faltan otras comprobaciones de extremo a extremo y contratos de consumo antes de declarar completas las funcionalidades.
 
-**Historial remoto:** existe la migración remota `20261103191039 restrict_automatic_rls_trigger_execution`, asociada a `public.rls_auto_enable()` y al trigger `ensure_rls`, que no existen en una instancia local limpia. El historial aún no está reconciliado; no aplicar estas migraciones al remoto hasta investigar y acordar una estrategia que preserve sus objetos y antecedentes. No usar reparaciones automáticas ni reinicios remotos para resolverlo.
+**Historial remoto:** se recuperó el SQL original de `20261103191039_restrict_automatic_rls_trigger_execution` y se conservaron `public.rls_auto_enable()` y `ensure_rls`. El remoto registra ese antecedente y las ocho migraciones propias. La migración histórica depende de un objeto de plataforma ausente en una instancia local limpia: no se registró ni aplicó artificialmente en local. La reproducción completa desde cero queda pendiente; no usar reparaciones automáticas ni reinicios remotos para resolverla.
 
 Un reinicio de base (`supabase db reset`) borra datos locales: solo usarlo en una instancia de pruebas descartable y con autorización, nunca para sincronizar el remoto. Las claves administrativas permanecen fuera del frontend y de Git.
 
@@ -474,7 +474,15 @@ La consulta actualizada de los repositorios configurados de Fedora 44 devolvió 
 
 **Cierre de la entrega estructural local:** se aplicaron las dos correctivas mediante `migration up` de la CLI 3.0.0 al destino local `127.0.0.1:54322`, sin reiniciar la base ni modificar datos declarados. Quedaron ocho migraciones registradas, la nueva restricción de tiempo validada, la anterior retirada y los tres índices nuevos válidos. La comparación final con el SVG confirmó 21 tablas propias, 103 campos con sus tipos, 32 claves foráneas y RLS activado en las 21 tablas. PostgreSQL permaneció saludable.
 
-La estructura local del modelo queda preparada para abordar las conexiones por historias. La reproducción de los ocho archivos desde cero sigue pendiente, al igual que la validación funcional completa de políticas y operaciones. El responsable decidió mantener Podman y esperar un paquete corregido de Fedora 44. No se declara cerrada la tarea de reproducibilidad ni se aplican cambios al remoto por este avance.
+La estructura local del modelo queda preparada para abordar las conexiones por historias. La reproducción de los ocho archivos desde cero sigue pendiente, al igual que la validación funcional completa de políticas y operaciones. El responsable decidió mantener Podman y esperar un paquete corregido de Fedora 44. Ese avance local no cerró la tarea de reproducibilidad; el despliegue remoto posterior se describe a continuación.
+
+### Despliegue remoto de desarrollo — 2026-11-10
+
+Las ocho migraciones propias se aplicaron en orden al proyecto `modus` (`jmtgahbjrvpwofwjbbui`), sin seeds, cuentas ni datos personales locales. El historial remoto contiene nueve registros, incluido el antecedente. La inspección de metadatos confirmó 21 tablas, 103 columnas, 32 claves foráneas, RLS en las 21 tablas, 33 políticas propias y cuatro políticas de avatares. También se comprobaron los tres índices correctivos y la conservación del disparador y función de plataforma.
+
+El bucket `avatares` es privado y admite JPEG, PNG y WebP hasta 2 MiB. El asesor de seguridad informó tres tablas internas de `private` con RLS sin políticas: no se concede acceso directo de lectura o escritura a `anon` ni `authenticated` sobre esas tablas. `authenticated` sí tiene permiso de uso del esquema para las funciones previstas; esto no equivale a acceso directo a sus tablas. La revisión funcional de permisos sigue pendiente.
+
+Auth mantiene habilitado el registro por correo y contraseña con confirmación. La URL principal es `http://localhost:5173` y se admiten los retornos `http://localhost:5173/` y `http://127.0.0.1:5173/`. No se configuró SMTP: el envío de confirmaciones se resolverá al implementar PTL-168. La inspección estructural no sustituye las pruebas de registro ni de acceso por usuario.
 
 ## Referencias
 
@@ -483,4 +491,4 @@ La estructura local del modelo queda preparada para abordar las conexiones por h
 - PostgreSQL: [restricciones](https://www.postgresql.org/docs/17/ddl-constraints.html) y [tipos numéricos](https://www.postgresql.org/docs/17/datatype-numeric.html).
 - RF: [onboarding](https://trello.com/c/GvkSf6nr), [Mi actividad](https://trello.com/c/yckKkt9n), [compartir logros](https://trello.com/c/ceu95Y6z), [Escudo](https://trello.com/c/bkG4LmiA), [medidas](https://trello.com/c/ToxK425G), [Home](https://trello.com/c/vRsSSxAH), [tableros](https://trello.com/c/HoDRN3jl) y [racha grupal](https://trello.com/c/x0QcOuY2).
 
-Se aplicaron las skills de Supabase y PostgreSQL como guía técnica. Las decisiones del responsable y los RF vigentes conservan prioridad. Las ocho migraciones de esta preparación se aplicaron únicamente al entorno local.
+Se aplicaron las skills de Supabase y PostgreSQL como guía técnica. Las decisiones del responsable y los RF vigentes conservan prioridad. Las ocho migraciones propias se aplicaron en el entorno local y en el remoto de desarrollo.
