@@ -21,115 +21,8 @@ import {
   FileText,
 } from "lucide-react";
 
-const MOCK_POSTS = [
-  {
-    id: 1,
-    autor: "Anónimo",
-    esAnonimo: true,
-    insignia: null,
-    categoria: "Reflexiones",
-    contenido:
-      "Hoy cumplí dos semanas sin entrar a aplicaciones de apuestas. Al principio costaba bastante no mirar las alertas de partidos, pero haber bloqueado las apps me sirvió un montón.",
-    archivoAdjunto: null,
-    meGusta: 12,
-    dioMeGusta: false,
-    comentarios: [
-      {
-        id: 101,
-        autor: "Lucas_04",
-        insignia: "Escudo Activo",
-        texto: "¡Totalmente de acuerdo! Bloquear las alertas es la clave.",
-      },
-      {
-        id: 102,
-        autor: "Anónimo",
-        insignia: null,
-        texto: "¡Vamos con todo! Felicitaciones por las dos semanas.",
-      },
-      {
-        id: 103,
-        autor: "Sofia_Dev",
-        insignia: "Primer Paso",
-        texto: "¡Qué gran logro! ¿Qué app usaste para bloquear los accesos?",
-      },
-      {
-        id: 104,
-        autor: "Estudiante",
-        insignia: "Mente Clara",
-        texto:
-          "A mí me sirvió desactivar también las notificaciones de canales de deportes.",
-      },
-    ],
-    hace: "Hace 2 horas",
-  },
-  {
-    id: 2,
-    autor: "Lucas_04",
-    esAnonimo: false,
-    insignia: "Escudo Activo",
-    categoria: "Experiencias",
-    contenido:
-      "Lo que más me ayudó fue hablarlo con un amigo cercano. Sacarse el peso de encima cambia todo.",
-    archivoAdjunto: null,
-    meGusta: 18,
-    dioMeGusta: true,
-    comentarios: [
-      {
-        id: 201,
-        autor: "Anónimo",
-        insignia: null,
-        texto: "Dar el primer paso es lo que más cuesta, posta.",
-      },
-      {
-        id: 202,
-        autor: "Mateo_R",
-        insignia: "Voz de Apoyo",
-        texto:
-          "Tal cual, tener alguien de confianza que te escuche sin juzgar ayuda muchísimo.",
-      },
-      {
-        id: 203,
-        autor: "Anónimo",
-        insignia: null,
-        texto:
-          "Gracias por compartirlo, me da ánimos para contárselo a mi hermano.",
-      },
-    ],
-    hace: "Hace 5 horas",
-  },
-  {
-    id: 3,
-    autor: "Anónimo",
-    esAnonimo: true,
-    insignia: null,
-    categoria: "Apoyo",
-    contenido:
-      "¿Alguien probó las herramientas del Escudo Digital de la app? Me gustaría saber qué medidas les sirvieron más para evitar la tentación en horarios nocturnos.",
-    archivoAdjunto: null,
-    meGusta: 8,
-    dioMeGusta: false,
-    comentarios: [
-      {
-        id: 301,
-        autor: "Lucas_04",
-        insignia: "Escudo Activo",
-        texto:
-          "A mí me sirvió la regla de dejar el celular lejos de la cama antes de dormir.",
-      },
-      {
-        id: 302,
-        autor: "Valen_T",
-        insignia: "Mente Clara",
-        texto:
-          "Probá activar el modo 'No molestar' automático a partir de las 22:00 hs.",
-      },
-    ],
-    hace: "Hace 1 día",
-  },
-];
-
 export const ComunidadPage = () => {
-  const [posts, setPosts] = useState(MOCK_POSTS);
+  const [posts, setPosts] = useState([]);
   const [filtro, setFiltro] = useState("Todos");
 
   // Formulario de publicación
@@ -389,6 +282,11 @@ export const ComunidadPage = () => {
 
       {/* Publicaciones */}
       <div className="space-y-4">
+        {postsFiltrados.length === 0 && (
+          <p className="rounded-xl border border-brand-navy/10 bg-surface p-5 text-sm text-ink/70">
+            Todavía no hay publicaciones para mostrar.
+          </p>
+        )}
         {postsFiltrados.map((post) => {
           const estaAbierto = postAbiertoId === post.id;
 
