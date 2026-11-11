@@ -4,7 +4,16 @@
  */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Camera, Eye, Image as ImageIcon, LogOut, Palette, Shield, Sparkles, User } from "lucide-react";
+import {
+  Camera,
+  Eye,
+  Image as ImageIcon,
+  LogOut,
+  Palette,
+  Shield,
+  Sparkles,
+  User,
+} from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 
 // El bucket admite solo estos formatos y un máximo de dos mebibytes.
@@ -36,7 +45,9 @@ export const PerfilPage = () => {
       const { data, error } = await supabase.auth.getUser();
       if (!vigente) return;
       if (error && error.name !== "AuthSessionMissingError") {
-        setMensaje("No pudimos comprobar tu sesión. Revisá tu conexión e intentá de nuevo.");
+        setMensaje(
+          "No pudimos comprobar tu sesión. Revisá tu conexión e intentá de nuevo.",
+        );
         setEstado("error");
         return;
       }
@@ -62,7 +73,9 @@ export const PerfilPage = () => {
       setEstado("listo");
     };
     cargarPerfil();
-    return () => { vigente = false; };
+    return () => {
+      vigente = false;
+    };
   }, [navigate]);
 
   // El bucket es privado: se descarga con la sesión y se crea una dirección temporal
@@ -72,7 +85,9 @@ export const PerfilPage = () => {
     let vigente = true;
     let direccionTemporal;
     const cargarAvatar = async () => {
-      const { data, error } = await supabase.storage.from("avatares").download(rutaAvatar);
+      const { data, error } = await supabase.storage
+        .from("avatares")
+        .download(rutaAvatar);
       if (!vigente) return;
       if (error) {
         setFotoPerfil(null);
@@ -119,10 +134,12 @@ export const PerfilPage = () => {
     try {
       if (imagenElegida) {
         nuevaRuta = `${usuarioId}/${crypto.randomUUID()}.${FORMATOS_AVATAR[imagenElegida.type]}`;
-        const { error } = await supabase.storage.from("avatares").upload(nuevaRuta, imagenElegida, {
-          contentType: imagenElegida.type,
-          upsert: false,
-        });
+        const { error } = await supabase.storage
+          .from("avatares")
+          .upload(nuevaRuta, imagenElegida, {
+            contentType: imagenElegida.type,
+            upsert: false,
+          });
         if (error) {
           setMensaje("No pudimos subir la foto. No se guardaron los cambios.");
           return;
@@ -130,7 +147,8 @@ export const PerfilPage = () => {
       }
       const cambios = { username: nuevoAlias };
       if (nuevaRuta) cambios.avatar_path = nuevaRuta;
-      const { data, error } = await supabase.from("perfiles")
+      const { data, error } = await supabase
+        .from("perfiles")
         .update(cambios)
         .eq("usuario_id", usuarioId)
         .select("username, avatar_path")
@@ -141,15 +159,21 @@ export const PerfilPage = () => {
         // en ese caso conservar el archivo evita que el perfil apunte a algo borrado.
         if (error?.code === "23505") {
           if (nuevaRuta) {
-            const { error: errorLimpieza } = await supabase.storage.from("avatares").remove([nuevaRuta]);
+            const { error: errorLimpieza } = await supabase.storage
+              .from("avatares")
+              .remove([nuevaRuta]);
             if (errorLimpieza) {
-              setMensaje("El nombre ya está en uso y no pudimos retirar la foto subida. Intentá más tarde.");
+              setMensaje(
+                "El nombre ya está en uso y no pudimos retirar la foto subida. Intentá más tarde.",
+              );
               return;
             }
           }
           setMensaje("Ese nombre de usuario ya está en uso. Elegí otro.");
         } else {
-          setMensaje("No pudimos confirmar el guardado. Revisá tu perfil antes de intentar otra vez.");
+          setMensaje(
+            "No pudimos confirmar el guardado. Revisá tu perfil antes de intentar otra vez.",
+          );
         }
         return;
       }
@@ -159,13 +183,24 @@ export const PerfilPage = () => {
       setImagenElegida(null);
       setMensaje("Cambios guardados.");
       // Solo el propietario puede eliminar; nunca borrar una ruta de otro usuario.
-      if (nuevaRuta && rutaAvatar && rutaAvatar.startsWith(`${usuarioId}/`) && rutaAvatar !== nuevaRuta) {
-        const { error: errorAnterior } = await supabase.storage.from("avatares").remove([rutaAvatar]);
-        if (errorAnterior) setMensaje("El perfil se guardó, pero no pudimos retirar la foto anterior.");
+      if (
+        nuevaRuta &&
+        rutaAvatar &&
+        rutaAvatar.startsWith(`${usuarioId}/`) &&
+        rutaAvatar !== nuevaRuta
+      ) {
+        const { error: errorAnterior } = await supabase.storage
+          .from("avatares")
+          .remove([rutaAvatar]);
+        if (errorAnterior) {
+          setMensaje("El perfil se guardó, pero no pudimos retirar la foto anterior.");
+        }
       }
     } catch {
       // Un fallo de red puede dejar incierto el resultado: no asegurar que se guardó.
-      setMensaje("No pudimos confirmar el guardado. Revisá tu perfil antes de intentar otra vez.");
+      setMensaje(
+        "No pudimos confirmar el guardado. Revisá tu perfil antes de intentar otra vez.",
+      );
     } finally {
       setGuardando(false);
     }
@@ -184,17 +219,27 @@ export const PerfilPage = () => {
       }
       navigate("/login", { replace: true });
     } catch {
-      setMensaje("No pudimos cerrar la sesión. Revisá tu conexión e intentá nuevamente.");
+      setMensaje(
+        "No pudimos cerrar la sesión. Revisá tu conexión e intentá nuevamente.",
+      );
     } finally {
       setCerrando(false);
     }
   };
 
   if (estado === "cargando") {
-    return <p role="status" className="mx-auto max-w-3xl p-6">Cargando tu perfil…</p>;
+    return (
+      <p role="status" className="mx-auto max-w-3xl p-6">
+        Cargando tu perfil…
+      </p>
+    );
   }
   if (estado === "error") {
-    return <p role="alert" className="mx-auto max-w-3xl p-6">{mensaje}</p>;
+    return (
+      <p role="alert" className="mx-auto max-w-3xl p-6">
+        {mensaje}
+      </p>
+    );
   }
 
   return (
@@ -211,7 +256,15 @@ export const PerfilPage = () => {
             <div className="flex items-end gap-4">
               <div className="relative -mt-14">
                 <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-brand-teal font-heading text-3xl font-bold text-white shadow-md">
-                  {fotoPerfil ? <img src={fotoPerfil} alt="Foto de perfil" className="h-full w-full object-cover" /> : aliasGuardado.charAt(0).toUpperCase()}
+                  {fotoPerfil ? (
+                    <img
+                      src={fotoPerfil}
+                      alt="Foto de perfil"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    aliasGuardado.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <label
                   htmlFor="foto-upload"
@@ -230,26 +283,42 @@ export const PerfilPage = () => {
                   />
                 </label>
               </div>
-              <h1 className="font-heading text-2xl font-bold text-brand-navy">{aliasGuardado}</h1>
+              <h1 className="font-heading text-2xl font-bold text-brand-navy">
+                {aliasGuardado}
+              </h1>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-brand-teal"><Shield size={14} aria-hidden="true" /> Cuenta activa</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-brand-teal">
+              <Shield size={14} aria-hidden="true" /> Cuenta activa
+            </span>
           </div>
         </div>
       </div>
 
       {/* Las secciones sin modelo conservan su lugar sin atribuir datos inventados. */}
       <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-        <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><Sparkles size={20} aria-hidden="true" /> Insignias y Logros</h2>
-        <p className="mt-2 text-sm text-ink">Esta sección todavía no está disponible.</p>
+        <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
+          <Sparkles size={20} aria-hidden="true" /> Insignias y Logros
+        </h2>
+        <p className="mt-2 text-sm text-ink">
+          Esta sección todavía no está disponible.
+        </p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><Palette size={20} aria-hidden="true" /> Color de Avatar</h2>
-          <p className="mt-2 text-sm text-ink">La personalización del color todavía no está disponible.</p>
+          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
+            <Palette size={20} aria-hidden="true" /> Color de Avatar
+          </h2>
+          <p className="mt-2 text-sm text-ink">
+            La personalización del color todavía no está disponible.
+          </p>
         </div>
         <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><User size={20} aria-hidden="true" /> Información y Presentación</h2>
-          <label htmlFor="alias-input" className="mt-4 block text-sm font-medium text-ink">Alias o nombre público</label>
+          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
+            <User size={20} aria-hidden="true" /> Información y Presentación
+          </h2>
+          <label htmlFor="alias-input" className="mt-4 block text-sm font-medium text-ink">
+            Alias o nombre público
+          </label>
           <input
             id="alias-input"
             type="text"
@@ -259,13 +328,23 @@ export const PerfilPage = () => {
             disabled={guardando || cerrando}
             className="mt-1 w-full rounded-lg border border-brand-navy/20 bg-canvas px-3 py-2 text-sm text-ink focus-visible:outline-2 focus-visible:outline-brand-teal"
           />
-          <p className="mt-4 text-sm text-ink">Biografía corta y meta principal: todavía no disponibles.</p>
+          <p className="mt-4 text-sm text-ink">
+            Biografía corta y meta principal: todavía no disponibles.
+          </p>
         </div>
         <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
-          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy"><Eye size={20} aria-hidden="true" /> Privacidad en Comunidad</h2>
-          <p className="mt-2 text-sm text-ink">La configuración de anonimato por defecto todavía no está disponible.</p>
+          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
+            <Eye size={20} aria-hidden="true" /> Privacidad en Comunidad
+          </h2>
+          <p className="mt-2 text-sm text-ink">
+            La configuración de anonimato por defecto todavía no está disponible.
+          </p>
         </div>
-        {mensaje && <p role="status" aria-live="polite" className="text-sm text-ink">{mensaje}</p>}
+        {mensaje && (
+          <p role="status" aria-live="polite" className="text-sm text-ink">
+            {mensaje}
+          </p>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
           <button
             type="button"
