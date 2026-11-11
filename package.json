@@ -1,6 +1,10 @@
 {
   "name": "modus-herramientas",
   "private": true,
+  "scripts": {
+    "seed": "node scripts/seed.mjs seed",
+    "seed:clean": "node scripts/seed.mjs clean"
+  },
   "devDependencies": {
     "supabase": "3.0.0"
   }
