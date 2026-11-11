@@ -18,7 +18,7 @@ La arquitectura se conserva: React utiliza Supabase Auth y la Data API con su se
 - [Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia): exportación pública consultada el 2026-11-09, con 8 RF de Prevención, 13 de Detección y 12 de Comunidad. El conector rechazó el acceso; la lectura pública sí fue posible.
 - Código local revisado en `develop`: biblioteca `supabase-js`, variables locales y cliente en `frontend/src/lib/supabase.js` preparados; ninguna solicitud desde ese cliente se verificó en esta revisión. Registro, inicio de sesión y protección real de rutas siguen pendientes.
 - El proyecto remoto de desarrollo `modus` (`jmtgahbjrvpwofwjbbui`) recibió las ocho migraciones el 2026-11-10. El historial previo se conservó; ver sección 9.
-- Prevención usa contenido en archivos JavaScript. Comunidad y Perfil contienen interacciones y ejemplos visuales locales; no son evidencia de persistencia o de requisitos adicionales.
+- Prevención usa contenido en archivos JavaScript. Comunidad contiene interacciones visuales locales; Perfil conecta nombre de usuario y avatar, y mantiene las demás secciones pendientes.
 
 No se copian credenciales a este documento. `.env` queda local; `.env.example` contiene nombres de variables sin valores privados. Las skills y perfiles personales ignorados no forman parte de la documentación compartida del equipo.
 
@@ -418,7 +418,7 @@ Estas comprobaciones son criterios de revisión; su estado efectivo se indica en
 
 No se añaden tablas para artículos, noticias, videos, reflexiones editoriales, Home, Dashboard, gráficos, diagnósticos, tratamientos, tests, ahorro, chat privado o funcionalidades no aprobadas. Prevención conserva sus archivos actuales; una futura persistencia editorial se añadirá cuando se acuerde con su responsable. Los contactos y recursos reales deben verificarse antes de publicarlos.
 
-El código de Comunidad admite adjuntos, aunque RF-VP-02 los excluye. Perfil muestra ejemplos de tests, ahorro e insignias no aprobados. RF-VP-11 mantiene una referencia antigua a Detección en definición; se coordinará con RF-DO-09. Estas diferencias se informan para revisión y no autorizan modificar las páginas de compañeros.
+El código de Comunidad admite adjuntos, aunque RF-VP-02 los excluye. Perfil conserva secciones pendientes sin presentar ejemplos como datos reales. RF-VP-11 mantiene una referencia antigua a Detección en definición; se coordinará con RF-DO-09. Estas diferencias se informan para revisión y no autorizan modificar las páginas de compañeros.
 
 La página de acceso está conectada a Auth; las herramientas no están conectadas y las operaciones funcionales requieren verificaciones propias.
 
@@ -483,6 +483,28 @@ Las ocho migraciones propias se aplicaron en orden al proyecto `modus` (`jmtgahb
 El bucket `avatares` es privado y admite JPEG, PNG y WebP hasta 2 MiB. El asesor de seguridad informó tres tablas internas de `private` con RLS sin políticas: no se concede acceso directo de lectura o escritura a `anon` ni `authenticated` sobre esas tablas. `authenticated` sí tiene permiso de uso del esquema para las funciones previstas; esto no equivale a acceso directo a sus tablas. La revisión funcional de permisos sigue pendiente.
 
 Auth remoto permite el registro por correo y contraseña sin confirmación, por decisión del responsable; el entorno local conserva su configuración de confirmación. La URL principal es `http://localhost:5173` y se admiten los retornos `http://localhost:5173/` y `http://127.0.0.1:5173/`. No se configuró SMTP; el envío de correos para recuperación de cuentas queda pendiente. La inspección estructural no sustituye las pruebas de registro ni de acceso por usuario.
+
+### Usuarios ficticios de desarrollo
+
+Hay tres cuentas identificadas como `modus_seed_01`, `modus_seed_02` y `modus_seed_03`, con correos `modus.seed.01@example.com`, `modus.seed.02@example.com` y `modus.seed.03@example.com`. Comparten la contraseña de prueba `modus123`: son cuentas ficticias con credenciales conocidas, sin datos de personas reales. Tienen patrones de actividad diferentes para los últimos 30 días, con días sin información y cantidades opcionales.
+
+Desde la raíz, con Supabase local iniciado y la CLI instalada:
+
+```bash
+npm run seed -- --local
+npm run seed:clean -- --local
+```
+
+Para el remoto de desarrollo `jmtgahbjrvpwofwjbbui`, la CLI debe estar autenticada y el proceso necesita `SUPABASE_SEED_SECRET_KEY` con la clave administrativa de ese proyecto, cargada de forma privada en la terminal. No incluirla en `frontend/.env`, archivos versionados ni mensajes. Ambos comandos requieren escribir el identificador del proyecto en una terminal interactiva:
+
+```bash
+npm run seed -- --remote
+npm run seed:clean -- --remote
+```
+
+La marca administrativa distingue las cuentas del seeder; ante colisiones con cuentas ajenas se detiene. La limpieza verifica relaciones con Comunidad y no modifica su contenido; se detiene si encuentra vínculos. No utiliza `db reset` ni elimina toda la base. Storage, SQL y Auth no comparten una única transacción: ante un error puede quedar trabajo parcial; revisar el estado antes de reintentar. Los datos se pueden volver a crear ejecutando el seeder.
+
+Se comprobó creación, ingreso y limpieza de las cuentas en ambos entornos; en local también se repitió la creación sin duplicarlas y se limpió un avatar ficticio. Una prueba con clave administrativa inválida confirmó que la limpieza remota se detiene antes de borrar. La creación del remoto y el borrado selectivo se realizaron exclusivamente sobre los usuarios de prueba.
 
 ## Referencias
 

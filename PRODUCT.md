@@ -22,4 +22,4 @@ MODUS busca una experiencia joven y madura, cercana, clara y atractiva. Debe sen
 
 ## Fuentes y estado
 
-La guía aceptada es [docs/design/DESIGN_GUIDELINES.md](docs/design/DESIGN_GUIDELINES.md). Los RF aprobados y las decisiones posteriores del equipo prevalecen sobre los detalles visuales. La conexión de acceso existe; la protección de rutas, el cierre real de sesión y la persistencia del onboarding siguen pendientes.
+La guía aceptada es [docs/design/DESIGN_GUIDELINES.md](docs/design/DESIGN_GUIDELINES.md). Los RF aprobados y las decisiones posteriores del equipo prevalecen sobre los detalles visuales. La conexión de acceso y el cierre de sesión del navegador actual existen; la protección general de rutas y la persistencia del onboarding siguen pendientes.

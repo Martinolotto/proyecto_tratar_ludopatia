@@ -114,3 +114,16 @@ La base principal tiene ocho migraciones aplicadas. La comparación final confir
 - [x] Comprobar en el remoto de desarrollo registro con sesión, perfil, ingreso y rechazo de contraseña incorrecta y nombre repetido usando una cuenta ficticia retirada al finalizar.
 - [ ] Verificar el recorrido completo desde el navegador, el cierre de sesión y la protección de rutas.
 - [ ] Conectar la persistencia y realización única del onboarding mediante PTL-115.
+
+## Perfil y sesión — 2026-11-10
+
+- [x] Conectar la identidad, edición del alias, avatar privado y cierre de sesión local en la pantalla de Perfil.
+- [x] Comprobar mediante cuentas ficticias temporales la actualización de alias, aislamiento, carga y descarga autorizada de avatar y cierre de sesión local; se retiraron las cuentas de prueba.
+- [ ] Revisar el recorrido completo de Perfil en navegador y los casos de fallo de red.
+- [ ] Definir y conectar las secciones de Perfil que aún no cuentan con modelo aprobado.
+
+## Usuarios ficticios — 2026-11-11
+
+- [x] Crear, limpiar y recrear tres cuentas ficticias con actividad en local y remoto de desarrollo.
+- [x] Comprobar el ingreso de las tres cuentas en ambos entornos y la repetición del seeder local.
+- [ ] Comprobar el comportamiento completo de los gráficos cuando estén conectados a los registros.

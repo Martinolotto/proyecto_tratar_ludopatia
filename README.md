@@ -56,7 +56,7 @@ npm --prefix frontend ci
 npm --prefix backend ci
 ```
 
-Los proyectos ya existen: no ejecutar generadores de React, Vite o Express. Cada uno tiene su `package.json` y lockfile; la raíz agrega la CLI local de Supabase y no tiene scripts npm. La CLI de la raíz se instaló para preparar el entorno local; frontend y backend conservan sus instalaciones independientes.
+Los proyectos ya existen: no ejecutar generadores de React, Vite o Express. Cada uno tiene su `package.json` y lockfile; la raíz agrega la CLI local de Supabase y los comandos para datos de prueba. La CLI de la raíz se instaló para preparar el entorno local; frontend y backend conservan sus instalaciones independientes.
 
 ## Comandos
 
@@ -93,4 +93,8 @@ El proxy `/api` de Vite aún no corresponde a rutas funcionales de Express. Tamp
 
 Seguir Conventional Commits con mensajes en español, en pasado y descriptivos. Los agentes requieren autorización para alterar ramas, crear commits, hacer push o merge, conforme a las reglas raíz.
 
-El Dashboard es un panel global desplegable desde Navbar y Home, con accesos a Mi actividad, Historial y progreso y Escudo digital. Las páginas del eje 2, incluido Onboarding, están agrupadas en `frontend/src/pages/deteccion/`; Mi espacio y su ruta fueron retirados. Onboarding y Mi actividad tienen interacción local; Historial y Escudo presentan vistas iniciales sin datos conectados. Home integra accesos, una guía interactiva y contenidos destacados de Prevención. El detalle y los pendientes están en la [guía de frontend](docs/frontend.md). La autenticación, la persistencia y la protección de rutas siguen pendientes. No se impone SDD, TDD ni otro paradigma obligatorio.
+El Dashboard es un panel global desplegable desde Navbar y Home, con accesos a Mi actividad, Historial y progreso y Escudo digital. Las páginas del eje 2, incluido Onboarding, están agrupadas en `frontend/src/pages/deteccion/`; Mi espacio y su ruta fueron retirados. Onboarding y Mi actividad tienen interacción local; Historial y Escudo presentan vistas iniciales sin datos conectados. Home integra accesos, una guía interactiva y contenidos destacados de Prevención. El detalle y los pendientes están en la [guía de frontend](docs/frontend.md). Registro e ingreso usan Supabase Auth; Perfil conecta alias, avatar y cierre local. Las herramientas de Detección todavía no guardan sus datos y la protección general de rutas sigue pendiente. No se impone SDD, TDD ni otro paradigma obligatorio.
+
+## Datos de prueba
+
+Los comandos de usuarios ficticios y sus límites están documentados en [base de datos](docs/base-de-datos.md#usuarios-ficticios-de-desarrollo). No usar estas cuentas con datos reales.
