@@ -10,11 +10,17 @@ import {
   Image as ImageIcon,
   LogOut,
   Palette,
+  Phone,
   Shield,
+  Save,
   Sparkles,
   User,
 } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
+import {
+  convertirArchivoADataUrl,
+  recortarImagen,
+} from "../../lib/cropImage.js";
 
 // El bucket admite solo estos formatos y un máximo de dos mebibytes.
 const FORMATOS_AVATAR = {
@@ -23,6 +29,9 @@ const FORMATOS_AVATAR = {
   "image/webp": "webp",
 };
 const MAXIMO_AVATAR = 2 * 1024 * 1024;
+const MAXIMO_PORTADA = 1.5 * 1024 * 1024;
+const CLAVE_PORTADA_LOCAL = "modus.portada.perfil";
+const CLAVE_CONTACTO_AYUDA = "modus.contacto-ayuda";
 
 export const PerfilPage = () => {
   const navigate = useNavigate();
@@ -31,10 +40,14 @@ export const PerfilPage = () => {
   const [aliasGuardado, setAliasGuardado] = useState("");
   const [rutaAvatar, setRutaAvatar] = useState(null);
   const [fotoPerfil, setFotoPerfil] = useState(null);
+  const [vistaPreviaAvatar, setVistaPreviaAvatar] = useState(null);
+  const [portadaPerfil, setPortadaPerfil] = useState(null);
+  const [contactoAyuda, setContactoAyuda] = useState("");
   const [imagenElegida, setImagenElegida] = useState(null);
   const [estado, setEstado] = useState("cargando");
   const [mensaje, setMensaje] = useState("");
   const [guardando, setGuardando] = useState(false);
+  const [preparandoImagen, setPreparandoImagen] = useState(false);
   const [cerrando, setCerrando] = useState(false);
 
   // Obtener la cuenta validada por Auth antes de consultar su perfil por identificador.
@@ -70,6 +83,16 @@ export const PerfilPage = () => {
       setAlias(perfil.username);
       setAliasGuardado(perfil.username);
       setRutaAvatar(perfil.avatar_path);
+      try {
+        setPortadaPerfil(
+          localStorage.getItem(`${CLAVE_PORTADA_LOCAL}.${data.user.id}`),
+        );
+        setContactoAyuda(
+          localStorage.getItem(`${CLAVE_CONTACTO_AYUDA}.${data.user.id}`) ?? "",
+        );
+      } catch {
+        setMensaje("No pudimos leer la portada guardada en este navegador.");
+      }
       setEstado("listo");
     };
     cargarPerfil();
@@ -96,6 +119,7 @@ export const PerfilPage = () => {
       }
       direccionTemporal = URL.createObjectURL(data);
       setFotoPerfil(direccionTemporal);
+      setVistaPreviaAvatar(null);
     };
     cargarAvatar();
     return () => {
@@ -104,25 +128,112 @@ export const PerfilPage = () => {
     };
   }, [rutaAvatar]);
 
+  useEffect(() => {
+    if (!vistaPreviaAvatar) return undefined;
+    return () => URL.revokeObjectURL(vistaPreviaAvatar);
+  }, [vistaPreviaAvatar]);
+
   // El archivo se valida antes de subirlo; elegirlo aún no guarda cambios remotos.
-  const handleFotoUpload = (event) => {
+  const handleFotoUpload = async (event) => {
     const archivo = event.target.files?.[0];
     event.target.value = "";
     if (!archivo) return;
     if (!FORMATOS_AVATAR[archivo.type] || archivo.size > MAXIMO_AVATAR) {
       setImagenElegida(null);
+      setVistaPreviaAvatar(null);
       setMensaje("Elegí una imagen JPEG, PNG o WebP de hasta 2 MiB.");
       return;
     }
-    setImagenElegida(archivo);
-    setMensaje("Foto seleccionada. Guardá los cambios para subirla.");
+    setPreparandoImagen(true);
+    try {
+      const avatarCuadrado = await recortarImagen(archivo, 512, 512);
+      if (avatarCuadrado.size > MAXIMO_AVATAR) {
+        setMensaje("La foto recortada supera el límite de 2 MiB.");
+        return;
+      }
+      setImagenElegida(avatarCuadrado);
+      setVistaPreviaAvatar(URL.createObjectURL(avatarCuadrado));
+      setMensaje("Foto cuadrada seleccionada. Guardá los cambios para subirla.");
+    } catch {
+      setMensaje("No pudimos recortar la foto seleccionada.");
+    } finally {
+      setPreparandoImagen(false);
+    }
+  };
+
+  const handlePortadaUpload = async (event) => {
+    const archivo = event.target.files?.[0];
+    event.target.value = "";
+    if (!archivo) return;
+
+    if (!FORMATOS_AVATAR[archivo.type] || archivo.size > MAXIMO_PORTADA) {
+      setMensaje("Elegí una portada JPEG, PNG o WebP de hasta 1,5 MiB.");
+      return;
+    }
+
+    try {
+      const portadaBanner = await recortarImagen(archivo, 1500, 500);
+      const portadaDataUrl = await convertirArchivoADataUrl(portadaBanner);
+      if (!usuarioId) return;
+      localStorage.setItem(
+        `${CLAVE_PORTADA_LOCAL}.${usuarioId}`,
+        portadaDataUrl,
+      );
+      setPortadaPerfil(portadaDataUrl);
+      setMensaje(
+        "Portada guardada en formato 1500 × 500. Solo queda en este navegador.",
+      );
+    } catch {
+      setMensaje(
+        "No pudimos recortar o guardar la portada. Revisá el espacio disponible en este navegador.",
+      );
+    }
+  };
+
+  const handleQuitarPortada = () => {
+    try {
+      localStorage.removeItem(`${CLAVE_PORTADA_LOCAL}.${usuarioId}`);
+      setPortadaPerfil(null);
+      setMensaje("Portada quitada de este navegador.");
+    } catch {
+      setMensaje("No pudimos quitar la portada guardada en este navegador.");
+    }
+  };
+
+  const handleGuardarContacto = (event) => {
+    event.preventDefault();
+    const numero = contactoAyuda.trim();
+    const digitos = numero.replace(/\D/g, "");
+    if (
+      numero &&
+      (!/^\+?[\d\s().-]+$/.test(numero) ||
+        digitos.length < 7 ||
+        digitos.length > 15)
+    ) {
+      setMensaje("Ingresá un número de ayuda válido, con código de país si corresponde.");
+      return;
+    }
+
+    try {
+      if (numero) {
+        localStorage.setItem(
+          `${CLAVE_CONTACTO_AYUDA}.${usuarioId}`,
+          numero,
+        );
+      } else {
+        localStorage.removeItem(`${CLAVE_CONTACTO_AYUDA}.${usuarioId}`);
+      }
+      setMensaje("Contacto de ayuda guardado solo en este navegador.");
+    } catch {
+      setMensaje("No pudimos guardar el contacto en este navegador.");
+    }
   };
 
   // Primero subimos un archivo con nombre único y luego vinculamos su ruta al perfil.
   // Si la base rechaza el nombre duplicado, retiramos el archivo nuevo cuando sea posible.
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (guardando || cerrando || !usuarioId) return;
+    if (guardando || cerrando || preparandoImagen || !usuarioId) return;
     const nuevoAlias = alias.trim();
     if (!nuevoAlias || nuevoAlias.length > 64) {
       setMensaje("Ingresá un nombre de usuario de entre 1 y 64 caracteres.");
@@ -141,7 +252,11 @@ export const PerfilPage = () => {
             upsert: false,
           });
         if (error) {
-          setMensaje("No pudimos subir la foto. No se guardaron los cambios.");
+          setMensaje(
+            error.statusCode === "403"
+              ? "Supabase rechazó la foto (403). Revisá los permisos del bucket de avatares."
+              : "No pudimos subir la foto. No se guardaron los cambios.",
+          );
           return;
         }
       }
@@ -244,21 +359,52 @@ export const PerfilPage = () => {
 
   return (
     <section className="mx-auto max-w-3xl space-y-6">
-      {/* Encabezado existente: la portada todavía no tiene persistencia aprobada. */}
+      {/* El banner queda asociado al navegador; el avatar sí se guarda en Supabase. */}
       <div className="overflow-hidden rounded-xl border border-brand-navy/10 bg-surface shadow-sm">
-        <div className="relative h-40 w-full bg-gradient-to-r from-brand-navy to-brand-teal">
-          <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-lg bg-surface/85 px-3 py-1.5 text-xs font-medium text-ink">
-            <ImageIcon size={14} aria-hidden="true" /> Portada pendiente
-          </span>
+        <div
+          className="relative h-32 w-full overflow-hidden bg-gradient-to-r from-brand-navy to-brand-teal sm:h-40"
+        >
+          {portadaPerfil && (
+            <img
+              src={portadaPerfil}
+              alt="Portada del perfil"
+              className="h-full w-full object-cover"
+            />
+          )}
+          <label
+            htmlFor="portada-upload"
+            className="absolute right-3 top-3 flex min-h-10 cursor-pointer items-center gap-1.5 rounded-lg bg-surface/90 px-3 py-2 text-xs font-semibold text-ink shadow focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-brand-teal"
+          >
+            <ImageIcon size={14} aria-hidden="true" />
+            {portadaPerfil ? "Cambiar portada" : "Agregar portada"}
+            <input
+              id="portada-upload"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handlePortadaUpload}
+              className="sr-only"
+              disabled={guardando || cerrando || preparandoImagen}
+            />
+          </label>
+          {portadaPerfil && (
+            <button
+              type="button"
+              onClick={handleQuitarPortada}
+              disabled={guardando || cerrando}
+              className="absolute right-3 top-14 min-h-10 rounded-lg bg-surface/90 px-3 py-2 text-xs font-semibold text-ink shadow focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal disabled:opacity-60"
+            >
+              Quitar portada
+            </button>
+          )}
         </div>
         <div className="px-6 pb-6 pt-3">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex items-end gap-4">
               <div className="relative -mt-14">
                 <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-brand-teal font-heading text-3xl font-bold text-white shadow-md">
-                  {fotoPerfil ? (
+                  {vistaPreviaAvatar || fotoPerfil ? (
                     <img
-                      src={fotoPerfil}
+                      src={vistaPreviaAvatar || fotoPerfil}
                       alt="Foto de perfil"
                       className="h-full w-full object-cover"
                     />
@@ -279,7 +425,7 @@ export const PerfilPage = () => {
                     accept="image/jpeg,image/png,image/webp"
                     onChange={handleFotoUpload}
                     className="sr-only"
-                    disabled={guardando || cerrando}
+                    disabled={guardando || cerrando || preparandoImagen}
                   />
                 </label>
               </div>
@@ -294,6 +440,23 @@ export const PerfilPage = () => {
         </div>
       </div>
 
+      {imagenElegida && (
+        <div className="-mt-3 flex justify-end">
+          <button
+            type="submit"
+            form="profile-form"
+            disabled={guardando || cerrando || preparandoImagen}
+            className="rounded-lg bg-brand-teal px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal disabled:opacity-60"
+          >
+            {preparandoImagen
+              ? "Preparando foto…"
+              : guardando
+                ? "Guardando foto…"
+                : "Guardar foto de perfil"}
+          </button>
+        </div>
+      )}
+
       {/* Las secciones sin modelo conservan su lugar sin atribuir datos inventados. */}
       <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
         <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
@@ -303,7 +466,7 @@ export const PerfilPage = () => {
           Esta sección todavía no está disponible.
         </p>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="profile-form" onSubmit={handleSubmit} className="space-y-6">
         <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
           <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
             <Palette size={20} aria-hidden="true" /> Color de Avatar
@@ -331,6 +494,35 @@ export const PerfilPage = () => {
           <p className="mt-4 text-sm text-ink">
             Biografía corta y meta principal: todavía no disponibles.
           </p>
+        </div>
+        <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
+          <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
+            <Phone size={20} aria-hidden="true" /> Contacto de ayuda
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink">
+            Guardá el teléfono de una persona de confianza para poder llamarla desde el botón de pánico. Queda solo en este navegador.
+          </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <label htmlFor="contacto-ayuda" className="sr-only">Número de teléfono de ayuda</label>
+            <input
+              id="contacto-ayuda"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={contactoAyuda}
+              onChange={(event) => setContactoAyuda(event.target.value)}
+              placeholder="Ej.: +54 9 11 1234 5678"
+              maxLength={30}
+              className="min-h-11 min-w-0 flex-1 rounded-lg border border-brand-navy/20 bg-canvas px-3 py-2 text-sm text-ink focus-visible:outline-2 focus-visible:outline-brand-teal"
+            />
+            <button
+              type="button"
+              onClick={handleGuardarContacto}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand-teal px-4 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+            >
+              <Save size={17} aria-hidden="true" /> Guardar contacto
+            </button>
+          </div>
         </div>
         <div className="rounded-xl border border-brand-navy/10 bg-surface p-6">
           <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-brand-navy">
