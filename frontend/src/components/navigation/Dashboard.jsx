@@ -6,9 +6,15 @@
 // El router informa cambios de navegación y Lucide aporta los iconos del panel.
 import { useEffect } from "react";
 import { NavLink, useLocation } from "react-router";
-import { CalendarDays, ChartNoAxesCombined, Shield, X } from "lucide-react";
+import {
+  CalendarDays,
+  ChartNoAxesCombined,
+  Heart,
+  Shield,
+  X,
+} from "lucide-react";
 
-// Este catálogo reúne las tres herramientas aprobadas y sus rutas existentes.
+// Este catálogo reúne los accesos a las herramientas disponibles y sus rutas.
 const tools = [
   { title: "Mi actividad", path: "/mi-actividad", icon: CalendarDays },
   {
@@ -17,6 +23,7 @@ const tools = [
     icon: ChartNoAxesCombined,
   },
   { title: "Escudo digital", path: "/escudo-digital", icon: Shield },
+  { title: "Botón de pánico", path: "/pausa-ayuda", icon: Heart },
 ];
 
 // El diálogo nativo contiene el foco y permite cerrar con Escape sin otra librería.

@@ -24,6 +24,7 @@ import { PerfilPage } from "../pages/perfil/PerfilPage.jsx";
 import { MiActividadPage } from "../pages/deteccion/MiActividadPage.jsx";
 import { HistorialYProgresoPage } from "../pages/deteccion/HistorialYProgresoPage.jsx";
 import { EscudoDigitalPage } from "../pages/deteccion/EscudoDigitalPage.jsx";
+import { PausaAyudaPage } from "../pages/deteccion/PausaAyudaPage.jsx";
 
 // Páginas públicas y flujo inicial.
 import { LandingPage } from "../pages/publicas/LandingPage.jsx";
@@ -73,6 +74,7 @@ export const AppRouter = () => {
             element={<HistorialYProgresoPage />}
           />
           <Route path="/escudo-digital" element={<EscudoDigitalPage />} />
+          <Route path="/pausa-ayuda" element={<PausaAyudaPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
