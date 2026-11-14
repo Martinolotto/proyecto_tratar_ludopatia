@@ -1,3 +1,7 @@
+/*
+ * Pie de navegación compartido entre las páginas públicas y la aplicación.
+ * AppRouter y los layouts lo incorporan para ofrecer los mismos accesos.
+ */
 import { Link } from "react-router";
 
 const footerLinkClass =
