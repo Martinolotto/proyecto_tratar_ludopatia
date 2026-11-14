@@ -127,3 +127,18 @@ La base principal tiene ocho migraciones aplicadas. La comparación final confir
 - [x] Crear, limpiar y recrear tres cuentas ficticias con actividad en local y remoto de desarrollo.
 - [x] Comprobar el ingreso de las tres cuentas en ambos entornos y la repetición del seeder local.
 - [ ] Comprobar el comportamiento completo de los gráficos cuando estén conectados a los registros.
+
+## Inicio: primera entrega — 2026-11-14
+
+- [x] Consultar el alias y último registro mediante el módulo de Home; dos cuentas ficticias existentes en el remoto comprobaron orden y aislamiento. Una prueba temporal con respuestas simuladas verificó que la ausencia de registros devuelve vacío y que un error se propaga.
+- [ ] Verificar en navegador la sesión ausente, el estado sin registros, fallos y reintento, el cambio de cuenta entre pestañas y el panel global con teclado y en móvil.
+- [ ] Completar los resúmenes de participación, logros y otras capacidades de PTL-153 cuando se implementen sus fuentes.
+
+## Mi actividad — 2026-11-14
+
+- [x] Aplicar las dos migraciones de consulta y guardado validado al entorno local y al remoto de desarrollo, sin crear tablas.
+- [x] Comprobar localmente guardado, actualización, ceros, omisiones, conductas, fecha anterior y aislamiento entre cuentas ficticias; comprobar precisión decimal con transacciones descartadas.
+- [x] Comprobar lectura, guardado y actualización en el remoto mediante las cuentas ficticias 02 y 03; la 03 conserva una entrada identificada como prueba.
+- [x] Revisar con Playwright en 1366 × 768 y 1440 × 900 apertura de bloques, conservación de importes, confirmación, descarte, recarga y ausencia de desborde horizontal; se usó una cuenta ficticia sin guardar cambios.
+- [ ] Revisar el recorrido completo en navegador, teclado, estados de error y tamaños de escritorio.
+- [ ] Comprobar una operación que atraviese realmente la medianoche argentina y reproducir toda la base desde cero.

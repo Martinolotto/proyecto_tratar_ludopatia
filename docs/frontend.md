@@ -53,10 +53,10 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 
 ### Páginas
 
-- **home/:** entrada integrada de los tres ejes en `/inicio`; ofrece accesos, una guía interactiva y contenidos destacados de Prevención. Todavía no muestra resúmenes personales basados en datos de una cuenta.
+- **home/:** entrada integrada en `/inicio`; conserva accesos y contenidos destacados de Prevención. Consulta la sesión, el alias y el último registro propio; muestra carga, error con reintento y un estado sin registros. Los resúmenes de participación y logros siguen pendientes.
 - **prevencion/:** páginas y contenido del eje de Prevención/Concientización.
 - **comunidad/:** páginas del eje de Vinculación y apoyo entre pares.
-- **deteccion/:** Onboarding, Mi actividad, Historial y progreso y Escudo digital. Cada página conserva su ruta independiente; `onboardingQuestions.js` reúne el contenido de las cinco preguntas.
+- **deteccion/:** las carpetas `onboarding/`, `mi-actividad/`, `historial-y-progreso/` y `escudo-digital/` agrupan cada página y sus archivos propios. Cada página conserva su ruta independiente; `onboardingQuestions.js` reúne las cinco preguntas.
 - **perfil/:** consulta la cuenta autenticada y permite guardar su nombre de usuario y avatar privado. Las demás secciones permanecen pendientes; sin sesión redirige a `/login`.
 - **publicas/:** Landing y página `/login`, con formularios de registro e inicio de sesión conectados a Supabase Auth. Los accesos de la Landing seleccionan el formulario mediante `?modo=registro` o `?modo=ingreso`.
 - **errores/:** páginas de error y rutas inexistentes.
@@ -68,11 +68,11 @@ Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la ex
 ### Estado actual del eje de Detección/Orientación
 
 - **Onboarding (`/onboarding`):** recorrido de cinco preguntas con selección, retroceso y omisión individual o completa. La pantalla consulta la cuenta y guarda una única finalización y las respuestas proporcionadas en Supabase; el responsable comprobó el recorrido y guardado remoto; el aislamiento se probó con cuentas ficticias en local. Si se abandona antes, no guarda borrador ni se ofrece automáticamente al ingresar de nuevo. La opción «18 años o más» no asigna un rol ni cambia el segmento objetivo de 13–17. La priorización de accesos con esas respuestas queda pendiente.
-- **Mi actividad (`/mi-actividad`):** interacción local para declarar apuestas y ganas de apostar, cantidades separadas, situaciones y observación opcional. Los campos de apuestas aparecen condicionalmente y las cantidades omitidas no se convierten en cero. Todavía no hay guardado, validación completa del registro, unicidad por usuario y día, cierre del día ni edición de una entrada persistida.
+- **Mi actividad (`/mi-actividad`):** consulta la cuenta y el día argentino de Supabase; presenta bloques opcionales, guarda o actualiza una entrada privada y muestra el resumen confirmado. Se validan importes en ARS, tiempo y cantidad; los valores omitidos se conservan sin dato. Las confirmaciones protegen los cambios de selección y el descarte de una edición. Se revisaron navegación, selección, confirmaciones y conservación de valores en navegador; siguen pendientes la revisión completa de accesibilidad y el cruce real de medianoche.
 - **Historial y progreso (`/historial-y-progreso`):** selección local de día, semana y mes y espacios informativos de métricas, calendario y logros. No hay registros conectados ni filtros efectivos sobre datos, cálculos, gráficos, rachas u observaciones implementados.
 - **Escudo digital (`/escudo-digital`):** tres categorías desplegables: restringir acceso a apuestas, reducir estímulos y encontrar apoyo. No hay catálogo verificado conectado, fichas de recursos ni marcado persistente de medidas realizadas.
 
-Estas capacidades visuales no equivalen al cumplimiento completo de los RF. Registro e ingreso utilizan Supabase Auth; las herramientas de Detección aún no guardan datos por cuenta.
+La conexión de Mi actividad no completa los RF de Historial y Escudo, que siguen pendientes. Registro e ingreso utilizan Supabase Auth.
 
 ### Decisión vigente: Dashboard global desplegable
 
@@ -116,7 +116,7 @@ Los comentarios deben describir responsabilidades, reglas, decisiones y comporta
 
 Se permite crear carpetas, páginas y archivos iniciales que respondan a una estructura previamente aprobada por el equipo, aunque todavía no tengan lógica funcional. No generar capas, hooks, servicios, dependencias ni funcionalidades ficticias por iniciativa del agente.
 
-La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; Perfil permite cerrar la sesión del navegador actual; la protección general de rutas sigue pendiente; Onboarding consulta y guarda su finalización. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
+La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; Perfil permite cerrar la sesión del navegador actual; la protección general de rutas sigue pendiente; Onboarding consulta y guarda su finalización; Mi actividad consulta y actualiza el registro propio mediante funciones de base de datos. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## 6. Diseño
 
