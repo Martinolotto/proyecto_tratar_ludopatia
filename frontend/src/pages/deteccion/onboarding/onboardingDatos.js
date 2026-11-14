@@ -2,7 +2,7 @@
  * Operaciones de datos del onboarding: traducen las respuestas de la pantalla
  * y utilizan el cliente compartido de Supabase con la sesión de la persona.
  */
-import { supabase } from "../../lib/supabase.js";
+import { supabase } from "../../../lib/supabase.js";
 
 // La tabla permite cero o una finalización por cuenta; RLS protege la fila propia.
 export const consultarFinalizacion = async (usuarioId) => {

@@ -7,7 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ArrowLeft, ArrowRight, Compass } from "lucide-react";
-import { supabase } from "../../lib/supabase.js";
+import { supabase } from "../../../lib/supabase.js";
 import { onboardingQuestions } from "./onboardingQuestions.js";
 import { consultarFinalizacion, guardarFinalizacion } from "./onboardingDatos.js";
 

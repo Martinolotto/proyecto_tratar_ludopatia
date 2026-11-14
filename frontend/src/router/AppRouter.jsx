@@ -21,14 +21,14 @@ import { PerfilPage } from "../pages/perfil/PerfilPage.jsx";
 
 // Las herramientas comparten carpeta por eje, pero cada una tiene su propia ruta.
 // El Dashboard permanece como panel global en AppLayout.
-import { MiActividadPage } from "../pages/deteccion/MiActividadPage.jsx";
-import { HistorialYProgresoPage } from "../pages/deteccion/HistorialYProgresoPage.jsx";
-import { EscudoDigitalPage } from "../pages/deteccion/EscudoDigitalPage.jsx";
+import { MiActividadPage } from "../pages/deteccion/mi-actividad/MiActividadPage.jsx";
+import { HistorialYProgresoPage } from "../pages/deteccion/historial-y-progreso/HistorialYProgresoPage.jsx";
+import { EscudoDigitalPage } from "../pages/deteccion/escudo-digital/EscudoDigitalPage.jsx";
 
 // Páginas públicas y flujo inicial.
 import { LandingPage } from "../pages/publicas/LandingPage.jsx";
 import { LoginPage } from "../pages/publicas/LoginPage.jsx";
-import { OnboardingPage } from "../pages/deteccion/OnboardingPage.jsx";
+import { OnboardingPage } from "../pages/deteccion/onboarding/OnboardingPage.jsx";
 
 // Página para direcciones que no existen.
 import { NotFoundPage } from "../pages/errores/NotFoundPage.jsx";
