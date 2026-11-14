@@ -12,7 +12,7 @@ Proyecto universitario desarrollado por tres integrantes para adolescentes de 13
 
 La [guía de diseño MODUS, versión 1.1](docs/design/DESIGN_GUIDELINES.md), es la base visual aceptada; su aplicación y validación siguen pendientes según el checklist de preparación.
 
-Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). Existe un cliente Supabase preparado en frontend y un entorno local con migraciones; las pantallas todavía no están conectadas a autenticación ni persistencia. El almacenamiento y los permisos se explican en [base de datos](docs/base-de-datos.md#persistencia-y-permisos-actuales-guía-para-el-equipo); su sección 9 detalla el estado y las limitaciones locales.
+Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). Registro, ingreso y Perfil utilizan Supabase; Onboarding conecta la finalización por cuenta. Las demás herramientas de Detección aún no guardan datos. El almacenamiento y los permisos se explican en [base de datos](docs/base-de-datos.md#persistencia-y-permisos-actuales-guía-para-el-equipo); su sección 9 detalla el estado y las limitaciones locales.
 
 ## Incorporarse al equipo: Git y ramas
 
@@ -93,7 +93,7 @@ El proxy `/api` de Vite aún no corresponde a rutas funcionales de Express. Tamp
 
 Seguir Conventional Commits con mensajes en español, en pasado y descriptivos. Los agentes requieren autorización para alterar ramas, crear commits, hacer push o merge, conforme a las reglas raíz.
 
-El Dashboard es un panel global desplegable desde Navbar y Home, con accesos a Mi actividad, Historial y progreso y Escudo digital. Las páginas del eje 2, incluido Onboarding, están agrupadas en `frontend/src/pages/deteccion/`; Mi espacio y su ruta fueron retirados. Onboarding y Mi actividad tienen interacción local; Historial y Escudo presentan vistas iniciales sin datos conectados. Home integra accesos, una guía interactiva y contenidos destacados de Prevención. El detalle y los pendientes están en la [guía de frontend](docs/frontend.md). Registro e ingreso usan Supabase Auth; Perfil conecta alias, avatar y cierre local. Las herramientas de Detección todavía no guardan sus datos y la protección general de rutas sigue pendiente. No se impone SDD, TDD ni otro paradigma obligatorio.
+El Dashboard es un panel global desplegable desde Navbar y Home, con accesos a Mi actividad, Historial y progreso y Escudo digital. Las páginas del eje 2, incluido Onboarding, están agrupadas en `frontend/src/pages/deteccion/`; Mi espacio y su ruta fueron retirados. Onboarding conecta su finalización a Supabase; Mi actividad conserva interacción local e Historial y Escudo presentan vistas iniciales sin datos conectados. Home integra accesos, una guía interactiva y contenidos destacados de Prevención. El detalle y los pendientes están en la [guía de frontend](docs/frontend.md). Registro e ingreso usan Supabase Auth; Perfil conecta alias, avatar y cierre local. Las herramientas de Detección todavía no guardan sus datos y la protección general de rutas sigue pendiente. No se impone SDD, TDD ni otro paradigma obligatorio.
 
 ## Datos de prueba
 

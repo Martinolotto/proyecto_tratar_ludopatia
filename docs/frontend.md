@@ -67,7 +67,7 @@ Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la ex
 
 ### Estado actual del eje de Detección/Orientación
 
-- **Onboarding (`/onboarding`):** recorrido de cinco preguntas con selección, progreso, retroceso conservando respuestas, omisión individual o completa y cierre local con acceso a Inicio. Las respuestas se descartan al salir o recargar. La opción «18 años o más» fue aprobada por el responsable como opción seleccionable; no implementa por sí misma una política de acceso ni cambia el segmento objetivo de 13–17. El registro dirige a esta pantalla; la persistencia por cuenta, la realización única y el uso de las respuestas para priorizar accesos siguen pendientes.
+- **Onboarding (`/onboarding`):** recorrido de cinco preguntas con selección, retroceso y omisión individual o completa. La pantalla consulta la cuenta y guarda una única finalización y las respuestas proporcionadas en Supabase; el responsable comprobó el recorrido y guardado remoto; el aislamiento se probó con cuentas ficticias en local. Si se abandona antes, no guarda borrador ni se ofrece automáticamente al ingresar de nuevo. La opción «18 años o más» no asigna un rol ni cambia el segmento objetivo de 13–17. La priorización de accesos con esas respuestas queda pendiente.
 - **Mi actividad (`/mi-actividad`):** interacción local para declarar apuestas y ganas de apostar, cantidades separadas, situaciones y observación opcional. Los campos de apuestas aparecen condicionalmente y las cantidades omitidas no se convierten en cero. Todavía no hay guardado, validación completa del registro, unicidad por usuario y día, cierre del día ni edición de una entrada persistida.
 - **Historial y progreso (`/historial-y-progreso`):** selección local de día, semana y mes y espacios informativos de métricas, calendario y logros. No hay registros conectados ni filtros efectivos sobre datos, cálculos, gráficos, rachas u observaciones implementados.
 - **Escudo digital (`/escudo-digital`):** tres categorías desplegables: restringir acceso a apuestas, reducir estímulos y encontrar apoyo. No hay catálogo verificado conectado, fichas de recursos ni marcado persistente de medidas realizadas.
@@ -86,7 +86,7 @@ La documentación visual anterior que muestre cuatro páginas principales debe t
 
 ### Límites funcionales relevantes
 
-- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual se muestra sin la cabecera pública; la realización única por cuenta todavía no está implementada; el registro dirige al recorrido visual.
+- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual se muestra sin la cabecera pública; el registro dirige al recorrido y su finalización queda vinculada a la cuenta.
 - Mi actividad permite una entrada del día actual por usuario, actualizable ese día y sin creación, edición o eliminación retroactiva. Historial y progreso interpreta únicamente información declarada; un día sin registro no es un día sin apostar.
 - Escudo digital organiza medidas y recursos prácticos; coordinar sus recursos con Prevención. Compartir logros es voluntario y depende de Comunidad, sin publicar registros completos.
 - Chatbot global y “Necesito ayuda ahora” siguen pendientes. Laboratorio de decisiones no es herramienta aprobada del MVP.
@@ -116,7 +116,7 @@ Los comentarios deben describir responsabilidades, reglas, decisiones y comporta
 
 Se permite crear carpetas, páginas y archivos iniciales que respondan a una estructura previamente aprobada por el equipo, aunque todavía no tengan lógica funcional. No generar capas, hooks, servicios, dependencias ni funcionalidades ficticias por iniciativa del agente.
 
-La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; Perfil permite cerrar la sesión del navegador actual; la protección de otras rutas y la persistencia del onboarding siguen pendientes. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
+La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; Perfil permite cerrar la sesión del navegador actual; la protección general de rutas sigue pendiente; Onboarding consulta y guarda su finalización. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## 6. Diseño
 
@@ -151,7 +151,7 @@ No implementar datos ficticios como si fueran funcionalidades reales ni añadir 
 
 Las decisiones vigentes del equipo tienen prioridad sobre referencias históricas. Los requisitos funcionales se mantienen en [Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia), incluidas las capacidades del eje 2 en [su definición funcional](https://trello.com/c/DoYehTF4) y RF-DO-01 a RF-DO-13. La precisión actual del Dashboard se documenta arriba sin modificar el tablero.
 
-Las dependencias y scripts existentes están en `frontend/package.json`; los comandos desde la raíz se resumen en el [README](../README.md). No hay integración de Supabase ni protección real de rutas todavía. El proxy `/api` de Vite tampoco implica una API funcional: ver [docs/backend.md](backend.md).
+Las dependencias y scripts existentes están en `frontend/package.json`; los comandos desde la raíz se resumen en el [README](../README.md). Auth, Perfil y Onboarding utilizan Supabase; la protección general de rutas sigue pendiente. El proxy `/api` de Vite tampoco implica una API funcional: ver [docs/backend.md](backend.md).
 
 ## 8. Uso de agentes de IA
 

@@ -113,7 +113,7 @@ La base principal tiene ocho migraciones aplicadas. La comparación final confir
 - [x] Conectar los formularios de registro e inicio de sesión a Supabase Auth.
 - [x] Comprobar en el remoto de desarrollo registro con sesión, perfil, ingreso y rechazo de contraseña incorrecta y nombre repetido usando una cuenta ficticia retirada al finalizar.
 - [ ] Verificar el recorrido completo desde el navegador, el cierre de sesión y la protección de rutas.
-- [ ] Conectar la persistencia y realización única del onboarding mediante PTL-115.
+- [x] Comprobar el onboarding mediante PTL-115: el módulo de datos pasó las pruebas locales de guardado, omisiones, unicidad y aislamiento con cuentas ficticias; el responsable confirmó el recorrido y guardado remoto desde el navegador.
 
 ## Perfil y sesión — 2026-11-10
 

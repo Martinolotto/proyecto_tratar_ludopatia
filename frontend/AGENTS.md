@@ -34,7 +34,7 @@ Antes de editar, leer `../docs/CONSTITUTION.md` y `../docs/frontend.md`.
 ## Alcance y verificación
 
 - Respetar decisiones vigentes y RF de Trello. No añadir funcionalidades ni tratar pantallas iniciales como capacidades terminadas.
-- No implementar autenticación simulada, usuarios ficticios como sesión real ni protecciones basadas solo en ocultar elementos. Supabase Auth se integrará en una etapa posterior autorizada.
+- No implementar autenticación simulada, usuarios ficticios como sesión real ni protecciones basadas solo en ocultar elementos. Registro e ingreso ya utilizan Supabase Auth; sus extensiones se implementan por historias autorizadas.
 - Ningún secreto o credencial privilegiada debe llegar al navegador, incluidos valores expuestos mediante variables `VITE_*`.
 - Coordinar cambios de rutas, layouts, tokens, sesión y contratos compartidos; aplicar las autorizaciones del `AGENTS.md` raíz.
 - Para cambios de frontend ejecutar `npm --prefix frontend run lint` y `npm --prefix frontend run build` desde la raíz; comprobar además el comportamiento afectado cuando se cambie la interfaz.

@@ -1,6 +1,6 @@
 # MODUS — Modelo de datos y trabajo con Supabase
 
-Actualización 2026-11-10 · Modelo aplicado en Supabase local y en el remoto de desarrollo; conexión funcional y reproducción aislada pendientes.
+Modelo aplicado en Supabase local y remoto de desarrollo. Auth y Perfil están conectados; Onboarding está conectado y su guardado remoto fue comprobado por el responsable. La reproducción aislada sigue pendiente.
 
 Este documento reúne el contexto, el Mermaid completo y las decisiones acordadas para la base compartida de MODUS. La sección 9 distingue la estructura aplicada, las migraciones y las verificaciones pendientes; el modelo no acredita funcionalidades conectadas.
 
@@ -16,7 +16,7 @@ La arquitectura se conserva: React utiliza Supabase Auth y la Data API con su se
 
 - Constitución y reglas compartidas: [CONSTITUTION.md](CONSTITUTION.md), [AGENTS.md](../AGENTS.md) y guías técnicas.
 - [Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia): exportación pública consultada el 2026-11-09, con 8 RF de Prevención, 13 de Detección y 12 de Comunidad. El conector rechazó el acceso; la lectura pública sí fue posible.
-- Código local revisado en `develop`: biblioteca `supabase-js`, variables locales y cliente en `frontend/src/lib/supabase.js` preparados; ninguna solicitud desde ese cliente se verificó en esta revisión. Registro, inicio de sesión y protección real de rutas siguen pendientes.
+- Revisión histórica inicial en `develop`: se encontró el cliente `supabase-js` preparado sin solicitudes verificadas. Posteriormente se conectaron registro, ingreso y Perfil; la protección general de rutas sigue pendiente.
 - El proyecto remoto de desarrollo `modus` (`jmtgahbjrvpwofwjbbui`) recibió las ocho migraciones el 2026-11-10. El historial previo se conservó; ver sección 9.
 - Prevención usa contenido en archivos JavaScript. Comunidad contiene interacciones visuales locales; Perfil conecta nombre de usuario y avatar, y mantiene las demás secciones pendientes.
 
@@ -322,7 +322,7 @@ Home y Dashboard no necesitan tablas propias. Historial, calendario, totales, pr
 
 ### Persistencia y permisos actuales: guía para el equipo
 
-**Qué funciona hoy:** PostgreSQL local tiene el esquema y sus permisos aplicados. React conecta el registro y el inicio de sesión mediante Supabase Auth; sus herramientas todavía no guardan registros. Las selecciones actuales de Onboarding y Mi actividad viven en el estado de React y se pierden al salir o recargar. Crear tablas no conectó automáticamente esas pantallas.
+**Estado de integración:** React conecta registro e ingreso mediante Supabase Auth. Onboarding consulta y guarda una finalización por cuenta; las respuestas viven en memoria hasta completarlo u omitirlo y se descartan si se abandona antes. El responsable comprobó el recorrido y guardado remoto; el aislamiento se probó en local. Mi actividad sigue sin guardar registros. Crear tablas no conecta automáticamente las pantallas.
 
 **Elegir el entorno antes de conectar:** la base local y el proyecto remoto son bases independientes. Las variables de `frontend/.env` determinan a cuál apunta el cliente; disponer de tablas locales no cambia esas variables. En la copia inspeccionada el cliente apuntaba al remoto. Antes de implementar acceso se acordará el destino y se comprobará que URL y clave pública correspondan al mismo entorno. No se copian valores de `.env` al documento ni se cambia ese archivo en esta revisión.
 
@@ -395,7 +395,7 @@ La siguiente etapa acordada es: lectura del responsable → revisión acotada po
 
 Las skills locales `backlog`, `story` y `pair`, adaptadas de hola-ai, acompañan ese flujo. La historia usa Como/Quiero/Para, Resumen, Contexto, criterios verificables y subtareas `FE · ...` o `BE · ...` solo cuando sean necesarias. No se fuerza Express ni una subtarea BE independiente cuando Supabase resuelve la operación.
 
-La estructura local ya está aplicada. La prioridad actual es conectar registro e inicio/cierre de sesión, resolver el recorrido de onboarding y después Home y las herramientas de Detección, una historia revisada por vez. La preparación técnica es un habilitador: una tabla o una UI local no equivalen a una funcionalidad integrada. El responsable elige la siguiente historia desde Jira; no se mantiene otro backlog en este documento.
+La estructura local ya está aplicada. Registro, ingreso y cierre local de sesión están conectados. El siguiente trabajo es verificar la conexión de Onboarding y continuar con Home y las herramientas de Detección, una historia revisada por vez. La preparación técnica es un habilitador: una tabla o una UI local no equivalen a una funcionalidad integrada. El responsable elige la siguiente historia desde Jira; no se mantiene otro backlog en este documento.
 
 Este documento conserva el contexto de decisiones; Trello conserva RF y Jira las historias y resultados. Las ocho migraciones actuales son la referencia ejecutable de la estructura local; los cambios futuros se incorporarán en archivos nuevos. Al implementar una historia se actualizará este documento si cambian decisiones o estado, sin duplicar explicaciones extensas en otras guías. Las instrucciones personales de skills y agentes no se imponen al equipo.
 
@@ -424,7 +424,7 @@ La página de acceso está conectada a Auth; las herramientas no están conectad
 
 ## 9. Entorno local y verificaciones
 
-La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene nueve archivos: un antecedente remoto y ocho archivos propios: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal local y el remoto tienen aplicadas las ocho migraciones propias. `supabase/tests/` contiene las verificaciones locales no versionadas. Las herramientas de Detección aún no están conectadas.
+La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene nueve archivos: un antecedente remoto y ocho archivos propios: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal local y el remoto tienen aplicadas las ocho migraciones propias. `supabase/tests/` contiene las verificaciones locales no versionadas. Las herramientas de Detección aún no están conectadas; Onboarding conecta su finalización por cuenta.
 
 En el equipo preparado, las funciones personales de Fish se ejecutan así:
 
