@@ -311,3 +311,7 @@
   .home-b2__tool-icon { display: grid; }
   .home-b2__community { grid-column: auto; }
 }
+
+/* La semana amplía la actividad sin ocultar la navegación ni sus accesos. */
+.home-b2__today time { text-transform: lowercase; }
+.home-b2__week { margin-top: 24px; }

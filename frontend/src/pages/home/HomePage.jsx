@@ -11,6 +11,7 @@ import {
 } from "../prevencion/prevencionContenido.js";
 import { supabase } from "../../lib/supabase.js";
 import { consultarDatosInicio } from "./homeDatos.js";
+import { ActividadSemanal } from "../../components/ActividadSemanal.jsx";
 import "./HomePage.css";
 
 const lecturasDestacadas = ["casi-ganar", "publicidad-y-apuestas"]
@@ -78,6 +79,52 @@ export const HomePage = () => {
     return () => { vigente = false; };
   }, [intento, navigate, signOutInProgress]);
 
+  // Al volver a la pestaña consultamos de nuevo; mientras permanece visible solo
+  // comprobamos el día de la base una vez por minuto, sin refrescar la pantalla.
+  useEffect(() => {
+    if (estado !== "listo" || !datos?.fechaActual) return undefined;
+    let vigente = true;
+    let consultaPendiente = false;
+    const revision = revisionSesion.current;
+
+    const comprobarDia = async () => {
+      if (document.hidden || consultaPendiente || signOutInProgress.current) return;
+      consultaPendiente = true;
+      try {
+        const { data, error } = await supabase.rpc("consultar_actividad_hoy");
+        if (!vigente || revision !== revisionSesion.current) return;
+        if (error || !data?.fecha) throw error || new Error("Fecha no disponible");
+        if (data.fecha !== datos.fechaActual) {
+          // El calendario anterior deja de ser válido al terminar el día argentino.
+          setDatos(null);
+          setEstado("cargando");
+          setIntento((anterior) => anterior + 1);
+        }
+      } catch {
+        if (vigente && revision === revisionSesion.current) setEstado("error");
+      } finally {
+        consultaPendiente = false;
+      }
+    };
+    const alVolver = () => {
+      if (!document.hidden && !signOutInProgress.current) {
+        setIntento((anterior) => anterior + 1);
+      }
+    };
+    const intervalo = window.setInterval(comprobarDia, 60_000);
+    document.addEventListener("visibilitychange", alVolver);
+    return () => {
+      vigente = false;
+      window.clearInterval(intervalo);
+      document.removeEventListener("visibilitychange", alVolver);
+    };
+  }, [estado, datos?.fechaActual, signOutInProgress]);
+
+  // Formateamos la fecha devuelta por PostgreSQL como día calendario argentino.
+  const diaVisible = (fecha) => new Intl.DateTimeFormat("es-AR", {
+    weekday: "long", day: "numeric", month: "long", timeZone: "UTC",
+  }).format(new Date(`${fecha}T12:00:00Z`));
+
   // La fecha es un día calendario, no un instante: invertir sus partes evita
   // desplazarla por la zona horaria del navegador.
   const fechaVisible = (fecha) => fecha.split("-").reverse().join("/");
@@ -97,7 +144,16 @@ export const HomePage = () => {
           <h1 id="home-welcome-title">
             {estado === "listo" ? `Hola, ${datos.alias}.` : "Un espacio para vos."}
           </h1>
-          <p>Un punto de partida para entender tu actividad y encontrar lo que necesitás.</p>
+          {estado === "listo" ? (
+            <p className="home-b2__today">
+              Hoy es <time dateTime={datos.fechaActual}>{diaVisible(datos.fechaActual)}</time>.
+              {" "}{datos.registradoHoy
+                ? "Tu registro de hoy está disponible."
+                : "Todavía no registraste tu actividad de hoy."}
+            </p>
+          ) : (
+            <p>Un punto de partida para entender tu actividad y encontrar lo que necesitás.</p>
+          )}
         </div>
         {/* El layout abre la sidebar existente y enfoca su primer acceso. */}
         <button
@@ -183,6 +239,13 @@ export const HomePage = () => {
           </div>
         </section>
       </div>
+
+      {/* El calendario se dibuja solo con la respuesta confirmada para esta cuenta. */}
+      {estado === "listo" && (
+        <div className="home-b2__week">
+          <ActividadSemanal dias={datos.semana} racha={datos.racha} hoy={datos.fechaActual} />
+        </div>
+      )}
 
       {/* El catálogo de Prevención mantiene los textos; no se prometen enlaces directos. */}
       <section className="home-b2__discover" aria-labelledby="home-readings-title">
