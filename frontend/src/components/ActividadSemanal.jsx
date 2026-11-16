@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import { Link } from "react-router";
-import { ArrowUpRight, CalendarDays } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Flame } from "lucide-react";
 import "./ActividadSemanal.css";
 
 // Cada fecha es un día calendario de la base, no una hora del dispositivo.
@@ -29,6 +29,8 @@ export const ActividadSemanal = ({ dias, racha, hoy }) => {
           <p>Cada casilla representa un día. Elegí una para ver su resumen.</p>
         </div>
         <div className="semana-actividad__racha" aria-label={`Racha de registros: ${racha} ${racha === 1 ? "día" : "días"}`}>
+          {/* El icono acompaña la cifra; el nombre accesible ya describe la racha. */}
+          <Flame className="semana-actividad__fuego" size={24} aria-hidden="true" />
           <strong>{racha}</strong>
           <span>{racha === 1 ? "día consecutivo" : "días consecutivos"}<small>Racha de registros</small></span>
         </div>
