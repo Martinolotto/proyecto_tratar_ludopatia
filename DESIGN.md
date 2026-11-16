@@ -56,3 +56,13 @@ La guía propone esquinas suavizadas de 8–14 px como referencia, no una escala
 - Usar acentos visuales y animación con propósito, sin convertir la interfaz en una estética de casino.
 - Evitar texto clínico, diagnósticos o datos inventados.
 - No fijar como definitiva una composición de una página que el equipo todavía está revisando.
+
+## Referencia anterior: Mi actividad en superficies oscuras
+
+La versión anterior de Mi actividad utilizaba el fondo `#253a45`, un encabezado
+`#304f58` y una superficie principal `#28464f`, con texto `#eef6f3` y texto
+secundario `#e0eeea`. Los bloques de dinero, tiempo, situaciones y nota usaban
+respectivamente `#38675e`, `#405970`, `#396467` y `#46596d`; los estados de
+selección y acción se apoyaban en `#dcebe3` y `#a4e0cb`. Se conservan como
+referencia de diseño para una posible exploración posterior, sin activar un tema
+oscuro ni alterar los tokens de marca actuales.

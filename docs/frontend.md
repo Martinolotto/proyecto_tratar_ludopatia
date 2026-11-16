@@ -33,9 +33,9 @@ No duplicar la definición de rutas en componentes individuales.
 
 ### Layouts
 
-**PublicLayout.jsx:** estructura compartida por las páginas públicas; incorpora la cabecera de acceso y el pie común. Onboarding utiliza el pie sin montar la cabecera.
+**PublicLayout.jsx:** estructura compartida por las páginas públicas; incorpora la cabecera de acceso. El pie aparece únicamente en Landing; Onboarding se presenta sin cabecera ni pie.
 
-**AppLayout.jsx:** estructura compartida de las páginas de la aplicación. Monta `Navbar` y el panel global `Dashboard`, y entrega `openDashboard` a las páginas mediante el contexto de `Outlet`. Actualmente no verifica sesión: “layout autenticado” describe su destino funcional, no una protección ya implementada.
+**AppLayout.jsx:** estructura compartida de las páginas de la aplicación. Monta `Navbar` y la barra de herramientas `Sidebar`, y entrega su apertura a las páginas mediante el contexto de `Outlet`. Actualmente no verifica sesión: “layout autenticado” describe su destino funcional, no una protección ya implementada.
 
 Los layouts no deben contener la lógica particular de los ejes funcionales.
 
@@ -45,9 +45,10 @@ Los layouts no deben contener la lógica particular de los ejes funcionales.
 
 **components/navigation/:** componentes relacionados con la navegación, incluida la adaptación a escritorio y móvil.
 
-- `AppNavigation.jsx`: enlaces a Inicio, Prevención y Comunidad.
-- `Navbar.jsx`: cabecera global con esa navegación, botón de herramientas y acceso secundario a Perfil.
-- `Dashboard.jsx`: panel de herramientas con diálogo nativo; cierra por botón, Escape, fondo o navegación. Maneja los extremos de Tab/Shift+Tab y el layout enfoca el contenido al cambiar de página. Se presenta lateralmente en escritorio y a ancho completo en móvil.
+- `AppNavigation.jsx`: enlaces centrados con iconos para Prevención, Inicio y Comunidad; el router determina el estado activo.
+- `Navbar.jsx`: cabecera global con marca, navegación y acceso a Perfil. Si existe, muestra el avatar descargado de forma autorizada; ante ausencia o error utiliza un icono neutral. En pantallas estrechas ofrece el botón de herramientas.
+- `Sidebar.jsx`: barra personal con Mi actividad, Historial y progreso, Escudo digital, Perfil y cierre de sesión. En escritorio se expande o contrae y el contenido se reajusta a su ancho; en pantallas estrechas utiliza un diálogo que admite Escape y navegación por teclado.
+- `useNavigationProfile.js`: consulta la identidad y el avatar de la cuenta para la navegación, invalida la vista ante cambios de sesión y libera la URL temporal de la imagen. Tras guardar Perfil, el layout solicita una actualización.
 
 No crear componentes compartidos cuando su reutilización no tenga una finalidad concreta.
 
@@ -61,9 +62,9 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 - **publicas/:** Landing y página `/login`, con formularios de registro e inicio de sesión conectados a Supabase Auth. Los accesos de la Landing seleccionan el formulario mediante `?modo=registro` o `?modo=ingreso`.
 - **errores/:** páginas de error y rutas inexistentes.
 
-Mi espacio y su ruta fueron retirados por decisión del responsable; no hay una cuarta página principal ni un reemplazo del Dashboard como panel.
+Mi espacio y su ruta fueron retirados por decisión del responsable; las herramientas se acceden desde la barra lateral.
 
-Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la experiencia; Dashboard es un panel global desplegable de accesos; Perfil mantiene identidad y configuración de la cuenta.
+Home, la barra lateral y Perfil tienen responsabilidades diferentes: Home integra la experiencia; la barra reúne accesos a herramientas; Perfil mantiene identidad y configuración de la cuenta.
 
 ### Estado actual del eje de Detección/Orientación
 
@@ -74,15 +75,17 @@ Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la ex
 
 La conexión de Mi actividad no completa los RF de Historial y Escudo, que siguen pendientes. Registro e ingreso utilizan Supabase Auth.
 
-### Decisión vigente: Dashboard global desplegable
+### Decisión vigente: barra lateral de herramientas
 
-El responsable del proyecto definió Dashboard como un panel disponible desde el layout autenticado, no como una cuarta página principal junto a Inicio, Prevención y Comunidad. Sus filas con icono, título y acceso abren páginas independientes de herramientas: Mi actividad, Historial y progreso y Escudo digital.
+El responsable definió una barra lateral de herramientas disponible desde el layout de la aplicación. Sus enlaces abren Mi actividad, Historial y progreso y Escudo digital; Inicio, Prevención y Comunidad permanecen en la navegación superior.
 
-El panel no debe concentrar los formularios o gráficos completos. Puede priorizar accesos con el contexto del onboarding, sin ocultar herramientas. Esta precisión de interacción sustituye la interpretación anterior del Dashboard como página, conservando las capacidades aprobadas del eje 2.
+La barra no concentra formularios ni gráficos. En escritorio se expande o contrae y el contenido utiliza el ancho disponible; en pantallas estrechas se presenta como diálogo superpuesto. Desde Home, «Explorá tus herramientas» abre o expande la barra y enfoca su primer enlace.
 
-**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; Home abre el mismo Dashboard global que Navbar. `AppRouter.jsx` conecta las tres herramientas bajo `AppLayout`, con navegación compartida. Onboarding se renderiza sin la cabecera pública ni la navegación principal. El router no verifica sesiones: disponer de estas rutas no implica autenticación o autorización sobre datos.
+**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; Home abre la misma barra de herramientas que Navbar. `AppRouter.jsx` conecta las tres herramientas bajo `AppLayout`, con navegación compartida. Onboarding se renderiza sin la cabecera pública ni la navegación principal. El router no verifica sesiones: disponer de estas rutas no implica autenticación o autorización sobre datos.
 
-La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La navegación compartida sigue el Dashboard global desplegable y colapsable de la [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md); la implementación funcional de las herramientas y la validación del resto de las pantallas siguen pendientes.
+La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La barra lateral reemplaza el diálogo anterior; la [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md) conserva referencias históricas del panel; la implementación funcional de las herramientas y la validación del resto de las pantallas siguen pendientes.
+
+Al cerrar sesión desde la barra se usa el alcance local de Supabase Auth. La biblioteca elimina primero la sesión del navegador e intenta después revocar la sesión en el servidor. Si no puede confirmarse esa revocación, Login informa el resultado; si la sesión local sigue activa, la barra muestra un error y permite reintentar. Los tokens eliminados no se restauran.
 
 ### Límites funcionales relevantes
 
@@ -116,7 +119,7 @@ Los comentarios deben describir responsabilidades, reglas, decisiones y comporta
 
 Se permite crear carpetas, páginas y archivos iniciales que respondan a una estructura previamente aprobada por el equipo, aunque todavía no tengan lógica funcional. No generar capas, hooks, servicios, dependencias ni funcionalidades ficticias por iniciativa del agente.
 
-La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; Perfil permite cerrar la sesión del navegador actual; la protección general de rutas sigue pendiente; Onboarding consulta y guarda su finalización; Mi actividad consulta y actualiza el registro propio mediante funciones de base de datos. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
+La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; Perfil y la barra lateral permiten cerrar la sesión del navegador actual; la protección general de rutas sigue pendiente; Onboarding consulta y guarda su finalización; Mi actividad consulta y actualiza el registro propio mediante funciones de base de datos. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## 6. Diseño
 
@@ -126,7 +129,7 @@ El sistema de estilos disponible está centralizado en `frontend/src/index.css`:
 
 Tailwind CSS 4 se incorpora mediante `@tailwindcss/vite` en `vite.config.js` y `@import "tailwindcss"` en el CSS global. No agregar configuración de Tailwind de otra versión.
 
-Los seis colores de marca actuales y las fuentes Inter/Manrope coinciden con la guía. Lucide ya está disponible en el proyecto. Los tokens semánticos adicionales de borde, texto secundario y feedback siguen por definir o derivar; no se incorporan valores nuevos en esta revisión.
+Los seis colores de marca actuales y las fuentes Inter/Manrope coinciden con la guía. Se añadieron variables compartidas para superficies albaricoque y lavanda, borde, texto secundario y foco. Lucide ya está disponible en el proyecto; los demás tokens de feedback siguen pendientes de definición.
 
 La guía ya está incorporada, pero su aplicación y validación no se consideran terminadas. Siguen pendientes sus comprobaciones de contraste en componentes reales, navegación y estados responsive, comparación de flujos con RF finales y confirmación de permisos públicos/privados. Su política de acceso no se deduce de un mockup. Coordinar la evolución de los tokens y evitar valores arbitrarios repetidos entre componentes.
 
@@ -149,7 +152,7 @@ Estos comandos se ejecutan dentro de `frontend/`.
 
 No implementar datos ficticios como si fueran funcionalidades reales ni añadir sistemas de autenticación simulados.
 
-Las decisiones vigentes del equipo tienen prioridad sobre referencias históricas. Los requisitos funcionales se mantienen en [Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia), incluidas las capacidades del eje 2 en [su definición funcional](https://trello.com/c/DoYehTF4) y RF-DO-01 a RF-DO-13. La precisión actual del Dashboard se documenta arriba sin modificar el tablero.
+Las decisiones vigentes del equipo tienen prioridad sobre referencias históricas. Los requisitos funcionales se mantienen en [Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia), incluidas las capacidades del eje 2 en [su definición funcional](https://trello.com/c/DoYehTF4) y RF-DO-01 a RF-DO-13. La decisión actual sobre la barra lateral se documenta arriba sin modificar el tablero.
 
 Las dependencias y scripts existentes están en `frontend/package.json`; los comandos desde la raíz se resumen en el [README](../README.md). Auth, Perfil y Onboarding utilizan Supabase; la protección general de rutas sigue pendiente. El proxy `/api` de Vite tampoco implica una API funcional: ver [docs/backend.md](backend.md).
 
