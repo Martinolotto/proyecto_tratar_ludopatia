@@ -4,7 +4,7 @@
  * las consultas y las reglas de entrada que esta pantalla necesita.
  */
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useOutletContext } from "react-router";
 import {
   ArrowLeft, ArrowUpRight, Check, ChevronDown, Clock3, Coins,
   ListChecks, PencilLine, Sparkles,
@@ -121,6 +121,7 @@ const Resumen = ({ fecha, registro, conductas, catalogo, onEditar }) => {
 
 export const MiActividadPage = () => {
   const navigate = useNavigate();
+  const { signOutInProgress } = useOutletContext();
   const [estado, setEstado] = useState("cargando");
   const [intento, setIntento] = useState(0);
   const [fecha, setFecha] = useState("");
@@ -176,7 +177,11 @@ export const MiActividadPage = () => {
         const { data, error } = await supabase.auth.getUser();
         if (!vigente || revisionCarga !== revision.current) return;
         if (error && error.name !== "AuthSessionMissingError") throw error;
-        if (!data.user) { navigate("/login", { replace: true }); return; }
+        if (!data.user) {
+          // La navegación compartida resuelve el resultado del cierre en curso.
+          if (!signOutInProgress.current) navigate("/login", { replace: true });
+          return;
+        }
         if (usuario.current !== undefined && usuario.current !== data.user.id) return;
         const datos = await consultarActividad();
         if (!vigente || revisionCarga !== revision.current) return;
@@ -195,7 +200,7 @@ export const MiActividadPage = () => {
     };
     cargar();
     return () => { vigente = false; };
-  }, [intento, navigate]);
+  }, [intento, navigate, signOutInProgress]);
 
   const cambiar = (campo, valor) => {
     setFormulario((anterior) => ({ ...anterior, [campo]: valor }));

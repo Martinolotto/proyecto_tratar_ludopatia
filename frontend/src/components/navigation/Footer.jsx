@@ -1,6 +1,6 @@
 /*
- * Pie de navegación compartido entre las páginas públicas y la aplicación.
- * AppRouter y los layouts lo incorporan para ofrecer los mismos accesos.
+ * Pie de navegación de la Landing pública. PublicLayout lo muestra únicamente
+ * en la ruta inicial, fuera del contenido principal de la página.
  */
 import { Link } from "react-router";
 

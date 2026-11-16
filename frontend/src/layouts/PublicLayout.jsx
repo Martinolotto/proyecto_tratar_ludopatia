@@ -1,5 +1,5 @@
 /*
- * Estructura de las páginas públicas: cabecera, contenido y pie compartido.
+ * Estructura pública: cabecera y contenido; el pie se muestra solo en Landing.
  * AppRouter elige la página que Outlet renderiza; aquí no hay lógica de sesión.
  */
 // Link navega dentro de React; Outlet reserva el lugar para la ruta hija activa.
@@ -8,7 +8,8 @@ import { Footer } from "../components/navigation/Footer.jsx";
 
 export const PublicLayout = () => {
   // La cabecera del acceso acompaña el fondo oscuro sin alterar la Landing.
-  const isAccessPage = useLocation().pathname === "/login";
+  const pathname = useLocation().pathname;
+  const isAccessPage = pathname === "/login";
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -40,8 +41,8 @@ export const PublicLayout = () => {
         <Outlet />
       </main>
 
-      {/* El pie compartido mantiene los mismos accesos que el resto de MODUS. */}
-      <Footer />
+      {/* El pie es exclusivo de la Landing y permanece fuera del contenido principal. */}
+      {pathname === "/" && <Footer />}
     </div>
   );
 };

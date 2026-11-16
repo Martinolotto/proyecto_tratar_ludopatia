@@ -9,7 +9,6 @@ import { BrowserRouter, Route, Routes } from "react-router";
 // Layouts: estructuras comunes para las páginas.
 import { AppLayout } from "../layouts/AppLayout.jsx";
 import { PublicLayout } from "../layouts/PublicLayout.jsx";
-import { Footer } from "../components/navigation/Footer.jsx";
 
 // Página principal de la aplicación.
 import { HomePage } from "../pages/home/HomePage.jsx";
@@ -20,7 +19,7 @@ import { ComunidadPage } from "../pages/comunidad/ComunidadPage.jsx";
 import { PerfilPage } from "../pages/perfil/PerfilPage.jsx";
 
 // Las herramientas comparten carpeta por eje, pero cada una tiene su propia ruta.
-// El Dashboard permanece como panel global en AppLayout.
+// La barra lateral de AppLayout ofrece acceso a estas páginas.
 import { MiActividadPage } from "../pages/deteccion/mi-actividad/MiActividadPage.jsx";
 import { HistorialYProgresoPage } from "../pages/deteccion/historial-y-progreso/HistorialYProgresoPage.jsx";
 import { EscudoDigitalPage } from "../pages/deteccion/escudo-digital/EscudoDigitalPage.jsx";
@@ -51,11 +50,10 @@ export const AppRouter = () => {
           path="/onboarding"
           element={
             <div className="flex min-h-screen flex-col">
-              {/* El recorrido no monta cabecera; el pie es común a toda la aplicación. */}
+              {/* El recorrido se presenta sin las navegaciones de las demás páginas. */}
               <main className="mx-auto w-full max-w-5xl flex-1 p-6 md:p-10">
                 <OnboardingPage />
               </main>
-              <Footer />
             </div>
           }
         />

@@ -296,7 +296,7 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Se conserva el acceso para volver al inicio; el pie común vive en PublicLayout. */}
+      {/* El acceso vuelve al inicio; PublicLayout muestra el pie solo en esta ruta. */}
       <div className="landing-footer">
         <button
           className="landing-footer__top"

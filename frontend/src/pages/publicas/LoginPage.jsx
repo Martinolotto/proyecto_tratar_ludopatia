@@ -3,7 +3,7 @@
  * Recibe el modo desde AppRouter y conecta los formularios con Supabase Auth.
  */
 import { useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "../../lib/supabase.js";
 import "./LoginPage.css";
@@ -13,9 +13,11 @@ export const LoginPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const isRegister = searchParams.get("modo") === "registro";
   const navigate = useNavigate();
+  const location = useLocation();
   const titleRef = useRef(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState("");
+  // El aviso puede explicar un cierre local cuya revocación remota no se confirmó.
+  const [message, setMessage] = useState(() => location.state?.logoutWarning || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previousMode, setPreviousMode] = useState(isRegister);
 
