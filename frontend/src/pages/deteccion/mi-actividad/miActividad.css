@@ -1,794 +1,256 @@
-/** Identidad local de Mi actividad: composición bento, lectura rápida y estados.
- * Se apoya en los tokens globales de MODUS sin alterar otras pantallas.*/
+/*
+ * Presentación de Mi actividad: un registro claro y privado dentro de MODUS.
+ * Los estados y datos vienen de MiActividadPage; estas reglas no los modifican.
+ */
 
-@font-face {
-  font-family: "Bricolage MODUS";
-  src: url("./assets/BricolageGrotesque.ttf") format("truetype");
-  font-style: normal;
-  font-weight: 400 800;
-  font-display: swap;
-}
-
-/* El fondo y el ancho afectan solo al main que contiene esta herramienta;
-   la altura mínima usa el viewport para que el pie siga debajo del contenido.
-   Las demás páginas conservan su layout y colores compartidos. */
+/* El contenedor permite adaptar el bento al espacio real que deja la sidebar. */
 main:has(> .mi-actividad) {
-  min-height: calc(100vh - 90px);
   max-width: none;
-  background: #253a45;
 }
 
 .mi-actividad {
-  --actividad-teal-oscuro: #145b58;
-  --actividad-texto: #eef6f3;
-  --actividad-secundario: #e0eeea;
-  color: var(--actividad-texto);
+  container-type: inline-size;
   max-width: 1500px;
+  min-width: 0;
   margin: 0 auto;
+  color: var(--modus-ink);
+  --actividad-secundario: var(--modus-text-muted, #405b59);
+  --actividad-borde: var(--modus-border, #cbd7d1);
+  --actividad-verde: #dce8e5;
+  --actividad-albaricoque: var(--modus-surface-apricot, #f3dfcf);
+  --actividad-lavanda: var(--modus-surface-lavender, #e8e3f2);
 }
 
-.mi-actividad h1, .mi-actividad h2, .mi-actividad strong {
-  font-family: "Bricolage MODUS", "Manrope Variable", sans-serif;
+.mi-actividad h1,
+.mi-actividad h2,
+.mi-actividad h3,
+.mi-actividad strong {
+  font-family: "Manrope Variable", system-ui, sans-serif;
 }
 
-.mi-actividad button, .mi-actividad input, .mi-actividad select, .mi-actividad textarea {
+.mi-actividad button,
+.mi-actividad input,
+.mi-actividad select,
+.mi-actividad textarea {
   font: inherit;
 }
 
-.mi-actividad button {
-  cursor: pointer;
-}
-
-.mi-actividad button:disabled {
-  cursor: not-allowed;
-  opacity: .58;
-}
-
+.mi-actividad button { cursor: pointer; }
+.mi-actividad button:disabled { cursor: not-allowed; }
 .mi-actividad :focus-visible {
-  outline: 3px solid #c1f2de;
+  outline: 3px solid var(--modus-brand-teal);
   outline-offset: 3px;
-  box-shadow: 0 0 0 2px #102e2c;
 }
 
+/* La vuelta y el encabezado ubican al usuario sin retrasar la acción principal. */
 .actividad-volver {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  /* Amplía el área de activación sin desplazar el contenido de la página. */
   min-height: 44px;
-  margin-block: -10px;
-  color: #c9e9df;
+  color: #1d6361;
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 700;
   text-decoration: none;
 }
-
-.actividad-volver:hover {
-  text-decoration: underline;
-}
-
-/* El encabezado introduce la utilidad y separa la fecha sin añadir pasos. */
+.actividad-volver:hover { text-decoration: underline; }
 .actividad-encabezado {
   display: flex;
+  align-items: end;
   justify-content: space-between;
-  align-items: center;
-  gap: 32px;
-  margin: 18px 0 28px;
-  padding: 54px 38px;
-  border: 1px solid #365551;
-  border-radius: 16px;
-  background: #304f58;
+  gap: 24px;
+  margin: 8px 0 30px;
+  padding: 8px 0 22px;
+  border-bottom: 1px solid var(--actividad-borde);
 }
-
 .actividad-encabezado h1 {
-  font-size: clamp(40px, 3.8vw, 54px);
-  font-weight: 700;
-  letter-spacing: -.035em;
-  line-height: 1.05;
   margin: 0;
-  color: var(--actividad-texto);
+  color: var(--modus-brand-navy);
+  font-size: clamp(2.25rem, 3.3vw, 2.75rem);
+  font-weight: 750;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+  text-wrap: balance;
 }
-
 .actividad-encabezado p {
   max-width: 62ch;
-  color: var(--actividad-secundario);
-  font-size: 16px;
-  line-height: 1.55;
   margin: 10px 0 0;
+  color: var(--actividad-secundario);
+  line-height: 1.55;
 }
-
 .actividad-hoy {
   display: grid;
-  gap: 6px;
-  min-width: 235px;
-  padding-left: 24px;
-  border-left: 1px solid #55716b;
+  gap: 4px;
+  flex: 0 0 auto;
+  padding-left: 18px;
+  border-left: 1px solid var(--actividad-borde);
 }
+.actividad-hoy time { color: var(--modus-brand-navy); font-weight: 700; }
+.actividad-hoy span { max-width: 220px; color: var(--actividad-secundario); font-size: 14px; line-height: 1.45; }
 
-.actividad-hoy time {
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.actividad-hoy span {
-  max-width: 240px;
-  color: var(--actividad-secundario);
-  font-size: 15px;
-  line-height: 1.45;
-}
-
+/* La pregunta principal y los bloques opcionales conservan su orden funcional. */
 .actividad-distribucion {
   display: grid;
-  grid-template-columns: minmax(310px, .72fr) minmax(500px, 1.28fr);
-  gap: 18px;
+  grid-template-columns: minmax(260px, .76fr) minmax(0, 1.24fr);
   align-items: stretch;
+  gap: 18px;
 }
-
 .actividad-principal {
-  color: white;
-  background: #28464f;
-  border: 1px solid #35524f;
-  border-radius: 16px;
-  padding: 30px;
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid #ccdbd5;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(23 43 58 / 5%);
 }
-
-.actividad-principal-cabeza {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 600;
-}
-
+.actividad-principal-cabeza { display: flex; align-items: center; gap: 10px; color: #1d6361; font-size: 14px; font-weight: 700; }
 .actividad-icono {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
   flex: none;
-  border-radius: 11px;
-  background: rgba(255,255,255,.64);
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 70%);
   color: var(--modus-brand-navy);
 }
-
-.actividad-icono-claro {
-  background: rgba(255,255,255,.13);
-  color: white;
-}
-
-.actividad-principal h2 {
-  font-size: clamp(27px, 2.6vw, 36px);
-  letter-spacing: -.03em;
-  line-height: 1.08;
-  margin: 22px 0 6px;
-}
-
-.actividad-principal > p {
-  margin: 0;
-  color: #e2eeed;
-  font-size: 15px;
-}
-
-/* Selección y bloques recuperados del build anterior: mantienen el mismo
-   orden y los estilos del bento, con textos auxiliares más legibles. */
-/* Los fieldsets comparten una base y conservan su semántica nativa. */
-.actividad-eleccion, .actividad-ganas, .actividad-situaciones {
-  border: 0;
-  min-width: 0;
-  padding: 0;
-}
-
-.actividad-eleccion {
-  gap: 8px;
-  margin: 24px 0 0;
-  display: grid;
-}
-
-.actividad-eleccion legend, .actividad-ganas legend {
-  margin-bottom: 10px;
-  font-size: 14px;
-  font-weight: 650;
-}
-
-.actividad-eleccion label {
-  cursor: pointer;
-  border: 1px solid #a1b5bd;
-  border-radius: 10px;
+.actividad-icono-claro { background: #e4f0eb; color: #1d6361; }
+.actividad-principal h2 { margin: 22px 0 6px; color: var(--modus-brand-navy); font-size: clamp(1.5rem, 2.1vw, 1.85rem); font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
+.actividad-principal > p { margin: 0; color: var(--actividad-secundario); line-height: 1.5; }
+.actividad-eleccion, .actividad-ganas, .actividad-situaciones { min-width: 0; margin-inline: 0; padding: 0; border: 0; }
+.actividad-eleccion { display: grid; gap: 8px; margin-top: 22px; }
+.actividad-eleccion legend, .actividad-ganas legend { margin-bottom: 10px; font-size: 14px; font-weight: 700; }
+.actividad-eleccion label, .actividad-ganas label {
+  display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 54px;
-  padding: 0 14px;
-  transition: background .18s,border-color .18s;
-  display: flex;
-}
-
-.actividad-eleccion label:hover {
-  background: #ffffff17;
-}
-
-.actividad-eleccion label.seleccionada {
-  color: var(--modus-brand-navy);
-  background: #dcebe3;
-  border-color: #dcebe3;
-}
-
-.actividad-eleccion label svg {
-  opacity: 0;
-  margin-left: auto;
-}
-
-.actividad-eleccion label.seleccionada svg {
-  opacity: 1;
-}
-
-.actividad-eleccion input, .actividad-ganas input {
-  accent-color: var(--actividad-teal-oscuro);
-}
-
-.actividad-ganas {
-  margin: 22px 0 0;
-}
-
-.actividad-ganas legend span {
-  color: #c6d9d8;
-  font-weight: 400;
-}
-
-.actividad-ganas>div {
-  flex-wrap: wrap;
-  gap: 8px;
-  display: flex;
-}
-
-.actividad-ganas label {
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid #b9cbc4;
+  border-radius: 10px;
+  background: #fff;
   cursor: pointer;
-  border: 1px solid #9aafb6;
-  border-radius: 9px;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  display: flex;
 }
+.actividad-eleccion label:hover, .actividad-ganas label:hover { background: #f2f8f4; }
+.actividad-eleccion label.seleccionada, .actividad-ganas label.seleccionada { border-color: #4e8b7d; background: #dceee5; color: #173b36; }
+.actividad-eleccion label svg { margin-left: auto; opacity: 0; }
+.actividad-eleccion label.seleccionada svg { opacity: 1; }
+.actividad-eleccion input, .actividad-ganas input, .actividad-situaciones input { flex: none; accent-color: #205f5d; }
+.actividad-ganas { margin-top: 22px; }
+.actividad-ganas legend span { color: var(--actividad-secundario); font-weight: 400; }
+.actividad-ganas > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.actividad-ganas button { border: 0; background: transparent; padding: 6px; color: #205f5d; font-size: 14px; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
 
-.actividad-ganas label.seleccionada {
-  color: var(--modus-brand-navy);
-  background: #dcebe3;
-  border-color: #dcebe3;
-}
-
-.actividad-ganas button {
-  color: #fff;
-  text-underline-offset: 3px;
-  background: 0 0;
-  border: 0;
-  padding: 6px;
-  font-size: 15px;
-  text-decoration: underline;
-}
-
-.actividad-opcionales {
-  color: var(--actividad-texto);
-  justify-content: space-between;
-  gap: 12px;
-  margin: 3px 0 12px;
-  font-size: 16px;
-  font-weight: 700;
-  display: flex;
-}
-
-.actividad-opcionales span {
-  font-size: 15px;
-  font-weight: 400;
-}
-
-/* El bento distribuye los bloques; abrir uno conserva los valores de todos. */
-.actividad-bento {
-  grid-template-columns: repeat(3,minmax(0,1fr));
-  align-items: stretch;
-  gap: 12px;
-  display: grid;
-}
-
-.actividad-bloque {
-  border-radius: 14px;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.actividad-bloque--dinero {
-  background: #38675e;
-  grid-column: span 2;
-}
-
-.actividad-bloque--tiempo {
-  background: #405970;
-}
-
-.actividad-bloque--situaciones {
-  background: #396467;
-}
-
-.actividad-bloque--nota {
-  background: #46596d;
-  grid-column: span 2;
-}
-
-.actividad-bloque.esta-abierto {
-  grid-column: 1/-1;
-}
-
-.actividad-bento:has(.actividad-bloque.esta-abierto) {
-  flex-wrap: wrap;
-  display: flex;
-}
-
-.actividad-bento:has(.actividad-bloque.esta-abierto) .actividad-bloque {
-  flex: 210px;
-}
-
-.actividad-bento:has(.actividad-bloque.esta-abierto) .actividad-bloque.esta-abierto {
-  flex: 1 0 100%;
-}
-
-/* La cabecera es el botón completo que abre o cierra cada bloque. */
+/* La grilla usa proporciones distintas; solo un panel se expande al mismo tiempo. */
+.actividad-secundarios { min-width: 0; }
+.actividad-opcionales { display: flex; justify-content: space-between; gap: 12px; margin: 2px 0 12px; color: var(--modus-brand-navy); font-weight: 700; }
+.actividad-opcionales span { color: var(--actividad-secundario); font-size: 14px; font-weight: 400; }
+.actividad-bento { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.actividad-bloque { min-width: 0; overflow: hidden; border: 1px solid rgb(23 43 58 / 9%); border-radius: 16px; }
+.actividad-bloque--dinero { background: var(--actividad-albaricoque); }
+.actividad-bloque--tiempo { background: var(--actividad-lavanda); }
+.actividad-bloque--situaciones { background: var(--actividad-verde); }
+.actividad-bloque--nota { background: #e3ecf1; }
+.actividad-bento:has(.actividad-bloque.esta-abierto) { display: flex; flex-wrap: wrap; }
+.actividad-bento:has(.actividad-bloque.esta-abierto) .actividad-bloque { flex: 1 1 240px; }
+.actividad-bento:has(.actividad-bloque.esta-abierto) .actividad-bloque.esta-abierto { flex: 1 0 100%; }
 .actividad-bloque-cabecera {
-  text-align: left;
-  width: 100%;
-  min-height: 188px;
-  color: var(--actividad-texto);
-  background: 0 0;
-  border: 0;
+  display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
+  min-height: 150px;
   padding: 20px;
-  display: flex;
-}
-
-.actividad-bloque-cabecera:disabled {
-  opacity: 1;
-}
-
-.actividad-bloque--tiempo .actividad-bloque-cabecera {
-  gap: 8px;
-  padding: 16px;
-}
-
-.actividad-bloque--tiempo .actividad-bloque-texto strong {
-  font-size: 19px;
-}
-
-.actividad-bloque-cabecera:focus-visible {
-  outline-offset: -3px;
-}
-
-.actividad-bloque-cabecera:hover:not(:disabled) {
-  background: #ffffff12;
-}
-
-/* El texto reúne título, descripción y valor actual del bloque. */
-.actividad-bloque-texto {
-  flex: 1;
-  gap: 7px;
-  min-width: 0;
-  display: grid;
-}
-
-.actividad-bloque-texto strong {
-  font-size: 22px;
-  line-height: 1.15;
-}
-
-.actividad-bloque-texto>span {
-  -webkit-line-clamp: 3;
-  color: var(--actividad-secundario);
-  overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  font-size: 14px;
-  line-height: 1.45;
-  display: -webkit-box;
-  overflow: hidden;
-}
-
-.actividad-bloque-texto>small {
-  color: var(--actividad-secundario);
-  font-size: 15px;
-  line-height: 1.45;
-}
-
-.actividad-chevron {
-  flex: none;
-  transition: transform .18s;
-}
-
-.esta-abierto .actividad-chevron {
-  transform: rotate(180deg);
-}
-
-.actividad-bloque-contenido {
-  padding: 0 20px 20px;
-}
-
-.actividad-campos-grupo {
   border: 0;
-  min-width: 0;
-  margin: 0;
-  padding: 0;
+  background: transparent;
+  color: var(--modus-brand-navy);
+  text-align: left;
 }
-
-.actividad-campos {
-  flex-wrap: wrap;
-  gap: 12px;
-  display: flex;
-}
-
-/* Cada campo conserva etiqueta, control y ayuda o error asociados. */
-.actividad-campo {
-  flex: 160px;
-  gap: 5px;
-  min-width: 0;
-  display: grid;
-}
-
-.actividad-campo label, .actividad-situaciones legend {
-  font-size: 15px;
-  font-weight: 650;
-}
-
+.actividad-bloque-cabecera:disabled .actividad-icono,
+.actividad-bloque-cabecera:disabled .actividad-chevron { opacity: .68; }
+.actividad-bloque-cabecera:hover:not(:disabled) { background: rgb(255 255 255 / 20%); }
+.actividad-bloque-cabecera:focus-visible { outline-offset: -4px; }
+.actividad-bloque-texto { display: grid; flex: 1; gap: 6px; min-width: 0; }
+.actividad-bloque-texto strong { font-size: 19px; line-height: 1.25; }
+.actividad-bloque-texto > small, .actividad-bloque-texto > span { color: #354f50; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.actividad-bloque-texto > span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.actividad-chevron { flex: none; transition: transform .18s; }
+.esta-abierto .actividad-chevron { transform: rotate(180deg); }
+.actividad-bloque-contenido { padding: 0 20px 20px; }
+.actividad-campos-grupo { min-width: 0; margin: 0; padding: 0; border: 0; }
+.actividad-campos { display: flex; flex-wrap: wrap; gap: 12px; }
+.actividad-campo { display: grid; flex: 1 1 160px; gap: 5px; min-width: 0; }
+.actividad-campo label, .actividad-situaciones legend { font-size: 15px; font-weight: 700; }
 .actividad-campo input, .actividad-campo select, .actividad-campo textarea {
   width: 100%;
   min-height: 50px;
-  color: var(--modus-ink);
-  background: #fff;
-  border: 1px solid #87979a;
-  border-radius: 8px;
   padding: 8px 10px;
-}
-
-.actividad-campo textarea {
-  resize: vertical;
-}
-
-.actividad-campo small {
-  color: var(--actividad-secundario);
-  font-size: 14px;
-}
-
-.actividad-error, .actividad-campo small.actividad-error {
-  color: #ffbdb1;
-  font-weight: 650;
-}
-
-.actividad-error-claro {
-  color: #ffe1d6;
-  margin: 8px 0 0;
-}
-
-/* Las casillas mantienen su comportamiento nativo; el área de cada opción
-   es amplia y el texto se centra verticalmente para facilitar su lectura. */
-.actividad-situaciones {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0 auto;
-  max-width: 1080px;
-}
-
-.actividad-situaciones legend {
-  margin: 0 auto 14px;
-  padding: 0;
-  text-align: center;
-  font-size: 18px;
-}
-
-.actividad-situaciones label {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 66px;
-  padding: 13px 16px;
-  border: 1px solid #a2c8bd;
-  border-radius: 10px;
-  background: #305c54;
-  color: #fff;
-  font-size: 16px;
-  line-height: 1.45;
-  cursor: pointer;
-}
-
-.actividad-situaciones label:has(input:checked) {
-  background: #d9eee2;
-  color: #173835;
-  border-color: #d9eee2;
-}
-
-.actividad-situaciones input {
-  flex: none;
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: #145b58;
-}
-
-.actividad-pie {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-top: 18px;
-  color: var(--actividad-texto);
-}
-
-.actividad-pie p {
-  font-size: 14px;
-  font-weight: 650;
-  margin: 0;
-}
-
-.actividad-pie span {
-  font-size: 15px;
-}
-
-.actividad-pie-acciones {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-}
-
-.actividad-accion {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  min-height: 46px;
-  border: 0;
+  border: 1px solid #8ea7a0;
   border-radius: 9px;
-  background: #a4e0cb;
-  color: #102e2c;
-  padding: 0 22px;
-  font-weight: 700;
-  /* El color confirma la interacción sin desplazar el botón. */
-  transition: background-color 160ms ease-out;
+  background: #fff;
+  color: var(--modus-ink);
 }
+.actividad-campo textarea { resize: vertical; }
+.actividad-campo small { color: #354f50; font-size: 14px; }
+.actividad-error, .actividad-campo small.actividad-error { color: #9c3229; font-weight: 700; }
+.actividad-error-claro { margin: 8px 0 0; }
 
-.actividad-accion:hover:not(:disabled) {
-  background: #c1f2de;
+/* Las situaciones conservan casillas nativas y áreas de selección amplias. */
+.actividad-situaciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 1080px; margin: 0 auto; }
+.actividad-situaciones legend { margin: 0 auto 14px; text-align: center; font-size: 17px; }
+.actividad-situaciones label { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; border: 1px solid #aac5b9; border-radius: 10px; background: #f7fbf8; color: #213d39; line-height: 1.45; cursor: pointer; }
+.actividad-situaciones label:has(input:checked) { border-color: #4e8b7d; background: #cfe7dc; }
+.actividad-situaciones input { width: 20px; height: 20px; margin: 0; }
+
+/* Guardado, cancelación y mensajes comparten el lenguaje de botones de MODUS. */
+.actividad-pie { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 18px; color: var(--actividad-secundario); }
+.actividad-pie p { margin: 0; color: var(--modus-brand-navy); font-size: 14px; font-weight: 700; }
+.actividad-pie span { font-size: 14px; }
+.actividad-pie-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.actividad-accion { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 46px; padding: 0 22px; border: 0; border-radius: 10px; background: var(--modus-brand-teal); color: #fff; font-weight: 700; }
+.actividad-accion:hover:not(:disabled) { background: #205f5d; }
+.actividad-accion:disabled { opacity: .6; }
+.actividad-cancelar { padding: 10px; border: 0; background: transparent; color: #205f5d; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.actividad-confirmacion, .actividad-aviso { margin-top: 12px; padding: 14px; border: 1px solid #e0c49e; border-radius: 10px; background: #fff2de; color: var(--modus-brand-navy); font-size: 14px; }
+.actividad-confirmacion p, .actividad-aviso p { margin: 0 0 8px; }
+.actividad-confirmacion button, .actividad-aviso button { margin: 3px 7px 0 0; padding: 8px 10px; border: 1px solid #718a83; border-radius: 8px; background: #fff; color: var(--modus-brand-navy); font-size: 14px; font-weight: 700; }
+.actividad-mensaje { color: #9c3229; font-size: 14px; font-weight: 700; }
+.actividad-estado { padding: 24px; border: 1px solid var(--actividad-borde); border-radius: 14px; background: #fff; }
+.actividad-estado p { margin: 0 0 16px; }
+
+/* El resumen solo presenta hechos guardados y conserva las omisiones visibles. */
+.actividad-resumen { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr); align-items: stretch; gap: 16px; }
+.actividad-resumen-principal { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(26px, 3vw, 42px); border: 1px solid #c6d9d0; border-radius: 18px; background: #e2eee8; color: var(--modus-brand-navy); }
+.actividad-marca { display: inline-flex; align-items: center; gap: 8px; color: #205f5d; font-size: 14px; font-weight: 700; }
+.actividad-resumen h2 { margin: 20px 0 8px; font-size: clamp(1.65rem, 2.8vw, 2.3rem); font-weight: 700; letter-spacing: -.03em; line-height: 1.2; }
+.actividad-resumen-principal p { max-width: 46ch; margin: 10px 0 0; color: var(--actividad-secundario); line-height: 1.55; }
+.actividad-accion-clara { margin-top: 24px; }
+.actividad-resumen-detalles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.actividad-resumen-tarjeta { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 110px; padding: 20px 22px; border: 1px solid rgb(23 43 58 / 9%); border-radius: 14px; background: #fff; color: var(--modus-brand-navy); }
+.actividad-resumen-ganas { grid-column: span 2; background: #e2eee8; }
+.actividad-resumen-dinero, .actividad-resumen-perdido { background: var(--actividad-albaricoque); }
+.actividad-resumen-tiempo, .actividad-resumen-cantidad { background: var(--actividad-lavanda); }
+.actividad-resumen-situaciones { background: var(--actividad-verde); }
+.actividad-resumen-nota { background: #e3ecf1; }
+.actividad-resumen-tarjeta span { color: #354f50; font-size: 14px; font-weight: 650; }
+.actividad-resumen-tarjeta strong { overflow-wrap: anywhere; font-size: 18px; line-height: 1.4; }
+.actividad-nota-guardada { white-space: pre-wrap; }
+.actividad-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* La sidebar cambia el espacio disponible: la grilla responde al contenedor. */
+@container (max-width: 830px) {
+  .actividad-distribucion, .actividad-resumen { grid-template-columns: 1fr; }
+  .actividad-bloque-cabecera { min-height: 125px; }
 }
-
-.actividad-cancelar {
-  border: 0;
-  background: transparent;
-  padding: 10px;
-  color: #b8ded4;
-  text-decoration: underline;
-  font-weight: 650;
+@container (max-width: 550px) {
+  .actividad-encabezado { align-items: start; flex-direction: column; gap: 14px; }
+  .actividad-hoy { padding-left: 0; border-left: 0; }
+  .actividad-bento { grid-template-columns: 1fr; }
+  .actividad-bloque--dinero, .actividad-bloque--nota { grid-column: auto; }
+  .actividad-situaciones { grid-template-columns: 1fr; }
+  .actividad-pie { align-items: stretch; flex-direction: column; }
+  .actividad-pie-acciones, .actividad-accion { width: 100%; }
 }
-
-.actividad-confirmacion, .actividad-aviso {
-  margin-top: 12px;
-  border-radius: 10px;
-  padding: 12px;
-  background: #fff2de;
-  color: var(--modus-brand-navy);
-  font-size: 14px;
-}
-
-.actividad-confirmacion p, .actividad-aviso p {
-  margin: 0 0 8px;
-}
-
-.actividad-confirmacion button, .actividad-aviso button {
-  border: 1px solid var(--modus-brand-navy);
-  border-radius: 7px;
-  padding: 7px 10px;
-  margin: 3px 7px 0 0;
-  background: white;
-  color: var(--modus-brand-navy);
-  font-size: 13px;
-  font-weight: 650;
-}
-
-.actividad-mensaje {
-  color: #ffbdb1;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.actividad-estado {
-  padding: 24px;
-  border-radius: 14px;
-  background: #20363a;
-  color: var(--actividad-texto);
-}
-
-.actividad-estado p {
-  margin: 0 0 16px;
-}
-
-/* El resumen es un bento de hechos declarados: cada bloque mantiene
-   su etiqueta y valor visibles, también cuando la respuesta fue omitida. */
-.actividad-resumen {
-  display: grid;
-  grid-template-columns: minmax(300px, .8fr) minmax(0, 1.2fr);
-  align-items: stretch;
-  gap: 16px;
-}
-
-.actividad-resumen-principal {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  background: #28464f;
-  color: white;
-  padding: clamp(28px, 3vw, 44px);
-  border-radius: 16px;
-}
-
-.actividad-marca {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #e6f6eb;
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.actividad-resumen h2 {
-  font-size: clamp(30px, 3vw, 42px);
-  letter-spacing: -.03em;
-  line-height: 1.12;
-  margin: 24px 0 8px;
-}
-
-.actividad-resumen-principal p {
-  max-width: 46ch;
-  line-height: 1.55;
-  color: #f2faf5;
-  font-size: 16px;
-  margin: 10px 0 0;
-}
-
-.actividad-accion-clara {
-  color: var(--modus-brand-navy);
-  background: #dcebe3;
-  margin-top: 24px;
-}
-
-.actividad-accion-clara:hover:not(:disabled) {
-  background: white;
-}
-
-.actividad-resumen-detalles {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.actividad-resumen-tarjeta {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-  min-height: 110px;
-  padding: 20px 22px;
-  border-radius: 14px;
-  color: var(--actividad-texto);
-  background: #314956;
-}
-
-/* Tonos relacionados con las cajas del registro: diferencian secciones sin
-   asociar un color a una valoración de la conducta declarada. */
-.actividad-resumen-ganas { background: #345c60; grid-column: span 2; }
-.actividad-resumen-dinero, .actividad-resumen-perdido { background: #354f5e; }
-.actividad-resumen-tiempo, .actividad-resumen-cantidad { background: #33535b; }
-.actividad-resumen-situaciones { background: #39655d; }
-.actividad-resumen-nota { background: #3b5267; }
-
-.actividad-resumen-tarjeta span {
-  color: var(--actividad-secundario);
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.actividad-resumen-tarjeta strong {
-  overflow-wrap: anywhere;
-  font-size: 18px;
-  line-height: 1.4;
-  font-weight: 650;
-}
-
-.actividad-nota-guardada {
-  white-space: pre-wrap;
-}
-
-.actividad-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-}
-
-/* En escritorios de poca altura se compactan espacios, conservando los textos
-   y las acciones visibles sin fijar controles sobre el contenido. */
-@media (min-width: 851px) and (max-height: 900px) {
-  .actividad-encabezado {
-    padding-block: 42px;
-    margin-bottom: 20px;
-  }
-
-  .actividad-bloque-cabecera {
-    min-height: 174px;
-  }
-}
-
-@media (min-width: 851px) and (max-height: 800px) {
-  .actividad-encabezado {
-    padding-block: 30px;
-    margin-block: 12px 14px;
-  }
-
-  .actividad-principal {
-    padding: 20px 26px;
-  }
-
-  .actividad-principal h2 {
-    margin-top: 14px;
-  }
-
-  .actividad-eleccion {
-    margin-top: 14px;
-    gap: 6px;
-  }
-
-  .actividad-eleccion label {
-    min-height: 46px;
-  }
-
-  .actividad-ganas {
-    margin-top: 14px;
-  }
-
-  .actividad-bloque-cabecera {
-    min-height: 145px;
-    padding-block: 14px;
-  }
-
-  .actividad-pie {
-    margin-top: 2px;
-  }
-}
-
-@media (max-width: 850px) {
-  .actividad-distribucion, .actividad-resumen {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 540px) {
-  .actividad-encabezado, .actividad-pie {
-    align-items: start;
-    flex-direction: column;
-  }
-  .actividad-hoy {
-    padding-left: 0;
-    border-left: 0;
-  }
-  .actividad-bento, .actividad-situaciones, .actividad-resumen-detalles {
-    grid-template-columns: 1fr;
-  }
-  .actividad-resumen-ganas {
-    grid-column: auto;
-  }
-  .actividad-bloque, .actividad-bloque.esta-abierto {
-    grid-column: auto;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .mi-actividad *, .mi-actividad *::before, .mi-actividad *::after {
-    transition: none !important;
-    animation: none !important;
-  }
+  .actividad-chevron { transition: none; }
 }
