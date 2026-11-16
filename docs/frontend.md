@@ -41,7 +41,7 @@ Los layouts no deben contener la lógica particular de los ejes funcionales.
 
 ### Componentes
 
-**components/:** elementos visuales o interactivos reutilizables entre páginas.
+**components/:** elementos visuales o interactivos reutilizables entre páginas. `ActividadSemanal.jsx` presenta siete días seleccionables, su resumen y la racha de registros a partir de los datos que recibe de Home.
 
 **components/navigation/:** componentes relacionados con la navegación, incluida la adaptación a escritorio y móvil.
 
@@ -54,7 +54,7 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 
 ### Páginas
 
-- **home/:** entrada integrada en `/inicio`; conserva accesos y contenidos destacados de Prevención. Consulta la sesión, el alias y el último registro propio; muestra carga, error con reintento y un estado sin registros. Los resúmenes de participación y logros siguen pendientes.
+- **home/:** entrada integrada en `/inicio`; conserva accesos y contenidos destacados de Prevención. Consulta la sesión, el alias, la fecha argentina de la base y los registros propios; muestra el último registro, una cuadrícula seleccionable de los últimos siete días y la racha de días consecutivos con Mi actividad guardada. La racha se conserva durante hoy si terminó ayer y se distingue de la futura racha de participación general; un día sin registro es un día sin información. La pantalla ofrece carga, error con reintento y estado sin registros, y actualiza el día al recuperar la pestaña o detectar su cambio. Los resúmenes de participación general y logros siguen pendientes.
 - **prevencion/:** páginas y contenido del eje de Prevención/Concientización.
 - **comunidad/:** páginas del eje de Vinculación y apoyo entre pares.
 - **deteccion/:** las carpetas `onboarding/`, `mi-actividad/`, `historial-y-progreso/` y `escudo-digital/` agrupan cada página y sus archivos propios. Cada página conserva su ruta independiente; `onboardingQuestions.js` reúne las cinco preguntas.
