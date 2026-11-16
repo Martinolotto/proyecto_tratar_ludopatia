@@ -2,11 +2,14 @@
  * Inicio reúne actividad, herramientas y lecturas en una composición abierta.
  * Sus superficies usan los tokens compartidos con Mi actividad y la navegación.
  */
+/* Home administra su margen desde el layout para evitar espacios duplicados. */
+.modus-home-main { padding: 24px 16px 64px; }
+@media (min-width: 1024px) { .modus-home-main { padding-inline: 32px; } }
+@media (min-width: 1280px) { .modus-home-main { padding-inline: 56px; } }
+
 .home-b2 {
   container-type: inline-size;
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: clamp(8px, 2vw, 28px) clamp(4px, 1.5vw, 20px) 64px;
+  width: 100%;
   color: var(--modus-brand-navy);
 }
 
@@ -16,7 +19,7 @@
   align-items: end;
   justify-content: space-between;
   gap: 24px;
-  padding: 4px 0 32px;
+  padding: 0 0 32px;
 }
 
 .home-b2 h1,

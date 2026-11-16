@@ -122,7 +122,9 @@ export const AppLayout = () => {
             id="main-content"
             ref={mainRef}
             tabIndex={-1}
-            className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 outline-none sm:px-6 md:py-8"
+            className={pathname === "/inicio"
+              ? "modus-home-main w-full flex-1 outline-none"
+              : "mx-auto w-full max-w-7xl flex-1 px-4 py-6 outline-none sm:px-6 md:py-8"}
           >
             {/* Las páginas hijas reciben acciones compartidas mediante el router. */}
             <Outlet
