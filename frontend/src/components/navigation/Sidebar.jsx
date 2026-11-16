@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ChartNoAxesCombined,
   LogOut,
+  Moon,
   PanelLeftClose,
   PanelLeftOpen,
   Shield,
@@ -115,8 +116,19 @@ export const Sidebar = ({
         </ul>
       </nav>
 
-      {/* La sesión se cierra realmente desde AppLayout y los errores siguen visibles. */}
+      {/* El modo oscuro se muestra como pendiente, sin cambiar el tema de la aplicación. */}
       <div className="modus-sidebar__actions">
+        <button
+          type="button"
+          className="modus-sidebar__item modus-sidebar__theme"
+          aria-disabled="true"
+          aria-label="Modo oscuro · Próximamente"
+          title="Modo oscuro · Próximamente"
+        >
+          <Moon size={21} aria-hidden="true" />
+          <span className="modus-sidebar__label">Modo oscuro · Próximamente</span>
+        </button>
+        {/* El cierre utiliza la sesión real y conserva su aviso de error. */}
         {signOutError && (
           <p role="alert" className="modus-sidebar__error">{signOutError}</p>
         )}

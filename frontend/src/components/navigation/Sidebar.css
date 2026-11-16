@@ -4,23 +4,26 @@
 .modus-app-content { display: flex; flex: 1; min-width: 0; flex-direction: column; }
 .modus-sidebar-desktop {
   display: none;
-  flex: 0 0 264px;
-  width: 264px;
+  flex: 0 0 276px;
+  width: 276px;
   transition: width 350ms ease, flex-basis 350ms ease;
 }
-.modus-sidebar-desktop--collapsed { flex-basis: 84px; width: 84px; }
+.modus-sidebar-desktop--collapsed { flex-basis: 96px; width: 96px; }
 .modus-sidebar {
   position: sticky;
   z-index: 20;
-  top: var(--modus-header-height);
+  top: calc(var(--modus-header-height) + 8px);
   display: flex;
   flex-direction: column;
   width: 84px;
-  height: calc(100dvh - var(--modus-header-height));
+  height: calc(100dvh - var(--modus-header-height) - 16px);
+  margin: 8px 0 8px 12px;
   min-height: 0;
   padding: 18px 20px;
-  border-right: 1px solid rgb(220 232 229 / 18%);
+  border: 1px solid rgb(220 232 229 / 18%);
+  border-radius: 18px;
   background: #172b3a;
+  box-shadow: 0 8px 24px rgb(23 43 58 / 10%);
   color: #f3f6f3;
   transition: width 350ms ease;
 }
@@ -88,12 +91,17 @@
 .modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__item:hover .modus-sidebar__label,
 .modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__item:focus-visible .modus-sidebar__label { opacity: 1; }
 .modus-sidebar__actions { margin-top: auto; padding-top: 18px; }
+.modus-sidebar__theme { color: #b6c8c2; cursor: not-allowed; }
+.modus-sidebar--expanded .modus-sidebar__theme .modus-sidebar__label {
+  white-space: normal;
+  line-height: 1.25;
+}
 .modus-sidebar__logout:disabled { opacity: .65; cursor: wait; }
 .modus-sidebar__error { margin: 0 0 8px; color: #fff1de; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
 .modus-sidebar :focus-visible { outline: 3px solid #c8eee1; outline-offset: 3px; }
 .modus-sidebar-dialog { position: fixed; inset: 0 auto 0 0; max-height: 100dvh; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; }
 .modus-sidebar-dialog::backdrop { background: rgb(23 43 58 / 45%); }
-.modus-sidebar-dialog .modus-sidebar { position: static; height: 100dvh; max-width: 100vw; }
+.modus-sidebar-dialog .modus-sidebar { position: static; height: 100dvh; max-width: 100vw; margin: 0; border-radius: 0 18px 18px 0; }
 @media (min-width: 1024px) { .modus-sidebar-desktop { display: block; } }
 @media (max-width: 1023px) { .modus-app-shell { --modus-header-height: 120px; } }
 @media (max-height: 430px) { .modus-sidebar { overflow-y: auto; } }
