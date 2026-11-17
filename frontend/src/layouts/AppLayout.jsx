@@ -124,7 +124,9 @@ export const AppLayout = () => {
             tabIndex={-1}
             className={pathname === "/inicio"
               ? "modus-home-main w-full flex-1 outline-none"
-              : "mx-auto w-full max-w-7xl flex-1 px-4 py-6 outline-none sm:px-6 md:py-8"}
+              : pathname === "/historial-y-progreso"
+                ? "w-full flex-1 px-4 pt-6 pb-16 outline-none lg:px-8 xl:px-14"
+                : "mx-auto w-full max-w-7xl flex-1 px-4 py-6 outline-none sm:px-6 md:py-8"}
           >
             {/* Las páginas hijas reciben acciones compartidas mediante el router. */}
             <Outlet

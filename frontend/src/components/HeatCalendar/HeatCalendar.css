@@ -1,0 +1,38 @@
+/* Apariencia local del calendario de participación, sin estilos globales. */
+.heat-calendar { width: fit-content; max-width: 100%; color: #172b3a; }
+.heat-calendar__lectura { min-height: 56px; margin: 16px 0 12px; }
+.heat-calendar__lectura strong, .heat-calendar__lectura span { display: block; }
+.heat-calendar__lectura strong { font: 800 1.1rem var(--font-heading, sans-serif); }
+.heat-calendar__lectura span { margin-top: 4px; color: #405b59; font-size: .8rem; text-transform: capitalize; }
+.heat-calendar__grilla { display: grid; grid-template-columns: 20px repeat(var(--heat-semanas), 30px); grid-template-rows: repeat(7, 30px); gap: 3px; }
+.heat-calendar__dia-semana { display: grid; place-items: center; color: #516963; font-size: .75rem; font-weight: 700; }
+.heat-calendar__boton, .heat-calendar__fuera { position: relative; width: 30px; height: 30px; }
+.heat-calendar__boton { padding: 0; border: 0; background: transparent; cursor: pointer; }
+.heat-calendar__celda { position: absolute; inset: 2px; border: 1px solid #c8d8d1; border-radius: 4px; background: #edf2ef; }
+.heat-calendar__celda--registrada { border-color: #287f73; background: #2a8b7c; }
+.heat-calendar__boton:hover .heat-calendar__celda { box-shadow: inset 0 0 0 2px #315b55; }
+.heat-calendar__boton[aria-pressed="true"] .heat-calendar__celda { box-shadow: inset 0 0 0 3px #173b38; }
+.heat-calendar__boton:focus-visible { z-index: 1; outline: 3px solid #145b58; outline-offset: 1px; border-radius: 5px; }
+.heat-calendar__leyenda { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 15px; color: #405b59; font-size: .8rem; font-weight: 600; }
+.heat-calendar__leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.heat-calendar__leyenda i { width: 13px; height: 13px; border: 1px solid #c8d8d1; border-radius: 3px; background: #edf2ef; }
+.heat-calendar__leyenda .heat-calendar__marca { border-color: #287f73; background: #2a8b7c; }
+/* El punto distingue el registro también sin depender de su color. */
+.heat-calendar__celda--registrada::after,
+.heat-calendar__leyenda .heat-calendar__marca::after {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+}
+.heat-calendar__celda--registrada::after { position: absolute; inset: 0; margin: auto; }
+.heat-calendar__leyenda .heat-calendar__marca { display: grid; place-items: center; }
+/* Las celdas fuera del rango son visibles, pero no se presentan como días sin registro. */
+.heat-calendar__grilla { grid-template-columns: 20px repeat(var(--heat-semanas), 27px); grid-template-rows: repeat(7, 27px); }
+.heat-calendar__boton, .heat-calendar__fuera { width: 27px; height: 27px; }
+.heat-calendar__fuera::after { content: ""; position: absolute; inset: 2px; border: 1px dashed #b9c8c1; border-radius: 4px; background: #f6f8f6; }
+.heat-calendar__leyenda .heat-calendar__no-disponible { border-style: dashed; border-color: #a6b9b0; background: #f6f8f6; }
+.heat-calendar__lectura span { text-transform: none; }
+.heat-calendar__lectura span::first-letter { text-transform: uppercase; }
