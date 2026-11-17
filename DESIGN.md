@@ -35,6 +35,8 @@ Manrope identifica títulos; Inter se usa para lectura e interfaz. Usar jerarqu�
 
 Composición respirable y compacta, con jerarquía clara y sin multiplicar tarjetas. Adaptar controles y contenido a móvil y escritorio, sin desbordamiento horizontal. Home, Dashboard y Perfil mantienen responsabilidades distintas.
 
+**Historial y progreso:** en escritorio utiliza el ancho disponible junto a la barra lateral, con encabezado y filtros compactos. La vista Mi historial organiza calendario y listado junto a un detalle contextual; las reflexiones ocupan una sección abierta. Las celdas distinguen sus estados mediante color, marcas y etiquetas accesibles. Mis avances tendrá una composición propia centrada en participación e insignias; su diseño y conexión siguen pendientes. Ambas vistas comparten pestañas y puntos de navegación, con movimiento reducido.
+
 ## Elevation & Depth
 
 Preferir profundidad discreta. Los efectos de vidrio deben conservar una base legible si no existe soporte para desenfoque; evitar desenfoques o sombras que compitan con las acciones.
