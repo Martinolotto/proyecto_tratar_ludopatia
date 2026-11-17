@@ -201,7 +201,7 @@
 
 /* El calendario conserva sus celdas compactas y controles mensuales propios. */
 .historial-calendario__mes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; }
-.historial-calendario__mes strong { color: #172b3a; font-size: 1rem; text-transform: capitalize; }
+.historial-calendario__mes h2 { color: #172b3a; font-size: 1rem; text-transform: capitalize; }
 .historial-calendario__flechas { display: flex; gap: 5px; }
 .historial-calendario__flechas button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #cbdad3; border-radius: 9px; background: #fff; color: #145b58; cursor: pointer; }
 .historial-calendario__flechas button:disabled { color: #8b9995; cursor: not-allowed; }
@@ -237,7 +237,7 @@
 .historial-vista__principal { grid-template-columns: minmax(250px, .9fr) minmax(220px, 1fr) minmax(260px, 1.1fr); gap: 16px; }
 .historial-calendario { border-top: 4px solid #2a7774; padding: 19px 20px; }
 .historial-calendario__mes { margin-top: 13px; }
-.historial-calendario__mes strong { white-space: nowrap; }
+.historial-calendario__mes h2 { white-space: nowrap; }
 .historial-lista { padding: 19px 20px; border: 1px solid #d2ded9; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgb(23 43 58 / 6%); }
 .historial-lista li button { background: #f0f5f2; }
 .historial-lista li button:hover, .historial-lista li button[aria-pressed="true"] { background: #d8ebe3; }
@@ -261,8 +261,12 @@
 }
 /* En español solo se capitaliza el comienzo de las fechas, no cada palabra. */
 .historial-detalle__fecha, .historial-lista li strong, .historial-nota summary,
-.historial-calendario__mes strong { text-transform: none; }
-.historial-calendario__mes strong, .historial-nota summary span:first-child { display: block; }
+.historial-calendario__mes h2 { text-transform: none; }
+.historial-calendario__mes h2, .historial-nota summary span:first-child { display: block; }
 .historial-detalle__fecha::first-letter, .historial-lista li strong::first-letter,
 .historial-nota summary span:first-child::first-letter,
-.historial-calendario__mes strong::first-letter { text-transform: uppercase; }
+.historial-calendario__mes h2::first-letter { text-transform: uppercase; }
+
+/* El mes es el título accesible del módulo compacto de participación. */
+.historial-calendario__mes { margin-top: 0; }
+.historial-calendario__mes h2 { margin: 0; }

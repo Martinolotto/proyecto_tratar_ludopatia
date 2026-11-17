@@ -1,126 +1,228 @@
 /*
- * Calendario de participación adaptado del Heat Calendar de ssych-ui, revisión
- * 2f5533656732324cf0dbdea2b20c66e0b1d3ec27 (licencia MIT en LICENSE).
- * Recibe días de calendario de MODUS y comunica la selección al historial.
+ * Heat Calendar original provisto por el usuario, adaptado a React de MODUS.
+ * Conecta días registrados con el detalle; licencia MIT de ssych-ui en LICENSE.
  */
-import { useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
-import { LiveFigure } from "./LiveFigure.jsx";
-import "./HeatCalendar.css";
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import './HeatCalendar.css'
 
-const DIAS = ["L", "M", "M", "J", "V", "S", "D"].map((nombre, d) => ({ nombre, d }));
-const PASOS = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 };
-const DIA_MS = 86400000;
-const aFecha = (texto) => new Date(`${texto}T00:00:00Z`);
-const aTexto = (fecha) => fecha.toISOString().slice(0, 10);
-const sumarDias = (fecha, cantidad) => new Date(fecha.getTime() + cantidad * DIA_MS);
-const etiquetaFecha = (fecha) => new Intl.DateTimeFormat("es-AR", {
-  weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
-}).format(aFecha(fecha));
+const EASE = [0.16, 1, 0.3, 1]
+/* El resorte conserva el movimiento original del componente. */
+const LIFT_SPRING = { type: 'spring', stiffness: 500, damping: 30 }
+/** Escalas para la celda apuntada y sus vecinas. */
+const LIFT = [1.3, 1.08, 1.03]
 
-// Conserva la disposición original por semanas verticales y la navegación con flechas.
-export function HeatCalendar({ mes, desde, hasta, fechasRegistradas, seleccion, onSeleccionar }) {
-  const reducido = useReducedMotion();
-  const referencia = useRef(null);
-  const [vistaPrevia, setVistaPrevia] = useState(null);
-  const [fechaEnfocada, setFechaEnfocada] = useState(null);
-  const { dias, columnas, registrados } = useMemo(() => {
-    const [ano, numeroMes] = mes.split("-").map(Number);
-    const primero = new Date(Date.UTC(ano, numeroMes - 1, 1));
-    const ultimo = new Date(Date.UTC(ano, numeroMes, 0));
-    // El original calcula el lunes inicial y una columna por semana completa.
-    const inicio = sumarDias(primero, -((primero.getUTCDay() + 6) % 7));
-    const semanas = Math.ceil(((ultimo - inicio) / DIA_MS + 1) / 7);
-    const columnasMes = Array.from({ length: semanas }, (_, w) => ({ id: `w${w}`, w }));
-    const celdas = Array.from({ length: semanas * 7 }, (_, indice) => {
-      const fecha = aTexto(sumarDias(inicio, indice));
-      return { fecha, visible: fecha.slice(0, 7) === mes && fecha >= desde && fecha <= hasta };
-    });
-    return { dias: celdas, columnas: columnasMes, registrados: new Set(fechasRegistradas) };
-  }, [mes, desde, hasta, fechasRegistradas]);
-  const disponibles = dias.filter((dia) => dia.visible);
-  const seleccionVisible = disponibles.find((dia) => dia.fecha === seleccion);
-  // La última celda enfocada recibe el tabIndex, incluso antes de seleccionarla.
-  const focoInicial = disponibles.find((dia) => dia.fecha === fechaEnfocada)?.fecha
-    || seleccionVisible?.fecha || disponibles.at(-1)?.fecha;
-  const diaMostrado = vistaPrevia && disponibles.some((dia) => dia.fecha === vistaPrevia)
-    ? vistaPrevia : seleccionVisible?.fecha;
+/** Solo los dispositivos con puntero muestran la respuesta de hover. */
+function useCanHover() {
+  const [can, setCan] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches)
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: hover)')
+    const onChange = () => setCan(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  return can
+}
 
-  // Mantiene el índice y los movimientos del original: semana horizontal, día vertical.
-  const indiceDe = (celda) => celda.w * 7 + celda.d;
-  const enfocarCelda = (celda) => {
-    referencia.current?.querySelector(`[data-indice="${indiceDe(celda)}"]`)?.focus();
-  };
-  const manejarTecla = (evento, celda) => {
-    const paso = PASOS[evento.key];
-    if (!paso) return;
-    evento.preventDefault();
-    let siguiente = indiceDe(celda) + paso;
-    while (siguiente >= 0 && siguiente < dias.length && !dias[siguiente].visible) siguiente += paso;
-    if (siguiente >= 0 && siguiente < dias.length) {
-      enfocarCelda({ w: Math.floor(siguiente / 7), d: siguiente % 7 });
-    }
-  };
+const SURFACE = 'var(--surface, var(--card))'
+const HAIRLINE = 'var(--border)'
+const DAYS = 7
+/** El tooltip usa la distancia original: celda de 14 px más 4 px de separación. */
+const PITCH = 18
+const DOW = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom']
+
+/** MODUS utiliza únicamente el primer y el último nivel de esta escala original. */
+const STEPS = [4, 14, 30, 50, 75]
+
+function HeatCalendarOriginal({
+  title = 'Registro diario',
+  unit = 'registros',
+  weeks = 5,
+  maxCount = 1,
+  values,
+  color = 'var(--chart-1, #4790e4)',
+  className = '',
+  etiquetas,
+  habilitados,
+  fechaSeleccionada,
+  onSelectDay,
+
+}) {
+  const reduced = useReducedMotion()
+  const canHover = useCanHover()
+  const [hover, setHover] = useState(null)
+  const [pinWeek, setPinWeek] = useState(null)
+  const [foco, setFoco] = useState(null)
+  const grilla = useRef(null)
+  const habilitadas = etiquetas.flatMap((columna, w) => columna.map((fecha, d) => ({ fecha, w, d })))
+    .filter(({ w, d }) => habilitados[w][d])
+  const focoActual = habilitadas.find(({ w, d }) => foco?.w === w && foco?.d === d)
+    ?? habilitadas.find(({ fecha }) => fecha === fechaSeleccionada) ?? habilitadas.at(-1)
+  const moverFoco = (evento, w, d) => {
+    const pasos = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 }
+    const paso = pasos[evento.key]
+    if (!paso) return
+    evento.preventDefault()
+    let indice = w * DAYS + d + paso
+    while (indice >= 0 && indice < weeks * DAYS && !habilitados[Math.floor(indice / DAYS)]?.[indice % DAYS]) indice += paso
+    grilla.current?.querySelector(`[data-indice="${indice}"]`)?.focus()
+  }
+
+  const level = (w, d) => values?.[w]?.[d] ?? 0
+  const step = (v) => STEPS[Math.min(4, Math.floor(v * 5))]
+  const count = (v) => Math.round(v * maxCount)
+  const tint = (pct) => `color-mix(in srgb, ${color} ${pct}%, transparent)`
+  const fechaLegible = (fecha) => new Intl.DateTimeFormat('es-AR', {
+    day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
+  }).format(new Date(`${fecha}T12:00:00Z`))
+  const weekTotal = (w) =>
+    Array.from({ length: DAYS }, (_, d) => count(level(w, d))).reduce((a, b) => a + b, 0)
 
   return (
-    <div className="heat-calendar" aria-label="Participación mensual">
-      <div className="heat-calendar__lectura" role="status">
-        <LiveFigure intent={diaMostrado}>
-          {diaMostrado ? (
-            <><strong>{registrados.has(diaMostrado) ? "Registrado" : "Sin registro"}</strong><span>{etiquetaFecha(diaMostrado)}</span></>
-          ) : <><strong>Tu participación</strong><span>Elegí un día para ver el detalle</span></>}
-        </LiveFigure>
+    <div className={`heat-calendar-original relative w-fit ${className}`} style={{ width: 230, maxWidth: '100%' }}>
+      <div className="flex items-baseline justify-between">
+        <span className="text-[12px] font-medium text-muted-foreground">{title}</span>
+        <span className="text-[11px] text-muted-foreground">{weeks} semanas</span>
       </div>
-      <motion.div
-        className="heat-calendar__grilla"
-        ref={referencia}
-        role="group"
-        aria-label="Días del mes. Usá las flechas para recorrerlos y Enter o espacio para seleccionar."
-        style={{ "--heat-semanas": columnas.length }}
-        initial={false}
-        animate={{ opacity: 1 }}
-      >
-        {DIAS.map(({ nombre, d }) => <span key={d} className="heat-calendar__dia-semana" style={{ gridColumn: 1, gridRow: d + 1 }}>{nombre}</span>)}
-        {columnas.map(({ id, w }) => DIAS.map(({ d }) => {
-          const celda = { w, d };
-          const indice = indiceDe(celda);
-          const { fecha, visible } = dias[indice];
-          const registrado = registrados.has(fecha);
-          const elegido = seleccion === fecha;
-          if (!visible) return <span key={`${id}-${d}`} className="heat-calendar__fuera" style={{ gridColumn: w + 2, gridRow: d + 1 }} aria-hidden="true" />;
+
+      <div ref={grilla} className="relative mt-3 flex gap-[4px]" onPointerLeave={() => setHover(null)}>
+        {Array.from({ length: weeks }, (_, w) => {
+          const colOn = pinWeek === w || hover?.w === w
           return (
-            <button
-              key={`${id}-${d}`}
-              type="button"
-              className="heat-calendar__boton"
-              data-indice={indice}
-              style={{ gridColumn: w + 2, gridRow: d + 1 }}
-              tabIndex={fecha === focoInicial ? 0 : -1}
-              aria-label={`${etiquetaFecha(fecha)}: ${registrado ? "registrado" : "sin registro"}`}
-              aria-pressed={elegido}
-              onPointerEnter={() => setVistaPrevia(fecha)}
-              onPointerLeave={() => setVistaPrevia(null)}
-              onFocus={() => { setFechaEnfocada(fecha); setVistaPrevia(fecha); }}
-              onBlur={() => setVistaPrevia(null)}
-              onClick={() => onSeleccionar(fecha)}
-              onKeyDown={(evento) => manejarTecla(evento, celda)}
+            <motion.div
+              key={w}
+              className="flex flex-col gap-[4px] rounded-[5px] transition-colors"
+              style={{
+                background: pinWeek === w ? 'color-mix(in srgb, var(--foreground) 6%, transparent)' : 'transparent',
+              }}
+              initial={{ opacity: reduced ? 1 : 0 }}
+              animate={{ opacity: 1 }}
+              transition={reduced ? { duration: 0 } : { duration: 0.4, ease: EASE, delay: w * 0.035 }}
             >
-              <motion.span
-                className={`heat-calendar__celda${registrado ? " heat-calendar__celda--registrada" : ""}`}
-                initial={false}
-                animate={{ opacity: 1 }}
-                transition={{ duration: reducido ? 0 : 0.15 }}
-                aria-hidden="true"
-              />
-            </button>
-          );
-        }))}
-      </motion.div>
-      <div className="heat-calendar__leyenda" aria-label="Referencias">
-        <span><i aria-hidden="true" /> Sin registro</span>
-        <span><i className="heat-calendar__marca" aria-hidden="true" /> Registrado</span>
-        <span><i className="heat-calendar__no-disponible" aria-hidden="true" /> No disponible</span>
+              {Array.from({ length: DAYS }, (_, d) => {
+                const v = level(w, d)
+                const habilitado = habilitados[w][d]
+                const fecha = etiquetas[w][d]
+                const seleccionado = fecha === fechaSeleccionada
+                const on = hover?.w === w && hover?.d === d
+                /* El componente original amplía la celda y atenúa el efecto en sus vecinas. */
+                const dist = hover && habilitado ? Math.max(Math.abs(hover.w - w), Math.abs(hover.d - d)) : 9
+                const lift = reduced ? 1 : dist === 0 ? LIFT[0] : canHover && dist < LIFT.length ? LIFT[dist] : 1
+                return (
+                  <span
+                    key={d}
+                    className="relative block h-[14px] w-[14px]"
+                    onPointerEnter={!habilitado ? () => setHover(null) : undefined}
+                    style={{ zIndex: lift > 1 ? LIFT.length - dist : 0 }}
+                  >
+                  {/* El área del botón cubre la celda y la mitad de cada separación. */}
+                  <button
+                    type="button"
+                    data-indice={w * DAYS + d}
+                    disabled={!habilitado}
+                    tabIndex={habilitado && focoActual?.w === w && focoActual?.d === d ? 0 : -1}
+                    aria-label={habilitado
+                      ? `${fechaLegible(fecha)}, ${v ? 'registrado' : 'sin registro'}${seleccionado ? ', día seleccionado' : ''}. Seleccionar día y ${pinWeek === w ? 'desfijar' : 'fijar'} semana ${w + 1}`
+                      : 'Fecha no disponible'}
+                    aria-pressed={pinWeek === w}
+                    onKeyDown={(e) => {
+                      moverFoco(e, w, d)
+                      if (e.key === 'Escape') {
+                        setPinWeek(null)
+                        setHover(null)
+                      }
+                    }}
+                    onPointerEnter={() => { if (habilitado) setHover({ w, d }) }}
+                    onFocus={() => { setFoco({ w, d }); setHover({ w, d }) }}
+                    onBlur={() => setHover(null)}
+                    onClick={() => { setPinWeek((p) => (p === w ? null : w)); onSelectDay(fecha) }}
+                    /* Conserva el área original de 18 px; cada fecha también se alcanza por teclado. */
+                    className="absolute -inset-0.5 block cursor-pointer rounded-[5px] outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <motion.span
+                      className="pointer-events-none absolute inset-0.5 block rounded-[3.5px]"
+                      style={{
+                        background: habilitado ? tint(step(v)) : 'transparent',
+                        outline: habilitado ? undefined : '1px dashed #c8d5d0',
+                        outlineOffset: '-1px',
+                        /* El borde interior mantiene las celdas visibles en superficies claras. */
+                        boxShadow: !habilitado
+                          ? 'none'
+                          : on
+                          ? 'inset 0 0 0 1px color-mix(in srgb, var(--foreground) 40%, transparent)'
+                          : `inset 0 0 0 1px color-mix(in srgb, var(--foreground) ${colOn ? 14 : 7}%, transparent)`,
+                        transition: 'box-shadow 150ms',
+                      }}
+                      animate={{ scale: lift }}
+                      transition={{ ...LIFT_SPRING, delay: Math.min(dist, 3) * 0.03 }}
+                    />
+                  </button>
+                  </span>
+                )
+              })}
+            </motion.div>
+          )
+        })}
+
+        {/* La posición del tooltip sigue la separación original de la cuadrícula. */}
+        <AnimatePresence>
+          {hover && (
+            <motion.span
+              key={`${hover.w}-${hover.d}`}
+              role="status"
+              className="pointer-events-none absolute z-10 whitespace-nowrap rounded-md border px-1.5 py-0.5 text-[9.5px] tabular-nums text-foreground/75"
+              style={{
+                left: hover.w * PITCH + (hover.w < 3 ? 0 : hover.w > weeks - 4 ? 14 : 7),
+                top: hover.d * PITCH - 4,
+                translate: hover.w < 3 ? '0 -100%' : hover.w > weeks - 4 ? '-100% -100%' : '-50% -100%',
+                background: SURFACE,
+                borderColor: HAIRLINE,
+                boxShadow: '0 8px 24px -6px rgba(0,0,0,0.35)',
+              }}
+              initial={reduced ? { opacity: 0 } : { opacity: 0, y: 3 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduced ? 0 : 0.12 }}
+            >
+              <b className="font-semibold text-foreground/90">{count(level(hover.w, hover.d))}</b> {count(level(hover.w, hover.d)) === 1 ? 'registro' : unit} · {DOW[hover.d]}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between">
+        <span className="flex items-center gap-1 whitespace-nowrap" aria-label="Sin registro y registrado">
+          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: tint(STEPS[0]) }} />
+          <span className="text-[10px] text-muted-foreground" aria-hidden="true">Sin</span>
+          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: tint(STEPS[4]) }} />
+          <span className="text-[10px] text-muted-foreground" aria-hidden="true">Con</span>
+        </span>
+        {/* El total de la semana fijada permanece cuando el puntero sale. */}
+        <span className="whitespace-nowrap tabular-nums text-[11px] text-muted-foreground">
+          {pinWeek !== null ? `sem ${pinWeek + 1} · ${weekTotal(pinWeek)} ${weekTotal(pinWeek) === 1 ? 'registro' : unit}` : ' '}
+        </span>
       </div>
     </div>
-  );
+  )
+}
+
+
+// Adaptador: transforma las fechas civiles de Córdoba en la matriz semanal original.
+export function HeatCalendar({ mes, desde, hasta, fechasRegistradas, seleccion, onSeleccionar }) {
+  const [ano, numeroMes] = mes.split('-').map(Number)
+  const primerDia = new Date(Date.UTC(ano, numeroMes - 1, 1))
+  const ultimoDia = new Date(Date.UTC(ano, numeroMes, 0))
+  const inicio = new Date(primerDia.getTime() - ((primerDia.getUTCDay() + 6) % 7) * 86400000)
+  const semanas = Math.ceil(((ultimoDia - inicio) / 86400000 + 1) / 7)
+  const registradas = new Set(fechasRegistradas)
+  const etiquetas = Array.from({ length: semanas }, (_, w) => Array.from({ length: DAYS }, (_, d) =>
+    new Date(inicio.getTime() + (w * DAYS + d) * 86400000).toISOString().slice(0, 10)))
+  const habilitados = etiquetas.map((columna) => columna.map((fecha) =>
+    fecha.slice(0, 7) === mes && fecha >= desde && fecha <= hasta))
+  const values = etiquetas.map((columna, w) => columna.map((fecha, d) =>
+    habilitados[w][d] && registradas.has(fecha) ? 1 : 0))
+
+  return <HeatCalendarOriginal key={mes} title="Registro diario" unit="registros" weeks={semanas}
+    maxCount={1} values={values} etiquetas={etiquetas} habilitados={habilitados}
+    fechaSeleccionada={seleccion} onSelectDay={onSeleccionar} />
 }

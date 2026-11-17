@@ -4,7 +4,7 @@
  */
 import { HeatCalendar } from "../../../components/HeatCalendar/HeatCalendar.jsx";
 import { Link } from "react-router";
-import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, NotebookPen } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, NotebookPen } from "lucide-react";
 import "./HistorialVista.css";
 
 const fechaComoDate = (fecha) => new Date(`${fecha}T12:00:00Z`);
@@ -30,14 +30,8 @@ function Calendario({ mes, desdeMes, hastaMes, fechasMes, estadoMes, seleccion, 
     .format(fechaComoDate(`${mes}-01`));
   return (
     <section className="historial-card historial-calendario" aria-labelledby="historial-calendario-titulo">
-      <div className="historial-card__encabezado">
-        <div>
-          <p className="historial-eyebrow"><CalendarDays size={16} aria-hidden="true" /> TU RECORRIDO</p>
-          <h2 id="historial-calendario-titulo">Participación</h2>
-        </div>
-      </div>
       <div className="historial-calendario__mes">
-        <strong>{tituloMes}</strong>
+        <h2 id="historial-calendario-titulo">{tituloMes}</h2>
         <div className="historial-calendario__flechas">
           <button type="button" aria-label="Mes anterior" onClick={onAnterior} disabled={!puedeAnterior}><ChevronLeft size={18} aria-hidden="true" /></button>
           <button type="button" aria-label="Mes siguiente" onClick={onSiguiente} disabled={!puedeSiguiente}><ChevronRight size={18} aria-hidden="true" /></button>
