@@ -3,6 +3,7 @@
  * La selección sincroniza calendario, lista y detalle sin modificar datos privados.
  */
 import { HeatCalendar } from "../../../components/HeatCalendar/HeatCalendar.jsx";
+import { MetricasHistorial } from "./MetricasHistorial.jsx";
 import { Link } from "react-router";
 import { ArrowRight, ChevronLeft, ChevronRight, NotebookPen } from "lucide-react";
 import "./HistorialVista.css";
@@ -156,7 +157,7 @@ function Reflexiones({ notas, notasEstado, mostrarTodas, onVerTodas, onVolverNot
 }
 
 export function HistorialVista({
-  hoy, registros = [], fechaSeleccionada, onSeleccionarFecha,
+  hoy, desde, hasta, registros = [], fechaSeleccionada, onSeleccionarFecha,
   mes, desdeMes, hastaMes, fechasMes, estadoMes, onReintentarMes,
   onMesAnterior, onMesSiguiente, puedeMesAnterior, puedeMesSiguiente,
   registroSeleccionado, estadoDetalle, fueraDelPeriodo, onReintentarDetalle,
@@ -166,6 +167,7 @@ export function HistorialVista({
   const historial = [...registros].sort((a, b) => b.fecha.localeCompare(a.fecha));
   return (
     <div className="historial-vista">
+      <MetricasHistorial registros={registros} desde={desde} hasta={hasta} onSeleccionarFecha={onSeleccionarFecha} />
       <div className="historial-vista__principal">
         <div className="historial-vista__explorar">
           <Calendario mes={mes} desdeMes={desdeMes} hastaMes={hastaMes} fechasMes={fechasMes}
