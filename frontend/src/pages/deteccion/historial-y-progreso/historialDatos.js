@@ -75,3 +75,23 @@ export const consultarFechasMes = async (usuarioId, desde, hasta) => {
   if (!data) throw new Error("No se pudo consultar el calendario.");
   return data.map(({ fecha }) => fecha);
 };
+
+// La continuidad y los reconocimientos solo necesitan fechas y declaraciones.
+// El cursor por fecha evita perder registros cuando la Data API limita resultados.
+export const consultarHistorialCompleto = async (usuarioId, desde, hasta) => {
+  const resultados = [];
+  let antes = null;
+  while (true) {
+    let consulta = supabase.from("registros_actividad")
+      .select("fecha,aposto").eq("usuario_id", usuarioId)
+      .gte("fecha", desde).lte("fecha", hasta)
+      .order("fecha", { ascending: false }).limit(TAMANO_PAGINA);
+    if (antes) consulta = consulta.lt("fecha", antes);
+    const { data, error } = await consulta;
+    if (error) throw error;
+    if (!data) throw new Error("No se pudo consultar el recorrido.");
+    resultados.push(...data);
+    if (data.length < TAMANO_PAGINA) return resultados;
+    antes = data[data.length - 1].fecha;
+  }
+};

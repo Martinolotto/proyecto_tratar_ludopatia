@@ -5,6 +5,7 @@
  */
 // BrowserRouter conecta la navegación React con la dirección y el historial del navegador.
 import { BrowserRouter, Route, Routes } from "react-router";
+import { lazy, Suspense } from "react";
 
 // Layouts: estructuras comunes para las páginas.
 import { AppLayout } from "../layouts/AppLayout.jsx";
@@ -21,7 +22,9 @@ import { PerfilPage } from "../pages/perfil/PerfilPage.jsx";
 // Las herramientas comparten carpeta por eje, pero cada una tiene su propia ruta.
 // La barra lateral de AppLayout ofrece acceso a estas páginas.
 import { MiActividadPage } from "../pages/deteccion/mi-actividad/MiActividadPage.jsx";
-import { HistorialYProgresoPage } from "../pages/deteccion/historial-y-progreso/HistorialYProgresoPage.jsx";
+// Los gráficos se descargan solo cuando se abre Historial y progreso.
+const HistorialYProgresoPage = lazy(() => import("../pages/deteccion/historial-y-progreso/HistorialYProgresoPage.jsx")
+  .then(({ HistorialYProgresoPage }) => ({ default: HistorialYProgresoPage })));
 import { EscudoDigitalPage } from "../pages/deteccion/escudo-digital/EscudoDigitalPage.jsx";
 
 // Páginas públicas y flujo inicial.
@@ -68,7 +71,7 @@ export const AppRouter = () => {
           <Route path="/mi-actividad" element={<MiActividadPage />} />
           <Route
             path="/historial-y-progreso"
-            element={<HistorialYProgresoPage />}
+            element={<Suspense fallback={<p role="status">Cargando historial...</p>}><HistorialYProgresoPage /></Suspense>}
           />
           <Route path="/escudo-digital" element={<EscudoDigitalPage />} />
         </Route>

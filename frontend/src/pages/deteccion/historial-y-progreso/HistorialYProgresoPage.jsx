@@ -7,7 +7,8 @@ import { useNavigate, useOutletContext, useSearchParams } from "react-router";
 import { supabase } from "../../../lib/supabase.js";
 import { CabeceraHistorial } from "./CabeceraHistorial.jsx";
 import { HistorialVista } from "./HistorialVista.jsx";
-import { consultarFechaActual, consultarFechasMes, consultarNotas, consultarRegistros } from "./historialDatos.js";
+import { AvancesVista } from "./AvancesVista.jsx";
+import { consultarFechaActual, consultarFechasMes, consultarHistorialCompleto, consultarNotas, consultarRegistros } from "./historialDatos.js";
 import { alinearBloque30, desplazarPeriodo, fechaCordoba, obtenerPeriodo, puedeNavegar } from "./historialFechas.js";
 
 const PERIODOS = ["dia", "semana", "mes", "30dias"];
@@ -37,6 +38,9 @@ export const HistorialYProgresoPage = () => {
   const [parametros, setParametros] = useSearchParams();
   const [cuenta, setCuenta] = useState(null);
   const [estadoCuenta, setEstadoCuenta] = useState("cargando");
+  const [historialCompleto, setHistorialCompleto] = useState([]);
+  const [estadoHistorico, setEstadoHistorico] = useState("cargando");
+  const [revisionHistorico, setRevisionHistorico] = useState(0);
   const [registros, setRegistros] = useState([]);
   const [estadoRegistros, setEstadoRegistros] = useState("cargando");
   const [claveRegistros, setClaveRegistros] = useState("");
@@ -123,6 +127,8 @@ export const HistorialYProgresoPage = () => {
       versionNotasActual.current += 1;
       cargaNotasEnCurso.current = false;
       setCuenta(null);
+      setHistorialCompleto([]);
+      setEstadoHistorico("cargando");
       setRegistros([]);
       setClaveRegistros("");
       setFechasMes([]);
@@ -208,6 +214,27 @@ export const HistorialYProgresoPage = () => {
     cargarRegistros();
     return () => { vigente = false; };
   }, [cuenta, estadoCuenta, desde, hasta, claveRango]);
+
+  // Se consultan solo fecha y declaración para calcular el recorrido acumulado.
+  useEffect(() => {
+    if (!cuenta || estadoCuenta !== "listo" || vista !== "avances") return undefined;
+    let vigente = true;
+    const versionSesion = revisionSesion.current;
+    const cargar = async () => {
+      setEstadoHistorico("cargando");
+      try {
+        const datos = await consultarHistorialCompleto(cuenta.id, cuenta.creacion, cuenta.hoy);
+        if (vigente && versionSesion === revisionSesion.current) {
+          setHistorialCompleto(datos);
+          setEstadoHistorico("listo");
+        }
+      } catch {
+        if (vigente && versionSesion === revisionSesion.current) setEstadoHistorico("error");
+      }
+    };
+    cargar();
+    return () => { vigente = false; };
+  }, [cuenta, estadoCuenta, vista, revisionHistorico]);
 
   // El mes se consulta por separado: no altera los cálculos del período elegido.
   useEffect(() => {
@@ -416,14 +443,14 @@ export const HistorialYProgresoPage = () => {
             )}
           </div>
           <div className="historial-panel" id="panel-avances" role="tabpanel" aria-labelledby="tab-avances" hidden={vista !== "avances"}>
-            {/* La siguiente entrega conectará reconocimientos; no se muestran cifras ficticias. */}
-            <section className="rounded-2xl border border-brand-navy/10 bg-surface p-8">
-              <h2 className="font-heading text-2xl font-bold text-brand-navy">Tu recorrido, a tu ritmo.</h2>
-              <p className="mt-3 max-w-2xl leading-relaxed text-ink">
-                Acá vas a poder consultar tu participación y los reconocimientos por los días que registraste.
-                Estamos preparando esta vista.
-              </p>
-            </section>
+            {(estadoVisible === "cargando" || estadoHistorico === "cargando") && <p role="status">Cargando tus avances...</p>}
+            {(estadoVisible === "error" || estadoHistorico === "error") && (
+              <div role="alert"><p>No pudimos consultar tus avances.</p><button type="button" onClick={() => { reintentar(); setRevisionHistorico((valor) => valor + 1); }}>Reintentar</button></div>
+            )}
+            {estadoVisible === "listo" && estadoHistorico === "listo" && (
+              <AvancesVista registrosPeriodo={registros} registrosHistoricos={historialCompleto}
+                desde={rango.desde} hasta={rango.hasta} hoy={cuenta.hoy} />
+            )}
           </div>
         </>
       )}
