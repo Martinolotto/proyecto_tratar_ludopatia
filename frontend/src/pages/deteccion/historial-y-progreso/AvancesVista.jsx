@@ -25,7 +25,7 @@ function Camino({ total, previo, progreso, siguiente }) {
     <div className="avance-camino__pista" role="progressbar" aria-label="Progreso hacia la próxima insignia" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progreso}>
       <span style={{ width: `${progreso}%` }} />
     </div>
-    <div className="avance-camino__hitos"><span>Desde {previo} registros</span><span>{siguiente ? `Objetivo: ${siguiente.dias}` : `${total} registros acumulados`}</span></div>
+    <div className="avance-camino__hitos"><span>Desde {previo} {previo === 1 ? 'registro' : 'registros'}</span><span>{siguiente ? `Objetivo: ${siguiente.dias}` : `${total} registros acumulados`}</span></div>
     <p>{siguiente ? `Te ${siguiente.dias - total === 1 ? 'falta 1 día registrado' : `faltan ${siguiente.dias - total} días registrados`} para ${siguiente.nombre}.` : '¡Completaste todas las insignias disponibles!'}</p>
   </div>;
 }
@@ -48,7 +48,7 @@ export function AvancesVista({ registrosPeriodo, registrosHistoricos, desde, has
       <p>Todos los días registrados, sean consecutivos o no.</p>
       </div>
       <div className="avance-total"><strong>{datos.total}</strong>
-      <span>días registrados en total</span>
+      <span>{datos.total === 1 ? 'día registrado en total' : 'días registrados en total'}</span>
       </div>
       </section>
     <section className="avance-continuidad" aria-labelledby="avance-continuidad-titulo"><div><p className="avance-etiqueta">DÍAS DECLARADOS</p>
