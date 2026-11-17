@@ -11,3 +11,8 @@
 .heat-calendar-original [class~="text-foreground/90"] { color: rgb(23 43 58 / 90%); }
 .heat-calendar-original button:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
 .heat-calendar-original button:disabled { cursor: default; }
+
+/* Celdas visibles y compactas, con la separación del componente original. */
+.heat-calendar-grid { width: max-content; }
+.heat-calendar-week { flex: none; }
+.heat-calendar-cell { width: 28px; height: 28px; }

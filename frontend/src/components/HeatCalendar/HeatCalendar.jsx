@@ -27,12 +27,7 @@ function useCanHover() {
 const SURFACE = 'var(--surface, var(--card))'
 const HAIRLINE = 'var(--border)'
 const DAYS = 7
-/** El tooltip usa la distancia original: celda de 14 px más 4 px de separación. */
-const PITCH = 18
 const DOW = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom']
-
-/** MODUS utiliza únicamente el primer y el último nivel de esta escala original. */
-const STEPS = [4, 14, 30, 50, 75]
 
 function HeatCalendarOriginal({
   title = 'Registro diario',
@@ -40,7 +35,6 @@ function HeatCalendarOriginal({
   weeks = 5,
   maxCount = 1,
   values,
-  color = 'var(--chart-1, #4790e4)',
   className = '',
   etiquetas,
   habilitados,
@@ -69,29 +63,34 @@ function HeatCalendarOriginal({
   }
 
   const level = (w, d) => values?.[w]?.[d] ?? 0
-  const step = (v) => STEPS[Math.min(4, Math.floor(v * 5))]
   const count = (v) => Math.round(v * maxCount)
-  const tint = (pct) => `color-mix(in srgb, ${color} ${pct}%, transparent)`
   const fechaLegible = (fecha) => new Intl.DateTimeFormat('es-AR', {
     day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
   }).format(new Date(`${fecha}T12:00:00Z`))
   const weekTotal = (w) =>
     Array.from({ length: DAYS }, (_, d) => count(level(w, d))).reduce((a, b) => a + b, 0)
 
+  // La separación de 4 px se suma al tamaño visual de cada celda.
+  const posicionTooltip = hover ? {
+    left: hover.w * 32 + (hover.w === 0 ? 0 : hover.w === weeks - 1 ? 28 : 14),
+    top: hover.d * 32 - 4,
+    translate: hover.w === 0 ? '0 -100%' : hover.w === weeks - 1 ? '-100% -100%' : '-50% -100%',
+  } : {}
+
   return (
-    <div className={`heat-calendar-original relative w-fit ${className}`} style={{ width: 230, maxWidth: '100%' }}>
+    <div className={`heat-calendar-original relative w-full ${className}`}>
       <div className="flex items-baseline justify-between">
         <span className="text-[12px] font-medium text-muted-foreground">{title}</span>
         <span className="text-[11px] text-muted-foreground">{weeks} semanas</span>
       </div>
 
-      <div ref={grilla} className="relative mt-3 flex gap-[4px]" onPointerLeave={() => setHover(null)}>
+      <div ref={grilla} className="heat-calendar-grid relative mt-3 flex gap-[4px]" onPointerLeave={() => setHover(null)}>
         {Array.from({ length: weeks }, (_, w) => {
           const colOn = pinWeek === w || hover?.w === w
           return (
             <motion.div
               key={w}
-              className="flex flex-col gap-[4px] rounded-[5px] transition-colors"
+              className="heat-calendar-week flex flex-col gap-[4px] rounded-[5px] transition-colors"
               style={{
                 background: pinWeek === w ? 'color-mix(in srgb, var(--foreground) 6%, transparent)' : 'transparent',
               }}
@@ -111,7 +110,7 @@ function HeatCalendarOriginal({
                 return (
                   <span
                     key={d}
-                    className="relative block h-[14px] w-[14px]"
+                    className="heat-calendar-cell relative block"
                     onPointerEnter={!habilitado ? () => setHover(null) : undefined}
                     style={{ zIndex: lift > 1 ? LIFT.length - dist : 0 }}
                   >
@@ -136,15 +135,16 @@ function HeatCalendarOriginal({
                     onFocus={() => { setFoco({ w, d }); setHover({ w, d }) }}
                     onBlur={() => setHover(null)}
                     onClick={() => { setPinWeek((p) => (p === w ? null : w)); onSelectDay(fecha) }}
-                    /* Conserva el área original de 18 px; cada fecha también se alcanza por teclado. */
+                    /* Cada fecha conserva su área de interacción y se alcanza por teclado. */
                     className="absolute -inset-0.5 block cursor-pointer rounded-[5px] outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <motion.span
                       className="pointer-events-none absolute inset-0.5 block rounded-[3.5px]"
                       style={{
-                        background: habilitado ? tint(step(v)) : 'transparent',
-                        outline: habilitado ? undefined : '1px dashed #c8d5d0',
-                        outlineOffset: '-1px',
+                        background: !habilitado ? '#cbd2d6' : v ? '#3978c8' : '#e9edf0',
+                        // El día seleccionado conserva un contorno visible aunque no tenga registro.
+                        outline: habilitado && seleccionado ? '2px solid #172b3a' : undefined,
+                        outlineOffset: '1px',
                         /* El borde interior mantiene las celdas visibles en superficies claras. */
                         boxShadow: !habilitado
                           ? 'none'
@@ -164,7 +164,7 @@ function HeatCalendarOriginal({
           )
         })}
 
-        {/* La posición del tooltip sigue la separación original de la cuadrícula. */}
+        {/* El tooltip sigue la celda real sin depender de un tamaño fijo. */}
         <AnimatePresence>
           {hover && (
             <motion.span
@@ -172,9 +172,7 @@ function HeatCalendarOriginal({
               role="status"
               className="pointer-events-none absolute z-10 whitespace-nowrap rounded-md border px-1.5 py-0.5 text-[9.5px] tabular-nums text-foreground/75"
               style={{
-                left: hover.w * PITCH + (hover.w < 3 ? 0 : hover.w > weeks - 4 ? 14 : 7),
-                top: hover.d * PITCH - 4,
-                translate: hover.w < 3 ? '0 -100%' : hover.w > weeks - 4 ? '-100% -100%' : '-50% -100%',
+                ...posicionTooltip,
                 background: SURFACE,
                 borderColor: HAIRLINE,
                 boxShadow: '0 8px 24px -6px rgba(0,0,0,0.35)',
@@ -192,9 +190,9 @@ function HeatCalendarOriginal({
 
       <div className="mt-3 flex items-center justify-between">
         <span className="flex items-center gap-1 whitespace-nowrap" aria-label="Sin registro y registrado">
-          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: tint(STEPS[0]) }} />
+          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: '#e9edf0' }} />
           <span className="text-[10px] text-muted-foreground" aria-hidden="true">Sin</span>
-          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: tint(STEPS[4]) }} />
+          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: '#3978c8' }} />
           <span className="text-[10px] text-muted-foreground" aria-hidden="true">Con</span>
         </span>
         {/* El total de la semana fijada permanece cuando el puntero sale. */}

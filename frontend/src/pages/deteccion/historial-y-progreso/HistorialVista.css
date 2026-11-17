@@ -234,7 +234,7 @@
 .historial-cabecera__intro > div > p:last-child { margin-top: 6px; }
 .historial-subnav { margin-top: 16px; }
 .historial-filtros { gap: 10px 20px; padding: 14px 0 18px; }
-.historial-vista__principal { grid-template-columns: minmax(250px, .9fr) minmax(220px, 1fr) minmax(260px, 1.1fr); gap: 16px; }
+.historial-vista__principal { grid-template-columns: minmax(250px, 280px) minmax(220px, 1fr) minmax(260px, 1.1fr); gap: 16px; }
 .historial-calendario { border-top: 4px solid #2a7774; padding: 19px 20px; }
 .historial-calendario__mes { margin-top: 13px; }
 .historial-calendario__mes h2 { white-space: nowrap; }
@@ -270,3 +270,6 @@
 /* El mes es el título accesible del módulo compacto de participación. */
 .historial-calendario__mes { margin-top: 0; }
 .historial-calendario__mes h2 { margin: 0; }
+
+/* La tarjeta ocupa su columna sin dejar un hueco antes del historial. */
+.historial-calendario { width: 100%; min-width: 0; }
