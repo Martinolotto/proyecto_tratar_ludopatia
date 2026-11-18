@@ -20,32 +20,9 @@ import {
   X,
   FileText,
 } from "lucide-react";
-import {
-  convertirArchivoADataUrl,
-  recortarImagen,
-} from "../../lib/cropImage.js";
-
-const CLAVE_PUBLICACIONES = "modus.comunidad.publicaciones";
-const MAXIMO_ADJUNTO = 2 * 1024 * 1024;
-const FORMATOS_PUBLICACION = {
-  "1 / 1": { ancho: 1080, alto: 1080, maxWidth: "27rem", label: "Cuadrado 1:1 · 1080 × 1080" },
-  "4 / 5": { ancho: 1080, alto: 1350, maxWidth: "21rem", label: "Instagram vertical 4:5 · 1080 × 1350" },
-  "9 / 16": { ancho: 720, alto: 1280, maxWidth: "15rem", label: "TikTok vertical 9:16 · 720 × 1280" },
-  "1.91 / 1": { ancho: 1080, alto: 566, maxWidth: "27rem", label: "Instagram horizontal 1,91:1 · 1080 × 566" },
-};
-
-const leerPublicacionesTemporales = () => {
-  try {
-    const publicaciones = sessionStorage.getItem(CLAVE_PUBLICACIONES);
-    return publicaciones ? JSON.parse(publicaciones) : [];
-  } catch {
-    return [];
-  }
-};
 
 export const ComunidadPage = () => {
-  const [posts, setPosts] = useState(leerPublicacionesTemporales);
-  const [mensajePersistencia, setMensajePersistencia] = useState("");
+  const [posts, setPosts] = useState([]);
   const [filtro, setFiltro] = useState("Todos");
 
   // Formulario de publicación
@@ -57,8 +34,6 @@ export const ComunidadPage = () => {
 
   // Adjuntos
   const [archivoAdjunto, setArchivoAdjunto] = useState(null);
-  const [imagenOriginalAdjunta, setImagenOriginalAdjunta] = useState(null);
-  const [proporcionImagen, setProporcionImagen] = useState("4 / 5");
 
   // Comentarios
   const [postAbiertoId, setPostAbiertoId] = useState(null);
@@ -66,101 +41,16 @@ export const ComunidadPage = () => {
 
   const categorias = ["Todos", "Reflexiones", "Experiencias", "Apoyo"];
 
-  const actualizarPublicaciones = (nuevasPublicaciones) => {
-    setPosts(nuevasPublicaciones);
-    try {
-      sessionStorage.setItem(
-        CLAVE_PUBLICACIONES,
-        JSON.stringify(nuevasPublicaciones),
-      );
-      setMensajePersistencia("");
-    } catch {
-      setMensajePersistencia(
-        "No se pudieron conservar temporalmente las publicaciones en esta pestaña.",
-      );
-    }
-  };
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > MAXIMO_ADJUNTO) {
-      setMensajePersistencia("El archivo adjunto no puede superar 2 MiB.");
-      return;
-    }
-
     const esImagen = file.type.startsWith("image/");
-    if (
-      esImagen &&
-      !["image/jpeg", "image/png", "image/webp"].includes(file.type)
-    ) {
-      setMensajePersistencia("Adjuntá una imagen JPEG, PNG o WebP.");
-      return;
-    }
-
-    if (!esImagen) {
-      try {
-        const archivoDataUrl = await convertirArchivoADataUrl(file);
-        setImagenOriginalAdjunta(null);
-        setArchivoAdjunto({
-          nombre: file.name,
-          url: archivoDataUrl,
-          tipo: "documento",
-        });
-      } catch {
-        setMensajePersistencia("No se pudo leer el archivo adjunto.");
-      }
-      return;
-    }
-
-    setImagenOriginalAdjunta(file);
-    try {
-      const formato = FORMATOS_PUBLICACION[proporcionImagen];
-      const imagenRecortada = await recortarImagen(
-        file,
-        formato.ancho,
-        formato.alto,
-      );
-      if (imagenRecortada.size > MAXIMO_ADJUNTO) {
-        setMensajePersistencia("La imagen preparada supera 2 MiB.");
-        return;
-      }
-      const imagenDataUrl = await convertirArchivoADataUrl(imagenRecortada);
-      setArchivoAdjunto({
-        nombre: imagenRecortada.name,
-        url: imagenDataUrl,
-        tipo: "imagen",
-        proporcion: proporcionImagen,
-      });
-    } catch {
-      setMensajePersistencia("No se pudo recortar la imagen adjunta.");
-    }
-  };
-
-  const handleProporcionImagen = async (event) => {
-    const proporcion = event.target.value;
-    setProporcionImagen(proporcion);
-    if (!imagenOriginalAdjunta) return;
-
-    try {
-      const formato = FORMATOS_PUBLICACION[proporcion];
-      const imagenRecortada = await recortarImagen(
-        imagenOriginalAdjunta,
-        formato.ancho,
-        formato.alto,
-      );
-      const imagenDataUrl = await convertirArchivoADataUrl(imagenRecortada);
-      setArchivoAdjunto({
-        nombre: imagenRecortada.name,
-        url: imagenDataUrl,
-        tipo: "imagen",
-        proporcion,
-      });
-    } catch {
-      setMensajePersistencia("No se pudo cambiar el formato de la imagen.");
-    }
+    setArchivoAdjunto({
+      nombre: file.name,
+      url: esImagen ? URL.createObjectURL(file) : null,
+      tipo: esImagen ? "imagen" : "documento",
+    });
   };
 
   const handleCrearPost = (e) => {
@@ -181,15 +71,14 @@ export const ComunidadPage = () => {
       hace: "Justo ahora",
     };
 
-    actualizarPublicaciones([nuevoPost, ...posts]);
+    setPosts([nuevoPost, ...posts]);
     setNuevoMensaje("");
     setArchivoAdjunto(null);
-    setImagenOriginalAdjunta(null);
     setMostrarFormulario(false);
   };
 
   const handleToggleMeGusta = (id) => {
-    actualizarPublicaciones(
+    setPosts(
       posts.map((post) => {
         if (post.id === id) {
           const yaDioLike = post.dioMeGusta;
@@ -224,7 +113,7 @@ export const ComunidadPage = () => {
       texto: nuevoComentarioTexto.trim(),
     };
 
-    actualizarPublicaciones(
+    setPosts(
       posts.map((post) => {
         if (post.id === postId) {
           return {
@@ -260,9 +149,6 @@ export const ComunidadPage = () => {
           <p className="mt-1 text-sm text-ink/70">
             Espacio de intercambio respetuoso y apoyo entre pares.
           </p>
-          <p className="mt-1 text-xs text-ink/60">
-            Las publicaciones se conservan temporalmente en esta pestaña; al cerrarla, se borran.
-          </p>
         </div>
 
         <button
@@ -274,12 +160,6 @@ export const ComunidadPage = () => {
           Nueva publicación
         </button>
       </div>
-
-      {mensajePersistencia && (
-        <p className="rounded-lg border border-brand-navy/15 bg-surface p-3 text-sm text-ink" role="status">
-          {mensajePersistencia}
-        </p>
-      )}
 
       {/* Formulario */}
       {mostrarFormulario && (
@@ -311,49 +191,12 @@ export const ComunidadPage = () => {
               </div>
               <button
                 type="button"
-                onClick={() => {
-                  setArchivoAdjunto(null);
-                  setImagenOriginalAdjunta(null);
-                }}
+                onClick={() => setArchivoAdjunto(null)}
                 className="text-ink/60 hover:text-ink"
               >
                 <X size={14} />
               </button>
             </div>
-          )}
-
-          {archivoAdjunto?.tipo === "imagen" && (
-            <div
-              className="relative mx-auto mt-3 w-full overflow-hidden rounded-lg bg-canvas"
-              style={{
-                aspectRatio: archivoAdjunto.proporcion,
-                maxWidth:
-                  FORMATOS_PUBLICACION[archivoAdjunto.proporcion]?.maxWidth,
-              }}
-            >
-              <img
-                src={archivoAdjunto.url}
-                alt={`Vista previa recortada: ${archivoAdjunto.nombre}`}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-            </div>
-          )}
-
-          {archivoAdjunto?.tipo === "imagen" && (
-            <label className="mt-3 flex flex-wrap items-center gap-2 text-sm text-ink">
-              Formato de imagen
-              <select
-                value={proporcionImagen}
-                onChange={handleProporcionImagen}
-                className="rounded-lg border border-brand-navy/20 bg-canvas px-3 py-2 text-sm"
-              >
-                {Object.entries(FORMATOS_PUBLICACION).map(([ratio, formato]) => (
-                  <option key={ratio} value={ratio}>
-                    {formato.label}
-                  </option>
-                ))}
-              </select>
-            </label>
           )}
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
@@ -380,7 +223,6 @@ export const ComunidadPage = () => {
                 <input
                   id="file-upload"
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,.pdf,.txt,.doc,.docx"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -447,9 +289,6 @@ export const ComunidadPage = () => {
         )}
         {postsFiltrados.map((post) => {
           const estaAbierto = postAbiertoId === post.id;
-          const formatoImagen =
-            FORMATOS_PUBLICACION[post.archivoAdjunto?.proporcion] ??
-            FORMATOS_PUBLICACION["4 / 5"];
 
           return (
             <article
@@ -490,29 +329,15 @@ export const ComunidadPage = () => {
               {post.archivoAdjunto && (
                 <div className="mt-3">
                   {post.archivoAdjunto.tipo === "imagen" ? (
-                    <div
-                      className="relative mx-auto w-full overflow-hidden rounded-lg bg-canvas"
-                      style={{
-                        aspectRatio: post.archivoAdjunto.proporcion || "4 / 5",
-                        maxWidth: formatoImagen.maxWidth,
-                      }}
-                    >
-                      <img
-                        src={post.archivoAdjunto.url}
-                        alt={`Imagen adjunta: ${post.archivoAdjunto.nombre}`}
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                    </div>
+                    <img
+                      src={post.archivoAdjunto.url}
+                      alt="Adjunto"
+                      className="max-h-60 w-full rounded-lg object-cover"
+                    />
                   ) : (
                     <div className="flex items-center gap-2 rounded-lg border border-brand-navy/10 bg-canvas p-3 text-xs text-ink">
                       <FileText size={18} className="text-brand-teal" />
-                      <a
-                        href={post.archivoAdjunto.url}
-                        download={post.archivoAdjunto.nombre}
-                        className="break-all text-brand-navy underline underline-offset-2"
-                      >
-                        {post.archivoAdjunto.nombre}
-                      </a>
+                      <span>{post.archivoAdjunto.nombre}</span>
                     </div>
                   )}
                 </div>
