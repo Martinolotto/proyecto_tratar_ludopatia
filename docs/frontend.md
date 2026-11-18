@@ -57,7 +57,7 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 - **prevencion/:** páginas y contenido del eje de Prevención/Concientización.
 - **comunidad/:** páginas del eje de Vinculación y apoyo entre pares.
 - **deteccion/:** Onboarding, Mi actividad, Historial y progreso y Escudo digital. Cada página conserva su ruta independiente; `onboardingQuestions.js` reúne el contenido de las cinco preguntas.
-- **perfil/:** consulta la cuenta autenticada y permite guardar su nombre de usuario y avatar privado. El banner y el teléfono de un contacto de ayuda se guardan solo en el navegador; sin sesión redirige a `/login`.
+- **perfil/:** consulta la cuenta autenticada y permite guardar su nombre de usuario y avatar privado. Las demás secciones permanecen pendientes; sin sesión redirige a `/login`.
 - **publicas/:** Landing y página `/login`, con formularios de registro e inicio de sesión conectados a Supabase Auth. Los accesos de la Landing seleccionan el formulario mediante `?modo=registro` o `?modo=ingreso`.
 - **errores/:** páginas de error y rutas inexistentes.
 
@@ -89,7 +89,7 @@ La documentación visual anterior que muestre cuatro páginas principales debe t
 - El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual se muestra sin la cabecera pública; la realización única por cuenta todavía no está implementada; el registro dirige al recorrido visual.
 - Mi actividad permite una entrada del día actual por usuario, actualizable ese día y sin creación, edición o eliminación retroactiva. Historial y progreso interpreta únicamente información declarada; un día sin registro no es un día sin apostar.
 - Escudo digital organiza medidas y recursos prácticos; coordinar sus recursos con Prevención. Compartir logros es voluntario y depende de Comunidad, sin publicar registros completos.
-- `/pausa-ayuda` ofrece un mensaje de acompañamiento, acceso para llamar al teléfono personal guardado en Perfil y una actividad local de burbujas. No es un servicio de emergencias ni reemplaza ayuda profesional. Chatbot global sigue pendiente. Laboratorio de decisiones no es herramienta aprobada del MVP.
+- Chatbot global y “Necesito ayuda ahora” siguen pendientes. Laboratorio de decisiones no es herramienta aprobada del MVP.
 
 Los detalles completos, condiciones y criterios de aceptación permanecen en las tarjetas de Trello; esta guía no los reemplaza.
 
