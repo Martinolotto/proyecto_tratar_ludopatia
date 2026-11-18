@@ -61,6 +61,7 @@ const SpotPlayer = ({ spot }) => {
   const manuallyPausedRef = useRef(false);
   const automaticPauseRef = useRef(false);
   const [playerError, setPlayerError] = useState(false);
+  const [reloadCount, setReloadCount] = useState(0);
 
   const syncPlayback = useCallback(() => {
     const player = playerRef.current;
@@ -128,6 +129,7 @@ const SpotPlayer = ({ spot }) => {
                 }
                 if (data === YT.PlayerState.PLAYING) {
                   manuallyPausedRef.current = false;
+                  setPlayerError(false);
                 }
               },
               onError: () => {
@@ -152,6 +154,7 @@ const SpotPlayer = ({ spot }) => {
 
       if (event.data.type === "onPlayerReady") {
         playerRef.current = { ready: true };
+        setPlayerError(false);
         syncPlayback();
       }
       if (event.data.type === "onStateChange") {
@@ -163,7 +166,10 @@ const SpotPlayer = ({ spot }) => {
             manuallyPausedRef.current = true;
           }
         }
-        if (state === 1) manuallyPausedRef.current = false;
+        if (state === 1) {
+          manuallyPausedRef.current = false;
+          setPlayerError(false);
+        }
       }
       if (event.data.type === "onPlayerError") setPlayerError(true);
     };
@@ -197,6 +203,7 @@ const SpotPlayer = ({ spot }) => {
       ) : (
         <iframe
           ref={frameRef}
+          key={reloadCount}
           className="prevention-embed"
           src={`${spot.embedUrl}&autoplay=0&force_muted=0`}
           title={`${spot.title} — ${spot.publisher}`}
@@ -207,6 +214,19 @@ const SpotPlayer = ({ spot }) => {
       )}
       {playerError && (
         <p className="prevention-spot__player-error" role="status">
+          {spot.provider === "tiktok" && (
+            <button
+              type="button"
+              onClick={() => {
+                playerRef.current = null;
+                manuallyPausedRef.current = false;
+                setPlayerError(false);
+                setReloadCount((count) => count + 1);
+              }}
+            >
+              Reintentar video
+            </button>
+          )}
           El reproductor externo no pudo iniciar. Podés abrir la publicación original.
         </p>
       )}

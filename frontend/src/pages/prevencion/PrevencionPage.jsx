@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BookOpenText,
   ExternalLink,
+  Play,
   Search,
   ShieldCheck,
   X,
@@ -26,6 +27,9 @@ const normalizeText = (text) =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("es");
 
+const isTikTokEmbed = (video) =>
+  video.embedUrl?.includes("tiktok.com/player/");
+
 export const PrevencionPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("todos");
   const [searchText, setSearchText] = useState("");
@@ -33,6 +37,9 @@ export const PrevencionPage = () => {
   const [selectedStoryFormat, setSelectedStoryFormat] = useState("todos");
   const [selectedStory, setSelectedStory] = useState(null);
   const [selectedVideoCategory, setSelectedVideoCategory] = useState("todos");
+  const [loadedTikTokVideos, setLoadedTikTokVideos] = useState(() => new Set());
+  const [tiktokReloadCounts, setTiktokReloadCounts] = useState({});
+  const videoStoriesRef = useRef(null);
   const articleRef = useRef(null);
   const articleHeadingRef = useRef(null);
   const explorerRef = useRef(null);
@@ -53,6 +60,56 @@ export const PrevencionPage = () => {
       : videosHistoriasReales.filter((video) =>
           video.categories.includes(selectedVideoCategory),
         );
+
+  useEffect(() => {
+    const mediaNodes = videoStoriesRef.current?.querySelectorAll(
+      "[data-tiktok-video-id]",
+    );
+    if (!mediaNodes?.length) return undefined;
+
+    if (!("IntersectionObserver" in window)) {
+      const visibleMedia = [...mediaNodes].filter((node) => {
+        const bounds = node.getBoundingClientRect();
+        return bounds.top < window.innerHeight && bounds.bottom > 0;
+      });
+
+      if (visibleMedia.length) {
+        setLoadedTikTokVideos((current) => {
+          const next = new Set(current);
+          visibleMedia.forEach((node) => next.add(node.dataset.tiktokVideoId));
+          return next;
+        });
+      }
+
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const newlyVisible = entries
+          .filter((entry) => entry.isIntersecting)
+          .map((entry) => entry.target);
+
+        if (!newlyVisible.length) return;
+
+        setLoadedTikTokVideos((current) => {
+          const next = new Set(current);
+          newlyVisible.forEach((node) => next.add(node.dataset.tiktokVideoId));
+          return next;
+        });
+        newlyVisible.forEach((node) => observer.unobserve(node));
+      },
+      { threshold: 0.01 },
+    );
+
+    mediaNodes.forEach((node) => {
+      if (!loadedTikTokVideos.has(node.dataset.tiktokVideoId)) {
+        observer.observe(node);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [loadedTikTokVideos, selectedVideoCategory]);
   const visibleContents = useMemo(() => {
     const query = normalizeText(searchText.trim());
 
@@ -589,6 +646,7 @@ export const PrevencionPage = () => {
 
       <section
         id="prevention-video-testimonials"
+        ref={videoStoriesRef}
         className="prevention-section prevention-video-stories"
         aria-labelledby="prevention-video-stories-title"
       >
@@ -629,6 +687,9 @@ export const PrevencionPage = () => {
               )}
               <div
                 id={`prevention-video-${video.id}`}
+                data-tiktok-video-id={
+                  isTikTokEmbed(video) ? video.id : undefined
+                }
                 className={`prevention-video-card__media prevention-video-card__media--${video.aspect}`}
                 role="region"
                 aria-label={`Reproductor de ${video.title}`}
@@ -644,13 +705,19 @@ export const PrevencionPage = () => {
                     <source src={video.nativeVideoUrl} type="video/mp4" />
                     Tu navegador no puede reproducir este video.
                   </video>
+                ) : isTikTokEmbed(video) && !loadedTikTokVideos.has(video.id) ? (
+                  <div className="prevention-video-card__load" role="status">
+                    <Play size={22} aria-hidden="true" />
+                    El video se cargará al llegar aquí
+                  </div>
                 ) : (
                   <iframe
+                    key={`${video.id}-${tiktokReloadCounts[video.id] || 0}`}
                     className="prevention-embed"
                     src={video.embedUrl}
                     title={`${video.title} — ${video.publisher}`}
                     loading="lazy"
-                    allow="encrypted-media; picture-in-picture; fullscreen"
+                    allow="encrypted-media; picture-in-picture; fullscreen; autoplay"
                     referrerPolicy="strict-origin-when-cross-origin"
                   />
                 )}
@@ -675,6 +742,20 @@ export const PrevencionPage = () => {
                   .join(" · ")}
               </p>
               <div className="prevention-video-card__actions">
+                {isTikTokEmbed(video) && loadedTikTokVideos.has(video.id) && (
+                    <button
+                      className="prevention-video-card__play"
+                      type="button"
+                      onClick={() =>
+                        setTiktokReloadCounts((counts) => ({
+                          ...counts,
+                          [video.id]: (counts[video.id] || 0) + 1,
+                        }))
+                      }
+                    >
+                      Reintentar video
+                    </button>
+                  )}
                 <a
                   className="prevention-video-card__play"
                   href={video.sourceUrl}

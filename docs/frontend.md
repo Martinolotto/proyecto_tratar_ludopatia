@@ -15,7 +15,7 @@ El objetivo es facilitar el desarrollo colaborativo, mantener un código compren
 - Tailwind CSS 4 para estilos.
 - Lucide React para iconografía.
 - ESLint para analizar el código.
-- Supabase para autenticación y operaciones de datos, cuando se integre.
+- Supabase para autenticación y operaciones de datos.
 
 ## 3. Organización del código
 
@@ -33,7 +33,7 @@ No duplicar la definición de rutas en componentes individuales.
 
 ### Layouts
 
-**PublicLayout.jsx:** estructura compartida por las páginas públicas.
+**PublicLayout.jsx:** estructura compartida por las páginas públicas; incorpora la cabecera de acceso y el pie común. Onboarding utiliza el pie sin montar la cabecera.
 
 **AppLayout.jsx:** estructura compartida de las páginas de la aplicación. Monta `Navbar` y el panel global `Dashboard`, y entrega `openDashboard` a las páginas mediante el contexto de `Outlet`. Actualmente no verifica sesión: “layout autenticado” describe su destino funcional, no una protección ya implementada.
 
@@ -53,21 +53,26 @@ No crear componentes compartidos cuando su reutilización no tenga una finalidad
 
 ### Páginas
 
-- **home/:** Home autenticada; entrada integrada de los tres ejes, con resúmenes, accesos y contenidos destacados según los RF. La página actual solo presenta accesos iniciales.
-- **prevencion/:** páginas del eje funcional de Prevención/Concientización.
+- **home/:** entrada integrada de los tres ejes en `/inicio`; ofrece accesos, una guía interactiva y contenidos destacados de Prevención. Todavía no muestra resúmenes personales basados en datos de una cuenta.
+- **prevencion/:** páginas y contenido del eje de Prevención/Concientización.
 - **comunidad/:** páginas del eje de Vinculación y apoyo entre pares.
-- **mi-espacio/:** página inicial existente, conservada intacta en `/mi-espacio` durante la transición. Ya no aparece como cuarta entrada principal ni es el destino de herramientas de Home.
-- **mi-actividad/:** página inicial de Mi actividad en `/mi-actividad`.
-- **historial-y-progreso/:** página inicial de Historial y progreso en `/historial-y-progreso`.
-- **escudo-digital/:** página inicial de Escudo digital en `/escudo-digital`.
-- **onboarding/:** experiencia inicial del usuario.
-- **perfil/:** identidad y configuración de la cuenta.
-- **publicas/:** landing, inicio de sesión y registro.
+- **deteccion/:** Onboarding, Mi actividad, Historial y progreso y Escudo digital. Cada página conserva su ruta independiente; `onboardingQuestions.js` reúne el contenido de las cinco preguntas.
+- **perfil/:** consulta la cuenta autenticada y permite guardar su nombre de usuario y avatar privado. El banner y el teléfono de un contacto de ayuda se guardan solo en el navegador; sin sesión redirige a `/login`.
+- **publicas/:** Landing y página `/login`, con formularios de registro e inicio de sesión conectados a Supabase Auth. Los accesos de la Landing seleccionan el formulario mediante `?modo=registro` o `?modo=ingreso`.
 - **errores/:** páginas de error y rutas inexistentes.
+
+Mi espacio y su ruta fueron retirados por decisión del responsable; no hay una cuarta página principal ni un reemplazo del Dashboard como panel.
 
 Home, Dashboard y Perfil tienen responsabilidades diferentes: Home integra la experiencia; Dashboard es un panel global desplegable de accesos; Perfil mantiene identidad y configuración de la cuenta.
 
-Las páginas iniciales son componentes mínimos conectados al router. Sus funcionalidades se implementarán posteriormente según los RF aprobados.
+### Estado actual del eje de Detección/Orientación
+
+- **Onboarding (`/onboarding`):** recorrido de cinco preguntas con selección, progreso, retroceso conservando respuestas, omisión individual o completa y cierre local con acceso a Inicio. Las respuestas se descartan al salir o recargar. La opción «18 años o más» fue aprobada por el responsable como opción seleccionable; no implementa por sí misma una política de acceso ni cambia el segmento objetivo de 13–17. El registro dirige a esta pantalla; la persistencia por cuenta, la realización única y el uso de las respuestas para priorizar accesos siguen pendientes.
+- **Mi actividad (`/mi-actividad`):** interacción local para declarar apuestas y ganas de apostar, cantidades separadas, situaciones y observación opcional. Los campos de apuestas aparecen condicionalmente y las cantidades omitidas no se convierten en cero. Todavía no hay guardado, validación completa del registro, unicidad por usuario y día, cierre del día ni edición de una entrada persistida.
+- **Historial y progreso (`/historial-y-progreso`):** selección local de día, semana y mes y espacios informativos de métricas, calendario y logros. No hay registros conectados ni filtros efectivos sobre datos, cálculos, gráficos, rachas u observaciones implementados.
+- **Escudo digital (`/escudo-digital`):** tres categorías desplegables: restringir acceso a apuestas, reducir estímulos y encontrar apoyo. No hay catálogo verificado conectado, fichas de recursos ni marcado persistente de medidas realizadas.
+
+Estas capacidades visuales no equivalen al cumplimiento completo de los RF. Registro e ingreso utilizan Supabase Auth; las herramientas de Detección aún no guardan datos por cuenta.
 
 ### Decisión vigente: Dashboard global desplegable
 
@@ -75,16 +80,16 @@ El responsable del proyecto definió Dashboard como un panel disponible desde el
 
 El panel no debe concentrar los formularios o gráficos completos. Puede priorizar accesos con el contexto del onboarding, sin ocultar herramientas. Esta precisión de interacción sustituye la interpretación anterior del Dashboard como página, conservando las capacidades aprobadas del eje 2.
 
-**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; `HomePage.jsx` conserva las entradas a Prevención y Comunidad y abre el mismo Dashboard global para herramientas personales. `AppRouter.jsx` mantiene las rutas anteriores y agrega las tres páginas iniciales de herramientas bajo `AppLayout`. Estas páginas solo tienen su encabezado: no hay registros, gráficos, recursos simulados ni integración funcional. `/mi-espacio` sigue disponible para conservar la página existente, sin usarla como Dashboard.
+**Estado implementado de la base:** `Navbar` reutiliza `AppNavigation` con tres destinos; Home abre el mismo Dashboard global que Navbar. `AppRouter.jsx` conecta las tres herramientas bajo `AppLayout`, con navegación compartida. Onboarding se renderiza sin la cabecera pública ni la navegación principal. El router no verifica sesiones: disponer de estas rutas no implica autenticación o autorización sobre datos.
 
 La documentación visual anterior que muestre cuatro páginas principales debe tratarse como referencia histórica para este punto. La navegación compartida sigue el Dashboard global desplegable y colapsable de la [guía de diseño vigente, versión 1.1](design/DESIGN_GUIDELINES.md); la implementación funcional de las herramientas y la validación del resto de las pantallas siguen pendientes.
 
 ### Límites funcionales relevantes
 
-- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. La ruta actual todavía está bajo `PublicLayout` y su página es inicial, sin flujo ni sesión implementados.
+- El onboarding aprobado aparece una sola vez tras el registro: hasta cinco preguntas, posibilidad de omitir y sin edición posterior. El recorrido visual se muestra sin la cabecera pública; la realización única por cuenta todavía no está implementada; el registro dirige al recorrido visual.
 - Mi actividad permite una entrada del día actual por usuario, actualizable ese día y sin creación, edición o eliminación retroactiva. Historial y progreso interpreta únicamente información declarada; un día sin registro no es un día sin apostar.
 - Escudo digital organiza medidas y recursos prácticos; coordinar sus recursos con Prevención. Compartir logros es voluntario y depende de Comunidad, sin publicar registros completos.
-- Chatbot global y “Necesito ayuda ahora” siguen pendientes. Laboratorio de decisiones no es herramienta aprobada del MVP.
+- `/pausa-ayuda` ofrece un mensaje de acompañamiento, acceso para llamar al teléfono personal guardado en Perfil y una actividad local de burbujas. No es un servicio de emergencias ni reemplaza ayuda profesional. Chatbot global sigue pendiente. Laboratorio de decisiones no es herramienta aprobada del MVP.
 
 Los detalles completos, condiciones y criterios de aceptación permanecen en las tarjetas de Trello; esta guía no los reemplaza.
 
@@ -111,7 +116,7 @@ Los comentarios deben describir responsabilidades, reglas, decisiones y comporta
 
 Se permite crear carpetas, páginas y archivos iniciales que respondan a una estructura previamente aprobada por el equipo, aunque todavía no tengan lógica funcional. No generar capas, hooks, servicios, dependencias ni funcionalidades ficticias por iniciativa del agente.
 
-La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. La integración todavía no existe; esta guía no autoriza crear clientes, tablas o endpoints en la revisión documental.
+La [arquitectura de datos y servidor](backend.md#arquitectura-aprobada-supabase-y-express) prevé acceso directo de React a Supabase mediante `supabase-js`, sesión autenticada y permisos/RLS para operaciones habituales. Express se reserva para necesidades concretas de servidor. Registro e inicio de sesión utilizan el cliente Supabase; Perfil permite cerrar la sesión del navegador actual; la protección de otras rutas y la persistencia del onboarding siguen pendientes. La URL y la clave pública del cliente deben corresponder a la base elegida; las migraciones locales no se aplican ni sincronizan automáticamente con el remoto. El estado local de la base se documenta en [base de datos](base-de-datos.md#9-entorno-local-y-verificaciones).
 
 ## 6. Diseño
 

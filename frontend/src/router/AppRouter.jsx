@@ -9,6 +9,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 // Layouts: estructuras comunes para las páginas.
 import { AppLayout } from "../layouts/AppLayout.jsx";
 import { PublicLayout } from "../layouts/PublicLayout.jsx";
+import { Footer } from "../components/navigation/Footer.jsx";
 
 // Página principal de la aplicación.
 import { HomePage } from "../pages/home/HomePage.jsx";
@@ -23,11 +24,11 @@ import { PerfilPage } from "../pages/perfil/PerfilPage.jsx";
 import { MiActividadPage } from "../pages/deteccion/MiActividadPage.jsx";
 import { HistorialYProgresoPage } from "../pages/deteccion/HistorialYProgresoPage.jsx";
 import { EscudoDigitalPage } from "../pages/deteccion/EscudoDigitalPage.jsx";
+import { PausaAyudaPage } from "../pages/deteccion/PausaAyudaPage.jsx";
 
 // Páginas públicas y flujo inicial.
 import { LandingPage } from "../pages/publicas/LandingPage.jsx";
 import { LoginPage } from "../pages/publicas/LoginPage.jsx";
-import { RegisterPage } from "../pages/publicas/RegisterPage.jsx";
 import { OnboardingPage } from "../pages/deteccion/OnboardingPage.jsx";
 
 // Página para direcciones que no existen.
@@ -42,12 +43,23 @@ export const AppRouter = () => {
         <Route element={<PublicLayout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/registro" element={<RegisterPage />} />
-          {/* Onboarding será la primera pantalla tras el registro; la conexión sigue pendiente. */}
-          <Route path="/onboarding" element={<OnboardingPage />} />
           {/* El comodín muestra la página de error si ninguna ruta concreta coincide. */}
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+
+        {/* Onboarding se presenta por separado, sin la cabecera de acceso del layout público. */}
+        <Route
+          path="/onboarding"
+          element={
+            <div className="flex min-h-screen flex-col">
+              {/* El recorrido no monta cabecera; el pie es común a toda la aplicación. */}
+              <main className="mx-auto w-full max-w-5xl flex-1 p-6 md:p-10">
+                <OnboardingPage />
+              </main>
+              <Footer />
+            </div>
+          }
+        />
 
         {/* Páginas de la aplicación con navegación compartida. */}
         <Route element={<AppLayout />}>
@@ -62,6 +74,7 @@ export const AppRouter = () => {
             element={<HistorialYProgresoPage />}
           />
           <Route path="/escudo-digital" element={<EscudoDigitalPage />} />
+          <Route path="/pausa-ayuda" element={<PausaAyudaPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

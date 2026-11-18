@@ -4,14 +4,15 @@ Proyecto universitario desarrollado por tres integrantes para adolescentes de 13
 
 ## Qué contiene el repositorio
 
-- `frontend/`: React + Vite, JavaScript/ESModules, React Router y Tailwind CSS 4; layouts, navegación y páginas iniciales existentes.
+- `frontend/`: React + Vite, JavaScript/ESModules, React Router y Tailwind CSS 4; navegación compartida, pantallas de los tres ejes e interacciones locales. La presencia de una pantalla no acredita integración funcional.
 - `backend/`: Express con `app.js` como entrada y una ruta de comprobación `GET /`.
+- `supabase/`: configuración local y ocho migraciones aplicadas; las pruebas previas siguen sin versionar.
 - `docs/`: constitución y guías del equipo.
 - `setup.md`: preparación verificada y pendientes de la base común.
 
 La [guía de diseño MODUS, versión 1.1](docs/design/DESIGN_GUIDELINES.md), es la base visual aceptada; su aplicación y validación siguen pendientes según el checklist de preparación.
 
-Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). El proyecto Supabase todavía no está configurado: son flujos previstos, no integraciones existentes.
+Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). Existe un cliente Supabase preparado en frontend y un entorno local con migraciones; las pantallas todavía no están conectadas a autenticación ni persistencia. El almacenamiento y los permisos se explican en [base de datos](docs/base-de-datos.md#persistencia-y-permisos-actuales-guía-para-el-equipo); su sección 9 detalla el estado y las limitaciones locales.
 
 ## Incorporarse al equipo: Git y ramas
 
@@ -19,11 +20,11 @@ Supabase será el backend administrado principal; React podrá usar su Data API 
 - `develop`: integración y pruebas de la base y del trabajo del equipo.
 - Ramas funcionales: trabajo de cada eje, derivado de `develop`; pueden tener subramas de tareas acordadas por el equipo.
 
-Para una copia nueva, reemplazar los marcadores entre `<...>` por la URL y los nombres acordados:
+Para una copia nueva:
 
 ```bash
-git clone https://github.com/Martinolotto/proyecto_tratar_ludopatia.git
-cd Proyecto_ludopatia
+git clone https://github.com/Martinolotto/proyecto_tratar_ludopatia.git MODUS
+cd MODUS
 git fetch origin
 git branch --all
 git switch develop
@@ -33,7 +34,7 @@ git branch --remotes
 
 `fetch` descarga referencias; `branch --all` permite consultar ramas locales y remotas; `switch` cambia de rama. Si `develop` solo existe como `origin/develop`, se puede crear su seguimiento local con `git switch --track origin/develop`. Cambiar o actualizar ramas requiere un árbol de trabajo limpio; no descartar cambios locales para hacerlo.
 
-Buscar en las ramas remotas las del eje asignado y confirmar su nombre con el equipo. **No se presupone que las ramas por eje ya existan.** Si faltan, coordinar su creación desde `develop`. Para una rama del eje existente:
+En la copia revisada existen `feat/deteccion`, `feat/prevencion` y `feat/comunidad`. Consultar las referencias remotas actualizadas y confirmar la rama asignada con el equipo; si falta una rama en otra copia, coordinar su creación desde `develop`. Para una rama del eje existente:
 
 ```bash
 git switch --track origin/<rama-del-eje>
@@ -41,20 +42,21 @@ git switch --track origin/<rama-del-eje>
 
 Ese comando se usa la primera vez si aún no existe localmente; después, `git switch <rama-del-eje>`. Si corresponde una subrama, partir de la rama del eje y usar `git switch -c <subrama-acordada>`.
 
-Una vez en la rama asignada, instalar y ejecutar como se indica abajo. Antes de integrar a `develop`, revisar `git status` y `git diff`, ejecutar las comprobaciones aplicables y coordinar la revisión del equipo. Estos comandos son una guía para integrantes; no se ejecutan cambios de ramas ni descargas remotas durante esta revisión documental.
+Una vez en la rama asignada, instalar y ejecutar como se indica abajo. Antes de integrar a `develop`, revisar `git status` y `git diff`, ejecutar las comprobaciones aplicables y coordinar la revisión del equipo. Estos comandos son una guía para integrantes; los agentes siguen las autorizaciones de `AGENTS.md`.
 
 ## Instalación
 
-Usar Node.js compatible con los lockfiles y npm. La dependencia instalada de React Router requiere Node `>=22.22.0`; esta revisión se verificó con Node `26.9.0` y npm `11.19.1`.
+Usar Node.js compatible con los lockfiles y npm. La dependencia instalada de React Router requiere Node `>=22.22.0`; la última comprobación local (2026-11-08) utilizó Node `24.18.0` y npm `11.16.0`.
 
 Desde la raíz del repositorio local, al preparar una copia nueva:
 
 ```bash
+npm ci
 npm --prefix frontend ci
 npm --prefix backend ci
 ```
 
-Los proyectos ya existen: no ejecutar generadores de React, Vite o Express. Cada uno tiene su `package.json` y lockfile; no hay scripts npm en la raíz. Estos comandos de instalación son instrucciones para el equipo, no instalaciones realizadas en esta tarea.
+Los proyectos ya existen: no ejecutar generadores de React, Vite o Express. Cada uno tiene su `package.json` y lockfile; la raíz agrega la CLI local de Supabase y los comandos para datos de prueba. La CLI de la raíz se instaló para preparar el entorno local; frontend y backend conservan sus instalaciones independientes.
 
 ## Comandos
 
@@ -91,4 +93,8 @@ El proxy `/api` de Vite aún no corresponde a rutas funcionales de Express. Tamp
 
 Seguir Conventional Commits con mensajes en español, en pasado y descriptivos. Los agentes requieren autorización para alterar ramas, crear commits, hacer push o merge, conforme a las reglas raíz.
 
-El Dashboard está preparado como panel global desplegable desde el layout de la aplicación, con páginas iniciales independientes para sus tres herramientas. `/mi-espacio` se conserva durante la transición, fuera de la navegación principal. Los detalles están en la guía de frontend; la lógica funcional y la autenticación siguen pendientes. No se impone SDD, TDD ni otro paradigma obligatorio.
+El Dashboard es un panel global desplegable desde Navbar y Home, con accesos a Mi actividad, Historial y progreso y Escudo digital. Las páginas del eje 2, incluido Onboarding, están agrupadas en `frontend/src/pages/deteccion/`; Mi espacio y su ruta fueron retirados. Onboarding y Mi actividad tienen interacción local; Historial y Escudo presentan vistas iniciales sin datos conectados. Home integra accesos, una guía interactiva y contenidos destacados de Prevención. El detalle y los pendientes están en la [guía de frontend](docs/frontend.md). Registro e ingreso usan Supabase Auth; Perfil conecta alias, avatar y cierre local. Las herramientas de Detección todavía no guardan sus datos y la protección general de rutas sigue pendiente. No se impone SDD, TDD ni otro paradigma obligatorio.
+
+## Datos de prueba
+
+Los comandos de usuarios ficticios y sus límites están documentados en [base de datos](docs/base-de-datos.md#usuarios-ficticios-de-desarrollo). No usar estas cuentas con datos reales.
