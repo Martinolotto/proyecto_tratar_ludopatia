@@ -343,3 +343,54 @@
 .home-b2 .semana-actividad { border-color: #c4d9d0; background: #f9fcfa; }
 .home-b2 .semana-actividad__racha { background: #d1e7dd; box-shadow: inset 2px 2px 5px rgb(255 255 255 / 75%), inset -2px -3px 6px rgb(23 71 62 / 10%); }
 @container (max-width: 850px) { .home-b2__workspace { grid-template-columns: minmax(0, 1fr); } }
+
+/* Composición de Inicio: acciones de hoy y recorrido semanal comparten jerarquía. */
+.home-b2__workspace, .home-b2__week-layout { display:grid; grid-template-columns:minmax(0, 3fr) minmax(0, 2fr); gap:18px; align-items:stretch; }
+.home-b2__activity { min-height:0; padding:24px 28px; }
+.home-b2__activity-heading { padding-bottom:10px; border:0; }
+.home-b2__activity-content { padding-top:4px; }
+.home-b2__activity-statement { max-width:none; font-size:clamp(1.45rem,2vw,1.8rem); }
+.home-b2__activity-copy { margin-top:7px; line-height:1.45; }
+.home-b2__activity-actions { margin-top:0; padding-top:14px; }
+.home-b2__ultimo { display:grid; gap:4px; margin-top:17px; padding-top:13px; border-top:1px solid var(--modus-border); font-size:14px; }
+.home-b2__ultimo span { color:var(--modus-text-muted); }
+.home-b2__tools-heading > p { margin-top:4px; }
+.home-b2__tool-list { margin-top:10px; gap:8px; }
+.home-b2__tool, .home-b2__tool:nth-child(2), .home-b2__tool:nth-child(3) { color:#fff; border-color:transparent; box-shadow:inset 3px 4px 8px #ffffff36,inset -4px -5px 10px #0b303b3d,0 7px 14px #172b3a26; }
+.home-b2__tool { background:#176b60; }
+.home-b2__tool:nth-child(2) { background:#65429a; }
+.home-b2__tool:nth-child(3) { background:#975021; }
+.home-b2__tool-text small { color:#fff; }
+.home-b2__tool-icon { color:#fff; background:#ffffff30; box-shadow:inset 2px 2px 5px #ffffff35,0 3px 6px #132f3429; }
+.home-b2__week-layout { margin-top:18px; }
+.home-b2__week { margin:0; min-width:0; }
+.home-b2 .semana-actividad { height:100%; padding:22px 25px; }
+.home-b2 .semana-actividad__racha { display:none; }
+.home-b2 .semana-actividad__dias { margin-top:16px; }
+.home-b2 .semana-actividad__dia { min-height:72px; }
+.home-b2 .semana-actividad__leyenda { margin-top:8px; }
+.home-b2 .semana-actividad__detalle { margin-top:12px; padding:10px 14px; }
+.home-b2__week-summary { display:grid; gap:12px; grid-template-rows:1fr auto; }
+.home-b2__streak, .home-b2__participation { padding:22px; border-radius:22px; box-shadow:inset 3px 4px 9px #ffffff35,inset -5px -6px 12px #0d28303b,0 9px 19px #172b3a29; }
+.home-b2__streak { display:flex; flex-direction:column; gap:9px; color:#fff; background:#1e303d; }
+.home-b2__summary-heading { display:flex; align-items:center; justify-content:space-between; font-size:14px; font-weight:700; }
+.home-b2__summary-heading svg { color:#ffad64; }
+.home-b2__streak p, .home-b2__participation p { margin:0; font-weight:700; }
+.home-b2__streak strong { font-size:2.7rem; line-height:1; margin-right:6px; }
+.home-b2__streak > span { font-size:14px; color:#e5efee; }
+.home-b2__streak a { display:inline-flex; align-items:center; gap:8px; min-height:44px; margin-top:auto; color:#fff; font-weight:700; text-decoration:none; }
+.home-b2__participation { background:#d0e3da; color:#172b3a; }
+.home-b2__participation h2 { margin:0; font-size:1rem; font-weight:800; }
+.home-b2__participation strong { font-size:1.8rem; margin-right:6px; }
+.home-b2__participation progress { display:block; width:100%; height:9px; margin:8px 0; accent-color:#176b60; }
+.home-b2__participation span { font-size:13px; }
+.home-b2__discover { margin-top:32px; }
+.home-b2__reading { padding:20px; border:1px solid #d8e0da; border-radius:20px; background:#fff; box-shadow:inset 3px 3px 8px #fff,inset -4px -5px 10px #173b3010,0 8px 16px #172b3a1a; }
+.home-b2__community { background:#176b60; color:#fff; border-color:#176b60; box-shadow:inset 3px 4px 9px #ffffff35,inset -5px -6px 12px #0d28303b,0 9px 19px #172b3a29; }
+.home-b2__community :is(h3,p,a,svg) { color:#fff; }
+@container (max-width:850px) { .home-b2__workspace, .home-b2__week-layout { grid-template-columns:1fr; } .home-b2__week-summary { grid-template-columns:1fr 1fr; grid-template-rows:auto; } }
+@container (max-width:560px) { .home-b2__week-summary { grid-template-columns:1fr; } .home-b2 .semana-actividad { padding:18px; } }
+.home-b2__participation progress { appearance:none; border:0; border-radius:999px; overflow:hidden; background:#a9c7bb; }
+.home-b2__participation progress::-webkit-progress-bar { background:#a9c7bb; border-radius:999px; }
+.home-b2__participation progress::-webkit-progress-value { background:#176b60; border-radius:999px; }
+.home-b2__participation progress::-moz-progress-bar { background:#176b60; border-radius:999px; }

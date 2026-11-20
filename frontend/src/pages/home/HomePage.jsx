@@ -4,7 +4,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useOutletContext } from "react-router";
-import { ArrowRight, BookOpen, CalendarDays, ChartNoAxesCombined, Shield, UsersRound } from "lucide-react";
+import { ArrowRight, BookOpen, CalendarDays, ChartNoAxesCombined, Flame, Shield, UsersRound } from "lucide-react";
 import {
   categoriasPrevencion,
   contenidosPrevencion,
@@ -131,9 +131,9 @@ export const HomePage = () => {
 
   // Los enlaces conservan los destinos existentes del router y sus descripciones.
   const herramientas = [
-    { label: "Mi actividad", description: "Registrá tu día, a tu manera.", path: "/mi-actividad", icon: CalendarDays },
-    { label: "Historial y progreso", description: "Consultá tu espacio de historial.", path: "/historial-y-progreso", icon: ChartNoAxesCombined },
-    { label: "Escudo digital", description: "Explorá las categorías disponibles.", path: "/escudo-digital", icon: Shield },
+    { label: "Mi actividad", description: "Registrá tu día, tus decisiones y las situaciones que quieras recordar.", path: "/mi-actividad", icon: CalendarDays },
+    { label: "Historial y progreso", description: "Explorá tus registros, reconocé patrones y conocé tus avances.", path: "/historial-y-progreso", icon: ChartNoAxesCombined },
+    { label: "Escudo digital", description: "Encontrá herramientas de bloqueo, protección y orientación.", path: "/escudo-digital", icon: Shield },
   ];
 
   return (
@@ -177,28 +177,11 @@ export const HomePage = () => {
             )}
           </div>
           <div className="home-b2__activity-content" role="status" aria-live="polite">
-            {estado === "cargando" && (
-              <p className="home-b2__activity-copy">Cargando tu información...</p>
-            )}
-            {estado === "listo" && (datos.ultimoRegistro ? (
-              <>
-                <p className="home-b2__activity-date">
-                  <time dateTime={datos.ultimoRegistro.fecha}>
-                    {fechaVisible(datos.ultimoRegistro.fecha)}
-                  </time>
-                </p>
-                <p className="home-b2__activity-statement">
-                  Declaraste que {datos.ultimoRegistro.aposto ? "sí" : "no"} realizaste apuestas.
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="home-b2__activity-statement">Tu primer registro empieza acá.</p>
-                <p className="home-b2__activity-copy">
-                  Podés contar si apostaste, si tuviste ganas y lo que quieras sumar sobre tu día.
-                </p>
-              </>
-            ))}
+            {estado === "cargando" && <p className="home-b2__activity-copy">Cargando tu información...</p>}
+            {estado === "listo" && <>
+              <p className="home-b2__activity-statement">{datos.registradoHoy ? "Tu registro de hoy está disponible." : "¿Cómo fue tu día?"}</p>
+              <p className="home-b2__activity-copy">{datos.registradoHoy ? "Podés consultarlo y actualizarlo durante el día." : "Registrá lo que pasó hoy y elegí qué información querés compartir en tu registro personal."}</p>
+            </>}
           </div>
           {estado === "error" && (
             <div className="home-b2__error">
@@ -216,10 +199,11 @@ export const HomePage = () => {
           )}
           <div className="home-b2__activity-actions">
             <Link to="/mi-actividad" className="home-b2__button">
-              Ir a Mi actividad <ArrowRight size={18} aria-hidden="true" />
+              {estado === "listo" && !datos.registradoHoy ? "Registrar mi día" : "Ir a Mi actividad"} <ArrowRight size={18} aria-hidden="true" />
             </Link>
             <span>Tu registro es privado.</span>
           </div>
+          {estado === "listo" && datos.ultimoRegistro && <div className="home-b2__ultimo"><span>Último registro · <time dateTime={datos.ultimoRegistro.fecha}>{fechaVisible(datos.ultimoRegistro.fecha)}</time></span><strong>Declaraste que {datos.ultimoRegistro.aposto ? "sí" : "no"} realizaste apuestas.</strong></div>}
         </section>
 
         {/* Los accesos abren las páginas reales sin atribuirles funciones pendientes. */}
@@ -242,8 +226,22 @@ export const HomePage = () => {
 
       {/* El calendario se dibuja solo con la respuesta confirmada para esta cuenta. */}
       {estado === "listo" && (
-        <div className="home-b2__week">
-          <ActividadSemanal dias={datos.semana} racha={datos.racha} hoy={datos.fechaActual} />
+        <div className="home-b2__week-layout">
+          <div className="home-b2__week"><ActividadSemanal dias={datos.semana} racha={datos.racha} hoy={datos.fechaActual} /></div>
+          <div className="home-b2__week-summary">
+            <section className="home-b2__streak" aria-label={`Racha de registros: ${datos.racha} días`}>
+              <div className="home-b2__summary-heading"><span>Tu constancia</span><Flame size={23} aria-hidden="true" /></div>
+              <p><strong>{datos.racha}</strong> {datos.racha === 1 ? "día consecutivo" : "días consecutivos"}</p>
+              <span>Registrando tu actividad.</span>
+              <Link to="/historial-y-progreso?vista=avances">Ver mis avances <ArrowRight size={16} aria-hidden="true" /></Link>
+            </section>
+            <section className="home-b2__participation">
+              <h2>Tu participación reciente</h2>
+              <p><strong>{datos.semana.filter((dia) => dia.registro).length}/7</strong> días registrados</p>
+              <progress max="7" value={datos.semana.filter((dia) => dia.registro).length} aria-label="Días registrados en los últimos siete días" />
+              <span>Durante los últimos siete días.</span>
+            </section>
+          </div>
         </div>
       )}
 
