@@ -189,7 +189,7 @@ function HeatCalendarOriginal({
       </div>
 
       <div className="mt-3 flex items-center justify-between">
-        <span className="flex items-center gap-1 whitespace-nowrap" aria-label="Sin registro y registrado">
+        <span className="flex items-center gap-1 whitespace-nowrap" role="group" aria-label="Leyenda del calendario: sin registro y con registro">
           <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: '#e9edf0' }} />
           <span className="text-[10px] text-muted-foreground" aria-hidden="true">Sin</span>
           <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: '#3978c8' }} />

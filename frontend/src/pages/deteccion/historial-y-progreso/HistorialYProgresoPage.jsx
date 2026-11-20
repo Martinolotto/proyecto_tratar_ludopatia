@@ -442,7 +442,7 @@ export const HistorialYProgresoPage = () => {
               />
             )}
           </div>
-          <div className="historial-panel" id="panel-avances" role="tabpanel" aria-labelledby="tab-avances" hidden={vista !== "avances"}>
+          <div className="historial-panel" id="panel-avances" role="tabpanel" aria-labelledby="tab-avances" tabIndex={0} hidden={vista !== "avances"}>
             {(estadoVisible === "cargando" || estadoHistorico === "cargando") && <p role="status">Cargando tus avances...</p>}
             {(estadoVisible === "error" || estadoHistorico === "error") && (
               <div role="alert"><p>No pudimos consultar tus avances.</p><button type="button" onClick={() => { reintentar(); setRevisionHistorico((valor) => valor + 1); }}>Reintentar</button></div>

@@ -55,7 +55,7 @@
 .avance-continuidad,
 .avance-logros { grid-column: 1 / -1; }
 .avance-indicadores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
-.avance-indicadores > div { padding: 16px 18px; background: #edf3f2; border-radius: 14px; }
+.avance-indicadores > div { padding: 16px 18px; background: #edf3f2; border-radius: 16px; box-shadow: inset 0 2px 5px rgb(23 43 58 / 7%); }
 .avance-indicadores strong,
 .avance-indicadores span { display: block; }
 .avance-indicadores strong { font: 800 2rem/1.1 var(--font-heading, sans-serif); }
@@ -83,7 +83,7 @@
   box-shadow: 0 5px 12px rgb(31 80 69 / 10%), inset 0 2px 2px rgb(255 255 255 / 75%);
 }
 .avance-insignia__icono { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #e1e9e5; color: #526e66; }
-.avance-insignia--lograda .avance-insignia__icono { background: #2a7774; color: white; }
+.avance-insignia--lograda .avance-insignia__icono { background: #2a7774; color: white; box-shadow: 0 4px 9px rgb(28 83 76 / 18%), inset 0 2px 2px rgb(255 255 255 / 22%); }
 .avance-insignia strong { font-size: .98rem; }
 .avance-insignia span:not(.avance-insignia__icono),
 .avance-insignia small { font-size: .82rem; }

@@ -18,7 +18,7 @@
   border: 1px solid #d1dfd9;
   border-radius: 20px;
   background: #fdfdfb;
-  box-shadow: 0 8px 20px rgb(23 43 58 / 7%), inset 0 2px 3px rgb(255 255 255 / 95%);
+  box-shadow: 0 9px 20px rgb(23 43 58 / 9%), inset 0 2px 3px rgb(255 255 255 / 95%), inset 0 -2px 3px rgb(36 86 74 / 5%);
 }
 .metricas-resumen span,
 .metricas-resumen small {

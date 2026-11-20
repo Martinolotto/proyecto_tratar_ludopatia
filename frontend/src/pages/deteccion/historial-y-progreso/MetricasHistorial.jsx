@@ -10,7 +10,16 @@ import { calcularMetricasHistorial } from "./metricasHistorial.js";
 import "./MetricasHistorial.css";
 
 const formatoNumero = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 });
+// El eje abrevia valores grandes; tablas y tooltips conservan el valor exacto.
+const formatoEje = new Intl.NumberFormat("es-AR", { notation: "compact", maximumFractionDigits: 2 });
 const formatoMoneda = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 2 });
+// El tiempo admite fracciones menores a un centavo y no debe mostrarse como cero.
+const formatoTiempo = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 20 });
+// El promedio limita el ruido de coma flotante sin ocultar cantidades pequeñas.
+const formatoPromedioTiempo = new Intl.NumberFormat("es-AR", { maximumSignificantDigits: 6 });
+const formatoEjeCientifico = new Intl.NumberFormat("es-AR", { notation: "scientific", maximumSignificantDigits: 3 });
+const formatoEjeTiempo = (numero) => numero !== 0 && Math.abs(numero) < 0.1
+  ? formatoEjeCientifico.format(numero) : formatoEje.format(numero);
 const valor = (numero, formato = formatoNumero) => numero === null ? "Sin dato" : formato.format(numero);
 const fechaCorta = (fecha) => new Intl.DateTimeFormat("es-AR", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${fecha}T12:00:00Z`));
 const unidades = { apostado: "Apostado", perdido: "Perdido", minutos: "Minutos", cantidad: "Apuestas" };
@@ -25,7 +34,7 @@ function TablaDias({ dias, columnas, onSeleccionarFecha }) {
           <tbody>{dias.map((dia) => (
             <tr key={dia.fecha}>
               <th><button type="button" onClick={() => onSeleccionarFecha(dia.fecha)}>{fechaCorta(dia.fecha)}</button></th>
-              {columnas.map((clave) => <td key={clave}>{dia.registrado ? valor(dia[clave], clave === "apostado" || clave === "perdido" ? formatoMoneda : formatoNumero) : "Sin registro"}</td>)}
+              {columnas.map((clave) => <td key={clave}>{dia.registrado ? valor(dia[clave], clave === "apostado" || clave === "perdido" ? formatoMoneda : clave === "minutos" ? formatoTiempo : formatoNumero) : "Sin registro"}</td>)}
             </tr>
           ))}</tbody>
         </table>
@@ -60,9 +69,9 @@ function GraficoDias({ titulo, descripcion, dias, claves, tipo = "barras", onSel
               {tipo === "linea" ? (
                 <LineChart accessibilityLayer={false} data={dias} onClick={alSeleccionar} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke="#e3ebe8" strokeDasharray="3 3" />
-                  <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} minTickGap={24} tick={{ fontSize: 11 }} />
-                  <YAxis width={42} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
-                  <Tooltip labelFormatter={(_, datos) => datos?.[0]?.payload?.fecha ? fechaCorta(datos[0].payload.fecha) : ""} formatter={(v, nombre) => [valor(v), unidades[nombre]]} />
+                  <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} minTickGap={24} tick={{ fontSize: 12 }} />
+                  <YAxis width={65} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatoEjeTiempo} />
+                  <Tooltip labelFormatter={(_, datos) => datos?.[0]?.payload?.fecha ? fechaCorta(datos[0].payload.fecha) : ""} formatter={(v, nombre) => [valor(v, formatoTiempo), unidades[nombre]]} />
                   <Line type="monotone" dataKey={claves[0]} stroke={colores[claves[0]]} strokeWidth={3}
                     dot={({ cx, cy, payload }) => Number.isFinite(cx) && Number.isFinite(cy) ? (
                       <circle key={payload.fecha} cx={cx} cy={cy} r={4} fill="#fff" stroke={colores[claves[0]]} strokeWidth={2}
@@ -72,8 +81,8 @@ function GraficoDias({ titulo, descripcion, dias, claves, tipo = "barras", onSel
               ) : (
                 <BarChart accessibilityLayer={false} data={dias} onClick={alSeleccionar} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke="#e3ebe8" strokeDasharray="3 3" />
-                  <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} minTickGap={24} tick={{ fontSize: 11 }} />
-                  <YAxis width={esMoneda ? 65 : 42} tickLine={false} axisLine={false} tick={{ fontSize: 11 }} tickFormatter={(n) => formatoNumero.format(n)} />
+                  <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} minTickGap={24} tick={{ fontSize: 12 }} />
+                  <YAxis width={65} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={(n) => formatoEje.format(n)} />
                   <Tooltip labelFormatter={(_, datos) => datos?.[0]?.payload?.fecha ? fechaCorta(datos[0].payload.fecha) : ""} formatter={(v, nombre) => [valor(v, esMoneda ? formatoMoneda : formatoNumero), unidades[nombre]]} />
                   {claves.map((clave) => <Bar key={clave} onClick={(barra, _indice, evento) => { evento.stopPropagation(); if (barra?.payload?.fecha) onSeleccionarFecha(barra.payload.fecha); }} dataKey={clave} fill={colores[clave]} radius={[4, 4, 0, 0]} isAnimationActive={false} />)}
                 </BarChart>
@@ -111,7 +120,7 @@ export function MetricasHistorial({ registros, desde, hasta, onSeleccionarFecha 
         <aside className="metricas-contexto"><h3>Para observar</h3>{metricas.concentracion ? <p>Los días {metricas.concentracion.fechas.map(fechaCorta).join(" y ")} reúnen el {Math.round(metricas.concentracion.proporcion * 100)} % del dinero {metricas.concentracion.clave} informado en {metricas.concentracion.base} días.</p> : <p>Los importes omitidos quedan fuera de los totales; apostar y perder se muestran por separado.</p>}</aside>
       </div>
       <div className="metricas-dos-columnas">
-        <GraficoDias titulo="Tiempo dedicado" descripcion={`Promedio: ${valor(metricas.minutos.promedio)} min · ${metricas.minutos.base} días informados.`} dias={metricas.dias} claves={["minutos"]} tipo="linea" onSeleccionarFecha={onSeleccionarFecha} />
+        <GraficoDias titulo="Tiempo dedicado" descripcion={`Promedio: ${valor(metricas.minutos.promedio, formatoPromedioTiempo)} min · ${metricas.minutos.base} días informados.`} dias={metricas.dias} claves={["minutos"]} tipo="linea" onSeleccionarFecha={onSeleccionarFecha} />
         <GraficoDias titulo="Cantidad de apuestas" descripcion={`Promedio: ${valor(metricas.cantidad.promedio)} · ${metricas.cantidad.base} días informados.`} dias={metricas.dias} claves={["cantidad"]} onSeleccionarFecha={onSeleccionarFecha} />
       </div>
       <div className="metricas-dos-columnas metricas-dos-columnas--patrones">

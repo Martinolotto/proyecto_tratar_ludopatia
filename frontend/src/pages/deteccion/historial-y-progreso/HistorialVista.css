@@ -108,7 +108,8 @@
   padding: 4px;
   border: 1px solid #cedbd5;
   border-radius: 12px;
-  background: #fff;
+  background: #eef5f1;
+  box-shadow: inset 0 2px 5px rgb(23 43 58 / 9%), 0 2px 6px rgb(23 43 58 / 5%);
 }
 .historial-periodos button,
 .historial-flechas button {
@@ -122,7 +123,7 @@
   cursor: pointer;
 }
 .historial-periodos button { padding: 0 12px; }
-.historial-periodos button[aria-pressed="true"] { background: #dcebe4; color: #145b58; }
+.historial-periodos button[aria-pressed="true"] { background: #fff; color: #145b58; box-shadow: 0 3px 7px rgb(23 43 58 / 13%), inset 0 1px 1px #fff; }
 .historial-periodo-actual { min-height: 40px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #145b58; font-size: .85rem; font-weight: 700; cursor: pointer; }
 .historial-periodo-actual:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 3px; }
 .historial-periodo-actual:disabled { color: #697c76; cursor: default; }
@@ -137,6 +138,8 @@
 .historial-flechas button:disabled { color: #81908c; cursor: not-allowed; opacity: .65; }
 /* Una breve entrada facilita percibir el cambio sin convertirlo en un carrusel. */
 .historial-panel { animation: historial-aparecer 150ms ease-out; }
+/* El panel sin controles propios también puede recorrerse con teclado. */
+.historial-panel:focus-visible { outline: 3px solid #145b58; outline-offset: 4px; border-radius: 20px; }
 @keyframes historial-aparecer { from { opacity: .7; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .historial-panel { animation: none; } }
 .historial-card {
