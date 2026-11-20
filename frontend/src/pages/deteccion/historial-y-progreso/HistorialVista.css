@@ -280,3 +280,10 @@
 /* El detalle y la leyenda del calendario comparten una lectura cómoda en esta vista. */
 .historial-calendario .heat-calendar-original [role="status"] { font-size: 12px; }
 .historial-calendario .heat-calendar-original [class~="text-[10px]"] { font-size: 12px; }
+
+/* El calendario y el historial conservan sus dimensiones y ganan relieve. */
+.historial-card, .historial-lista {
+  border-radius: 22px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 75%), inset -5px -6px 12px rgb(23 60 53 / 8%), 0 9px 20px rgb(23 43 58 / 12%);
+}
+.historial-detalle { box-shadow: inset 3px 4px 9px rgb(255 255 255 / 17%), inset -5px -6px 12px rgb(10 40 36 / 22%), 0 9px 20px rgb(23 43 58 / 14%); }

@@ -320,3 +320,26 @@
 /* La semana amplía la actividad sin ocultar la navegación ni sus accesos. */
 .home-b2__today time { text-transform: lowercase; }
 .home-b2__week { margin-top: 24px; }
+
+/* Acabado con volumen: prioriza la actividad y conserva el recorrido editorial. */
+.home-b2__welcome { padding-bottom: 26px; }
+.home-b2__workspace { grid-template-columns: minmax(0, 1.35fr) minmax(290px, .85fr); gap: 20px; }
+.home-b2__activity, .home-b2 .semana-actividad, .home-b2__community {
+  border-radius: 24px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 92%), inset -5px -6px 13px rgb(31 70 62 / 9%), 0 10px 22px rgb(23 43 58 / 13%);
+}
+.home-b2__activity { background: #fbfdfb; border-color: #c3d7cd; }
+.home-b2__tools { padding: 2px 0 0; }
+.home-b2__tool-list { gap: 10px; }
+.home-b2__tool {
+  min-height: 74px; border-radius: 18px;
+  background: #c5e1d6; border-color: #aecfc2;
+  box-shadow: inset 3px 3px 7px rgb(255 255 255 / 60%), inset -4px -5px 9px rgb(23 71 62 / 10%), 0 6px 12px rgb(23 43 58 / 10%);
+}
+.home-b2__tool:nth-child(2) { background: #d9cce9; border-color: #c3b1d9; }
+.home-b2__tool:nth-child(3) { background: #f0c9ab; border-color: #dfb595; }
+.home-b2__tool-icon { border-radius: 13px; box-shadow: inset 1px 2px 4px rgb(255 255 255 / 85%), 0 3px 7px rgb(23 43 58 / 12%); }
+.home-b2__community { background: #c8e3d7; border-color: #b2d2c4; }
+.home-b2 .semana-actividad { border-color: #c4d9d0; background: #f9fcfa; }
+.home-b2 .semana-actividad__racha { background: #d1e7dd; box-shadow: inset 2px 2px 5px rgb(255 255 255 / 75%), inset -2px -3px 6px rgb(23 71 62 / 10%); }
+@container (max-width: 850px) { .home-b2__workspace { grid-template-columns: minmax(0, 1fr); } }

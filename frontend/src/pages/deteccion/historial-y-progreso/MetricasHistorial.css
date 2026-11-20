@@ -154,3 +154,14 @@
 @container (max-width: 420px) {
   .metricas-resumen { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Superficies con profundidad, manteniendo las escalas y colores de los datos. */
+.metricas-resumen article, .metricas-grafico, .metricas-contexto {
+  border-radius: 23px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 85%), inset -5px -6px 12px rgb(23 60 53 / 8%), 0 9px 20px rgb(23 43 58 / 12%);
+}
+.metricas-resumen article:nth-child(1) { background: #d3e8df; border-color: #b8d3c7; }
+.metricas-resumen article:nth-child(2) { background: #ded6ec; border-color: #c9b9de; }
+.metricas-resumen article:nth-child(3) { background: #f0d4bf; border-color: #ddbda4; }
+.metricas-resumen article:nth-child(4) { background: #cddfe9; border-color: #b3cbd8; }
+.metricas-contexto { background: #cfe6dc; }

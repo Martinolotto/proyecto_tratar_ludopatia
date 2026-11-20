@@ -107,3 +107,10 @@
   .avance-participacion { flex-wrap: wrap; }
   .avance-indicadores { grid-template-columns: 1fr; }
 }
+
+/* Relieve coherente con los módulos del historial y Escudo. */
+.avances-vista > section {
+  border-radius: 23px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 80%), inset -5px -6px 12px rgb(23 60 53 / 8%), 0 9px 20px rgb(23 43 58 / 12%);
+}
+.avances-vista .avance-recorrido { background: #c9e4d7; }

@@ -254,3 +254,19 @@ main:has(> .mi-actividad) {
 @media (prefers-reduced-motion: reduce) {
   .actividad-chevron { transition: none; }
 }
+
+/* Relieve de Escudo adaptado a los controles y estados existentes del registro. */
+.actividad-principal, .actividad-resumen-principal, .actividad-resumen-tarjeta {
+  border-radius: 22px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 80%), inset -4px -5px 12px rgb(23 60 53 / 9%), 0 9px 20px rgb(23 43 58 / 12%);
+}
+.actividad-bloque {
+  border-radius: 20px; border-color: rgb(23 43 58 / 12%);
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 60%), inset -5px -6px 12px rgb(23 43 58 / 10%), 0 8px 16px rgb(23 43 58 / 11%);
+}
+.actividad-bloque--dinero { background: #efd0b8; }
+.actividad-bloque--tiempo { background: #ddd0eb; }
+.actividad-bloque--situaciones { background: #c9e3d8; }
+.actividad-bloque--nota { background: #cddfe9; }
+.actividad-icono { box-shadow: inset 2px 2px 5px rgb(255 255 255 / 85%), 0 4px 8px rgb(23 43 58 / 12%); }
+.actividad-accion { box-shadow: inset 2px 3px 5px rgb(255 255 255 / 23%), inset -2px -3px 5px rgb(10 45 43 / 22%), 0 5px 10px rgb(23 43 58 / 16%); }
