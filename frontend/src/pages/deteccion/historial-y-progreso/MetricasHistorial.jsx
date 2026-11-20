@@ -117,7 +117,12 @@ export function MetricasHistorial({ registros, desde, hasta, onSeleccionarFecha 
           </div>
           <GraficoDias titulo="Dinero declarado" descripcion="Importes por día, expresados en pesos argentinos." dias={metricas.dias} claves={clavesDinero} onSeleccionarFecha={onSeleccionarFecha} />
         </div>
-        <aside className="metricas-contexto"><h3>Para observar</h3>{metricas.concentracion ? <p>Los días {metricas.concentracion.fechas.map(fechaCorta).join(" y ")} reúnen el {Math.round(metricas.concentracion.proporcion * 100)} % del dinero {metricas.concentracion.clave} informado en {metricas.concentracion.base} días.</p> : <p>Los importes omitidos quedan fuera de los totales; apostar y perder se muestran por separado.</p>}</aside>
+        <aside className="metricas-contexto">
+          <h3>Para observar</h3>
+          {metricas.registrados > 0 ? <p>En base a tus registros, notamos que declaraste apuestas en {metricas.declararonApuestas} de {metricas.registrados} días registrados durante este período. Podés explorar tus datos con calma y conocer más sobre cómo funcionan las apuestas.</p> : <p>Cuando registres tu actividad, acá vas a poder observar un resumen de lo que compartiste.</p>}
+          {metricas.concentracion && <p>Los días {metricas.concentracion.fechas.map(fechaCorta).join(" y ")} reúnen el {Math.round(metricas.concentracion.proporcion * 100)} % del dinero {metricas.concentracion.clave} informado en {metricas.concentracion.base} días.</p>}
+          <Link to="/prevencion" className="metricas-contexto__enlace">Explorar recursos de Prevención →</Link>
+        </aside>
       </div>
       <div className="metricas-dos-columnas">
         <GraficoDias titulo="Tiempo dedicado" descripcion={`Promedio: ${valor(metricas.minutos.promedio, formatoPromedioTiempo)} min · ${metricas.minutos.base} días informados.`} dias={metricas.dias} claves={["minutos"]} tipo="linea" onSeleccionarFecha={onSeleccionarFecha} />

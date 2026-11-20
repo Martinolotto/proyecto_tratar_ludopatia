@@ -165,3 +165,7 @@
 .metricas-resumen article:nth-child(3) { background: #f0d4bf; border-color: #ddbda4; }
 .metricas-resumen article:nth-child(4) { background: #cddfe9; border-color: #b3cbd8; }
 .metricas-contexto { background: #cfe6dc; }
+
+.metricas-contexto { align-self: stretch; display: flex; flex-direction: column; gap: 12px; }
+.metricas-contexto__enlace { display: inline-flex; align-items: center; min-height: 44px; margin-top: auto; color: #145b58; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.metricas-contexto__enlace:focus-visible { outline: 3px solid #145b58; outline-offset: 3px; }
