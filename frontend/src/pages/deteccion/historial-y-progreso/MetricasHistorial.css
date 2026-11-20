@@ -1,0 +1,167 @@
+/* Presentación del resumen y gráficos de Mi historial; comparte colores y fuentes de MODUS. */
+.metricas-historial {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 26px;
+  color: #172b3a;
+}
+
+/* El relieve combina sombra exterior y luz interior sin alterar el fondo de los datos. */
+.metricas-resumen {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.metricas-resumen article {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #d1dfd9;
+  border-radius: 20px;
+  background: #fdfdfb;
+  box-shadow: 0 9px 20px rgb(23 43 58 / 9%), inset 0 2px 3px rgb(255 255 255 / 95%), inset 0 -2px 3px rgb(36 86 74 / 5%);
+}
+.metricas-resumen span,
+.metricas-resumen small {
+  display: block;
+  color: #354f4d;
+  font-size: .875rem;
+  line-height: 1.45;
+}
+.metricas-resumen strong {
+  display: block;
+  overflow-wrap: anywhere;
+  margin: 10px 0 4px;
+  color: #172b3a;
+  font-family: var(--font-heading, Manrope, sans-serif);
+  font-size: clamp(1.45rem, 2vw, 2rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.metricas-economia {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr);
+  gap: 16px;
+}
+.metricas-economia__principal { position: relative; min-width: 0; }
+.metricas-economia__principal > .metricas-grafico { height: 100%; }
+.metricas-grafico,
+.metricas-contexto {
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid #d2dfda;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgb(23 43 58 / 7%), inset 0 2px 3px rgb(255 255 255 / 95%);
+}
+.metricas-economia__principal > .metricas-grafico {
+  border-color: #b8d3cc;
+  box-shadow: 0 10px 24px rgb(23 43 58 / 9%), inset 0 2px 3px rgb(255 255 255 / 95%);
+}
+.metricas-grafico h3,
+.metricas-contexto h3 {
+  margin: 0;
+  color: #172b3a;
+  font-family: var(--font-heading, Manrope, sans-serif);
+  font-size: 1.22rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.metricas-grafico p,
+.metricas-contexto p { margin: 7px 0 0; color: #354f4d; font-size: .94rem; line-height: 1.5; }
+.metricas-contexto { background: #dcebe6; border-color: #bad4cb; align-self: start; }
+
+/* El selector conserva su lugar en escritorio y fluye cuando la columna se estrecha. */
+.metricas-selector {
+  position: absolute;
+  z-index: 1;
+  top: 18px;
+  right: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #e8f0ed;
+  box-shadow: inset 0 2px 4px rgb(23 43 58 / 8%);
+}
+.metricas-selector button {
+  min-height: 32px;
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #254e4a;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.metricas-selector button[aria-pressed="true"] { background: #fff; color: #173c39; box-shadow: 0 2px 5px rgb(23 43 58 / 15%); }
+.metricas-selector + .metricas-grafico .metricas-grafico__cabecera { padding-right: min(220px, 40%); }
+.metricas-grafico__leyenda { display: flex; flex-wrap: wrap; gap: 12px; margin: 14px 0 0; color: #354f4d; font-size: .85rem; }
+.metricas-grafico__leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.metricas-grafico__leyenda i { width: 10px; height: 10px; border-radius: 3px; }
+.metricas-grafico__lienzo { width: 100%; min-width: 0; height: 220px; margin-top: 12px; }
+.metricas-economia .metricas-grafico__lienzo { height: 260px; }
+.metricas-dos-columnas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.metricas-tabla { margin-top: 16px; font-size: .9rem; }
+.metricas-tabla summary { color: #145b58; font-weight: 700; cursor: pointer; }
+.metricas-tabla__scroll { overflow-x: auto; }
+.metricas-tabla table { width: 100%; margin-top: 12px; border-collapse: collapse; text-align: left; }
+.metricas-tabla th,
+.metricas-tabla td { padding: 8px; border-bottom: 1px solid #e3ebe8; font-weight: 400; white-space: nowrap; }
+.metricas-tabla thead th { font-weight: 700; }
+.metricas-tabla button { border: 0; background: none; padding: 0; color: #145b58; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.metricas-vacio { display: grid; min-height: 76px; place-items: center; padding: 16px; border-radius: 14px; background: #f1f5f2; text-align: center; }
+.metricas-semana,
+.metricas-situaciones { display: grid; gap: 9px; margin: 18px 0 0; padding: 0; list-style: none; }
+.metricas-semana li,
+.metricas-situaciones li { display: grid; grid-template-columns: minmax(70px, 1fr) auto; gap: 4px 10px; align-items: center; font-size: .9rem; }
+.metricas-semana i,
+.metricas-situaciones i { grid-column: 1 / -1; display: block; height: 7px; overflow: hidden; border-radius: 99px; background: #e7edeb; }
+.metricas-semana i b,
+.metricas-situaciones i b { display: block; height: 100%; border-radius: inherit; background: #2a7774; }
+.metricas-situaciones i b { background: #8069ac; }
+.metricas-grafico .metricas-observacion { margin-top: 18px; padding: 12px 14px; border: 1px solid #bdd4cb; border-radius: 12px; background: #edf5f1; color: #214840; }
+.metricas-historial :is(button, summary):focus-visible { outline: 3px solid #145b58; outline-offset: 3px; }
+
+/* Las decisiones se basan en el espacio de la página, no en el ancho de ventana. */
+@container (max-width: 900px) {
+  .metricas-resumen { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* La superficie reúne al selector y al gráfico cuando ambos están en flujo. */
+  .metricas-economia__principal {
+    padding: 22px;
+    border: 1px solid #b8d3cc;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgb(23 43 58 / 9%), inset 0 2px 3px rgb(255 255 255 / 95%);
+  }
+  .metricas-selector { position: static; margin-bottom: 14px; width: fit-content; }
+  .metricas-economia__principal > .metricas-grafico {
+    height: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .metricas-selector + .metricas-grafico .metricas-grafico__cabecera { padding-right: 0; }
+}
+@container (max-width: 760px) {
+  .metricas-economia,
+  .metricas-dos-columnas { grid-template-columns: minmax(0, 1fr); }
+}
+@container (max-width: 420px) {
+  .metricas-resumen { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Superficies con profundidad, manteniendo las escalas y colores de los datos. */
+.metricas-resumen article, .metricas-grafico, .metricas-contexto {
+  border-radius: 23px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 85%), inset -5px -6px 12px rgb(23 60 53 / 8%), 0 9px 20px rgb(23 43 58 / 12%);
+}
+.metricas-resumen article:nth-child(1) { background: #d3e8df; border-color: #b8d3c7; }
+.metricas-resumen article:nth-child(2) { background: #ded6ec; border-color: #c9b9de; }
+.metricas-resumen article:nth-child(3) { background: #f0d4bf; border-color: #ddbda4; }
+.metricas-resumen article:nth-child(4) { background: #cddfe9; border-color: #b3cbd8; }
+.metricas-contexto { background: #cfe6dc; }

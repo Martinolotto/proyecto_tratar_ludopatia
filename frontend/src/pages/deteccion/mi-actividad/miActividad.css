@@ -1,0 +1,272 @@
+/*
+ * Presentación de Mi actividad: un registro claro y privado dentro de MODUS.
+ * Los estados y datos vienen de MiActividadPage; estas reglas no los modifican.
+ */
+
+/* El contenedor permite adaptar el bento al espacio real que deja la sidebar. */
+main:has(> .mi-actividad) {
+  max-width: none;
+}
+
+.mi-actividad {
+  container-type: inline-size;
+  max-width: 1500px;
+  min-width: 0;
+  margin: 0 auto;
+  color: var(--modus-ink);
+  --actividad-secundario: var(--modus-text-muted, #405b59);
+  --actividad-borde: var(--modus-border, #cbd7d1);
+  --actividad-verde: #dce8e5;
+  --actividad-albaricoque: var(--modus-surface-apricot, #f3dfcf);
+  --actividad-lavanda: var(--modus-surface-lavender, #e8e3f2);
+}
+
+.mi-actividad h1,
+.mi-actividad h2,
+.mi-actividad h3,
+.mi-actividad strong {
+  font-family: "Manrope Variable", system-ui, sans-serif;
+}
+
+.mi-actividad button,
+.mi-actividad input,
+.mi-actividad select,
+.mi-actividad textarea {
+  font: inherit;
+}
+
+.mi-actividad button { cursor: pointer; }
+.mi-actividad button:disabled { cursor: not-allowed; }
+.mi-actividad :focus-visible {
+  outline: 3px solid var(--modus-brand-teal);
+  outline-offset: 3px;
+}
+
+/* La vuelta y el encabezado ubican al usuario sin retrasar la acción principal. */
+.actividad-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: #1d6361;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.actividad-volver:hover { text-decoration: underline; }
+.actividad-encabezado {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 8px 0 30px;
+  padding: 8px 0 22px;
+  border-bottom: 1px solid var(--actividad-borde);
+}
+.actividad-encabezado h1 {
+  margin: 0;
+  color: var(--modus-brand-navy);
+  font-size: clamp(2.25rem, 3.3vw, 2.75rem);
+  font-weight: 750;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.actividad-encabezado p {
+  max-width: 62ch;
+  margin: 10px 0 0;
+  color: var(--actividad-secundario);
+  line-height: 1.55;
+}
+.actividad-hoy {
+  display: grid;
+  gap: 4px;
+  flex: 0 0 auto;
+  padding-left: 18px;
+  border-left: 1px solid var(--actividad-borde);
+}
+.actividad-hoy time { color: var(--modus-brand-navy); font-weight: 700; }
+.actividad-hoy span { max-width: 220px; color: var(--actividad-secundario); font-size: 14px; line-height: 1.45; }
+
+/* La pregunta principal y los bloques opcionales conservan su orden funcional. */
+.actividad-distribucion {
+  display: grid;
+  grid-template-columns: minmax(260px, .76fr) minmax(0, 1.24fr);
+  align-items: stretch;
+  gap: 18px;
+}
+.actividad-principal {
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid #ccdbd5;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(23 43 58 / 5%);
+}
+.actividad-principal-cabeza { display: flex; align-items: center; gap: 10px; color: #1d6361; font-size: 14px; font-weight: 700; }
+.actividad-icono {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgb(255 255 255 / 70%);
+  color: var(--modus-brand-navy);
+}
+.actividad-icono-claro { background: #e4f0eb; color: #1d6361; }
+.actividad-principal h2 { margin: 22px 0 6px; color: var(--modus-brand-navy); font-size: clamp(1.5rem, 2.1vw, 1.85rem); font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
+.actividad-principal > p { margin: 0; color: var(--actividad-secundario); line-height: 1.5; }
+.actividad-eleccion, .actividad-ganas, .actividad-situaciones { min-width: 0; margin-inline: 0; padding: 0; border: 0; }
+.actividad-eleccion { display: grid; gap: 8px; margin-top: 22px; }
+.actividad-eleccion legend, .actividad-ganas legend { margin-bottom: 10px; font-size: 14px; font-weight: 700; }
+.actividad-eleccion label, .actividad-ganas label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid #b9cbc4;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+}
+.actividad-eleccion label:hover, .actividad-ganas label:hover { background: #f2f8f4; }
+.actividad-eleccion label.seleccionada, .actividad-ganas label.seleccionada { border-color: #4e8b7d; background: #dceee5; color: #173b36; }
+.actividad-eleccion label svg { margin-left: auto; opacity: 0; }
+.actividad-eleccion label.seleccionada svg { opacity: 1; }
+.actividad-eleccion input, .actividad-ganas input, .actividad-situaciones input { flex: none; accent-color: #205f5d; }
+.actividad-ganas { margin-top: 22px; }
+.actividad-ganas legend span { color: var(--actividad-secundario); font-weight: 400; }
+.actividad-ganas > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.actividad-ganas button { border: 0; background: transparent; padding: 6px; color: #205f5d; font-size: 14px; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
+
+/* La grilla usa proporciones distintas; solo un panel se expande al mismo tiempo. */
+.actividad-secundarios { min-width: 0; }
+.actividad-opcionales { display: flex; justify-content: space-between; gap: 12px; margin: 2px 0 12px; color: var(--modus-brand-navy); font-weight: 700; }
+.actividad-opcionales span { color: var(--actividad-secundario); font-size: 14px; font-weight: 400; }
+.actividad-bento { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.actividad-bloque { min-width: 0; overflow: hidden; border: 1px solid rgb(23 43 58 / 9%); border-radius: 16px; }
+.actividad-bloque--dinero { background: var(--actividad-albaricoque); }
+.actividad-bloque--tiempo { background: var(--actividad-lavanda); }
+.actividad-bloque--situaciones { background: var(--actividad-verde); }
+.actividad-bloque--nota { background: #e3ecf1; }
+.actividad-bento:has(.actividad-bloque.esta-abierto) { display: flex; flex-wrap: wrap; }
+.actividad-bento:has(.actividad-bloque.esta-abierto) .actividad-bloque { flex: 1 1 240px; }
+.actividad-bento:has(.actividad-bloque.esta-abierto) .actividad-bloque.esta-abierto { flex: 1 0 100%; }
+.actividad-bloque-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 150px;
+  padding: 20px;
+  border: 0;
+  background: transparent;
+  color: var(--modus-brand-navy);
+  text-align: left;
+}
+.actividad-bloque-cabecera:disabled .actividad-icono,
+.actividad-bloque-cabecera:disabled .actividad-chevron { opacity: .68; }
+.actividad-bloque-cabecera:hover:not(:disabled) { background: rgb(255 255 255 / 20%); }
+.actividad-bloque-cabecera:focus-visible { outline-offset: -4px; }
+.actividad-bloque-texto { display: grid; flex: 1; gap: 6px; min-width: 0; }
+.actividad-bloque-texto strong { font-size: 19px; line-height: 1.25; }
+.actividad-bloque-texto > small, .actividad-bloque-texto > span { color: #354f50; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.actividad-bloque-texto > span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.actividad-chevron { flex: none; transition: transform .18s; }
+.esta-abierto .actividad-chevron { transform: rotate(180deg); }
+.actividad-bloque-contenido { padding: 0 20px 20px; }
+.actividad-campos-grupo { min-width: 0; margin: 0; padding: 0; border: 0; }
+.actividad-campos { display: flex; flex-wrap: wrap; gap: 12px; }
+.actividad-campo { display: grid; flex: 1 1 160px; gap: 5px; min-width: 0; }
+.actividad-campo label, .actividad-situaciones legend { font-size: 15px; font-weight: 700; }
+.actividad-campo input, .actividad-campo select, .actividad-campo textarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 8px 10px;
+  border: 1px solid #8ea7a0;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--modus-ink);
+}
+.actividad-campo textarea { resize: vertical; }
+.actividad-campo small { color: #354f50; font-size: 14px; }
+.actividad-error, .actividad-campo small.actividad-error { color: #9c3229; font-weight: 700; }
+.actividad-error-claro { margin: 8px 0 0; }
+
+/* Las situaciones conservan casillas nativas y áreas de selección amplias. */
+.actividad-situaciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 1080px; margin: 0 auto; }
+.actividad-situaciones legend { margin: 0 auto 14px; text-align: center; font-size: 17px; }
+.actividad-situaciones label { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 12px 14px; border: 1px solid #aac5b9; border-radius: 10px; background: #f7fbf8; color: #213d39; line-height: 1.45; cursor: pointer; }
+.actividad-situaciones label:has(input:checked) { border-color: #4e8b7d; background: #cfe7dc; }
+.actividad-situaciones input { width: 20px; height: 20px; margin: 0; }
+
+/* Guardado, cancelación y mensajes comparten el lenguaje de botones de MODUS. */
+.actividad-pie { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-top: 18px; color: var(--actividad-secundario); }
+.actividad-pie p { margin: 0; color: var(--modus-brand-navy); font-size: 14px; font-weight: 700; }
+.actividad-pie span { font-size: 14px; }
+.actividad-pie-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.actividad-accion { display: inline-flex; align-items: center; justify-content: center; gap: 18px; min-height: 46px; padding: 0 22px; border: 0; border-radius: 10px; background: var(--modus-brand-teal); color: #fff; font-weight: 700; }
+.actividad-accion:hover:not(:disabled) { background: #205f5d; }
+.actividad-accion:disabled { opacity: .6; }
+.actividad-cancelar { padding: 10px; border: 0; background: transparent; color: #205f5d; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.actividad-confirmacion, .actividad-aviso { margin-top: 12px; padding: 14px; border: 1px solid #e0c49e; border-radius: 10px; background: #fff2de; color: var(--modus-brand-navy); font-size: 14px; }
+.actividad-confirmacion p, .actividad-aviso p { margin: 0 0 8px; }
+.actividad-confirmacion button, .actividad-aviso button { margin: 3px 7px 0 0; padding: 8px 10px; border: 1px solid #718a83; border-radius: 8px; background: #fff; color: var(--modus-brand-navy); font-size: 14px; font-weight: 700; }
+.actividad-mensaje { color: #9c3229; font-size: 14px; font-weight: 700; }
+.actividad-estado { padding: 24px; border: 1px solid var(--actividad-borde); border-radius: 14px; background: #fff; }
+.actividad-estado p { margin: 0 0 16px; }
+
+/* El resumen solo presenta hechos guardados y conserva las omisiones visibles. */
+.actividad-resumen { display: grid; grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr); align-items: stretch; gap: 16px; }
+.actividad-resumen-principal { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(26px, 3vw, 42px); border: 1px solid #c6d9d0; border-radius: 18px; background: #e2eee8; color: var(--modus-brand-navy); }
+.actividad-marca { display: inline-flex; align-items: center; gap: 8px; color: #205f5d; font-size: 14px; font-weight: 700; }
+.actividad-resumen h2 { margin: 20px 0 8px; font-size: clamp(1.65rem, 2.8vw, 2.3rem); font-weight: 700; letter-spacing: -.03em; line-height: 1.2; }
+.actividad-resumen-principal p { max-width: 46ch; margin: 10px 0 0; color: var(--actividad-secundario); line-height: 1.55; }
+.actividad-accion-clara { margin-top: 24px; }
+.actividad-resumen-detalles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.actividad-resumen-tarjeta { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 110px; padding: 20px 22px; border: 1px solid rgb(23 43 58 / 9%); border-radius: 14px; background: #fff; color: var(--modus-brand-navy); }
+.actividad-resumen-ganas { grid-column: span 2; background: #e2eee8; }
+.actividad-resumen-dinero, .actividad-resumen-perdido { background: var(--actividad-albaricoque); }
+.actividad-resumen-tiempo, .actividad-resumen-cantidad { background: var(--actividad-lavanda); }
+.actividad-resumen-situaciones { background: var(--actividad-verde); }
+.actividad-resumen-nota { background: #e3ecf1; }
+.actividad-resumen-tarjeta span { color: #354f50; font-size: 14px; font-weight: 650; }
+.actividad-resumen-tarjeta strong { overflow-wrap: anywhere; font-size: 18px; line-height: 1.4; }
+.actividad-nota-guardada { white-space: pre-wrap; }
+.actividad-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+
+/* La sidebar cambia el espacio disponible: la grilla responde al contenedor. */
+@container (max-width: 830px) {
+  .actividad-distribucion, .actividad-resumen { grid-template-columns: 1fr; }
+  .actividad-bloque-cabecera { min-height: 125px; }
+}
+@container (max-width: 550px) {
+  .actividad-encabezado { align-items: start; flex-direction: column; gap: 14px; }
+  .actividad-hoy { padding-left: 0; border-left: 0; }
+  .actividad-bento { grid-template-columns: 1fr; }
+  .actividad-bloque--dinero, .actividad-bloque--nota { grid-column: auto; }
+  .actividad-situaciones { grid-template-columns: 1fr; }
+  .actividad-pie { align-items: stretch; flex-direction: column; }
+  .actividad-pie-acciones, .actividad-accion { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .actividad-chevron { transition: none; }
+}
+
+/* Relieve de Escudo adaptado a los controles y estados existentes del registro. */
+.actividad-principal, .actividad-resumen-principal, .actividad-resumen-tarjeta {
+  border-radius: 22px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 80%), inset -4px -5px 12px rgb(23 60 53 / 9%), 0 9px 20px rgb(23 43 58 / 12%);
+}
+.actividad-bloque {
+  border-radius: 20px; border-color: rgb(23 43 58 / 12%);
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 60%), inset -5px -6px 12px rgb(23 43 58 / 10%), 0 8px 16px rgb(23 43 58 / 11%);
+}
+.actividad-bloque--dinero { background: #efd0b8; }
+.actividad-bloque--tiempo { background: #ddd0eb; }
+.actividad-bloque--situaciones { background: #c9e3d8; }
+.actividad-bloque--nota { background: #cddfe9; }
+.actividad-icono { box-shadow: inset 2px 2px 5px rgb(255 255 255 / 85%), 0 4px 8px rgb(23 43 58 / 12%); }
+.actividad-accion { box-shadow: inset 2px 3px 5px rgb(255 255 255 / 23%), inset -2px -3px 5px rgb(10 45 43 / 22%), 0 5px 10px rgb(23 43 58 / 16%); }

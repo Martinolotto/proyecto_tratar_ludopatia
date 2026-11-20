@@ -1,0 +1,289 @@
+/*
+ * Sistema visual local de Historial y progreso. Organiza los controles y las
+ * superficies de la vista real sin modificar los estilos de otras páginas.
+ */
+.historial-pagina { container-type: inline-size; }
+.historial-cabecera,
+.historial-vista {
+  color: var(--modus-brand-navy);
+  min-width: 0;
+}
+.historial-cabecera h1,
+.historial-vista :is(h2, h3) {
+  font-family: var(--font-heading, "Manrope Variable", sans-serif);
+  letter-spacing: -.025em;
+}
+.historial-cabecera__intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px 32px;
+}
+.historial-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 9px;
+  color: #246865;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .095em;
+  line-height: 1.3;
+}
+.historial-cabecera h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3.5vw, 3.15rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.historial-cabecera h1 span { color: #2a7774; }
+.historial-cabecera__intro > div > p:last-child {
+  max-width: 55ch;
+  margin: 10px 0 0;
+  color: var(--modus-text-muted);
+  line-height: 1.55;
+}
+.historial-privado {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--modus-text-muted);
+  font-size: .85rem;
+  font-weight: 600;
+}
+.historial-subnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 30px;
+  border-bottom: 1px solid var(--modus-border);
+}
+.historial-tabs,
+.historial-dots,
+.historial-filtros__controles,
+.historial-periodos,
+.historial-flechas {
+  display: flex;
+  align-items: center;
+}
+.historial-tabs { gap: 26px; }
+.historial-tabs button {
+  min-height: 48px;
+  padding: 0 1px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #516863;
+  font-weight: 700;
+  cursor: pointer;
+}
+.historial-tabs button[aria-selected="true"] { border-bottom-color: #2a7774; color: #172b3a; }
+.historial-dots button {
+  display: grid;
+  width: 40px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.historial-dots button span { width: 9px; height: 9px; border-radius: 50%; background: #b3c3bd; }
+.historial-dots button[aria-pressed="true"] span { width: 11px; height: 11px; background: #246865; }
+.historial-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 20px 0 26px;
+}
+.historial-filtros__titulo strong { display: block; font-size: 1rem; }
+.historial-filtros__controles { flex-wrap: wrap; gap: 10px; }
+.historial-periodos {
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid #cedbd5;
+  border-radius: 12px;
+  background: #eef5f1;
+  box-shadow: inset 0 2px 5px rgb(23 43 58 / 9%), 0 2px 6px rgb(23 43 58 / 5%);
+}
+.historial-periodos button,
+.historial-flechas button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #405b59;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.historial-periodos button { padding: 0 12px; }
+.historial-periodos button[aria-pressed="true"] { background: #fff; color: #145b58; box-shadow: 0 3px 7px rgb(23 43 58 / 13%), inset 0 1px 1px #fff; }
+.historial-periodo-actual { min-height: 40px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #145b58; font-size: .85rem; font-weight: 700; cursor: pointer; }
+.historial-periodo-actual:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 3px; }
+.historial-periodo-actual:disabled { color: #697c76; cursor: default; }
+.historial-flechas { gap: 6px; }
+.historial-flechas button {
+  display: grid;
+  width: 40px;
+  place-items: center;
+  border: 1px solid #cedbd5;
+  background: white;
+}
+.historial-flechas button:disabled { color: #81908c; cursor: not-allowed; opacity: .65; }
+/* Una breve entrada facilita percibir el cambio sin convertirlo en un carrusel. */
+.historial-panel { animation: historial-aparecer 150ms ease-out; }
+/* El panel sin controles propios también puede recorrerse con teclado. */
+.historial-panel:focus-visible { outline: 3px solid #145b58; outline-offset: 4px; border-radius: 20px; }
+@keyframes historial-aparecer { from { opacity: .7; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .historial-panel { animation: none; } }
+.historial-card {
+  min-width: 0;
+  padding: clamp(20px, 2.3vw, 30px);
+  border: 1px solid #cbdad3;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(23 43 58 / 8%), 0 2px 6px rgb(23 43 58 / 3%);
+}
+.historial-card__encabezado { display: flex; align-items: start; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.historial-card__encabezado h2,
+.historial-detalle h2,
+.historial-reflexiones h2 { margin: 0; font-size: clamp(1.35rem, 1.7vw, 1.65rem); font-weight: 800; line-height: 1.25; }
+.historial-card__ayuda { max-width: 60ch; margin: 10px 0 0; color: var(--modus-text-muted); line-height: 1.55; }
+.historial-etiqueta { display: inline-flex; align-items: center; min-height: 30px; padding: 4px 10px; border-radius: 999px; background: #e6f0eb; color: #265c55; font-size: .75rem; font-weight: 700; }
+.historial-leyenda { display: flex; flex-wrap: wrap; gap: 9px 17px; margin-top: 22px; color: #405b59; font-size: .78rem; }
+.historial-leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.historial-leyenda__marca { display: inline-grid; width: 12px; height: 12px; flex: none; place-items: center; border: 1px solid #ccd9d4; border-radius: 4px; background: #eef2ee; color: #405b59; font-style: normal; }
+.historial-leyenda__marca::after { content: "−"; font-size: 9px; line-height: 1; }
+.historial-leyenda__marca--aposto::after { content: "●"; }
+.historial-leyenda__marca--no-aposto::after { content: "◆"; }
+.historial-leyenda__marca--aposto { border-color: #b9d2cc; background: #d8eae4; }
+.historial-leyenda__marca--no-aposto { border-color: #d4c8e3; background: #ebe4f1; }
+.historial-detalle { background: #edf4ef; border-color: #ccddd1; }
+.historial-detalle > p:not(.historial-eyebrow), .historial-detalle__seccion p { color: #405b59; line-height: 1.55; }
+.historial-detalle__fecha { margin: 18px 0 4px; font-size: .9rem; font-weight: 700; text-transform: capitalize; }
+.historial-detalle__declaracion { margin: 0; color: #173c39 !important; font-size: 1.12rem; font-weight: 800; }
+.historial-detalle__datos { display: grid; gap: 0; margin: 20px 0 0; }
+.historial-detalle__datos div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 9px 0; border-bottom: 1px solid #d0dfd5; }
+.historial-detalle__datos dt { color: #405b59; font-size: .85rem; }
+.historial-detalle__datos dd { margin: 0; color: #183b38; font-size: .85rem; font-weight: 700; }
+.historial-detalle__seccion { margin-top: 18px; font-size: .9rem; }
+.historial-detalle__seccion p { margin: 7px 0 0; }
+.historial-detalle__seccion ul { margin: 8px 0 0; padding-left: 18px; line-height: 1.5; }
+.historial-texto-personal { overflow-wrap: anywhere; white-space: pre-wrap; }
+.historial-enlace { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #145b58; font-size: .9rem; font-weight: 800; text-align: left; text-decoration: none; cursor: pointer; }
+.historial-enlace:hover { text-decoration: underline; text-underline-offset: 3px; }
+.historial-lista > p, .historial-reflexiones > p:not(.historial-card__ayuda) { color: #405b59; line-height: 1.5; }
+.historial-lista ul { display: grid; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
+.historial-lista li button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 62px; padding: 10px 14px; border: 1px solid transparent; border-radius: 11px; background: #fff; color: #172b3a; text-align: left; cursor: pointer; }
+.historial-lista li button:hover, .historial-lista li button[aria-pressed="true"] { border-color: #b7d1c7; background: #e8f1ec; }
+.historial-lista li strong, .historial-lista li small { display: block; }
+.historial-lista li strong { text-transform: capitalize; }
+.historial-lista li small { margin-top: 3px; color: #405b59; font-size: .82rem; }
+.historial-reflexiones { margin-top: 42px; padding-top: 24px; border-top: 1px solid #cbdad3; }
+.historial-notas { display: grid; gap: 8px; margin-top: 18px; }
+.historial-nota { border: 1px solid #d0ddd7; border-radius: 12px; background: #fff; }
+.historial-nota summary { display: flex; align-items: center; justify-content: space-between; min-height: 52px; gap: 12px; padding: 12px 16px; color: #173c39; font-weight: 700; text-transform: capitalize; cursor: pointer; list-style: none; }
+.historial-nota summary::-webkit-details-marker { display: none; }
+.historial-nota[open] summary span:last-child { transform: rotate(45deg); }
+.historial-nota p { margin: 0; padding: 0 16px 16px; color: #405b59; line-height: 1.6; }
+.historial-cabecera :is(button, a):focus-visible,
+.historial-vista :is(button, a, summary):focus-visible { outline: 3px solid #145b58; outline-offset: 3px; }
+@media (max-width: 767px) {
+  .historial-subnav { margin-top: 22px; }
+  .historial-tabs { gap: 16px; }
+  .historial-filtros__controles { width: 100%; }
+  .historial-periodos { flex: 1 1 280px; }
+  .historial-periodos button { flex: 1; }
+}
+
+/* El calendario conserva sus celdas compactas y controles mensuales propios. */
+.historial-calendario__mes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; }
+.historial-calendario__mes h2 { color: #172b3a; font-size: 1rem; text-transform: capitalize; }
+.historial-calendario__flechas { display: flex; gap: 5px; }
+.historial-calendario__flechas button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #cbdad3; border-radius: 9px; background: #fff; color: #145b58; cursor: pointer; }
+.historial-calendario__flechas button:disabled { color: #8b9995; cursor: not-allowed; }
+.historial-detalle__fuera { margin: 4px 0 10px; color: #516863; font-size: .8rem; }
+.historial-detalle__omitidos { margin: 13px 0 0; font-size: .8rem; }
+.historial-lista li button { min-height: 52px; }
+.historial-reflexiones { margin-top: 26px; }
+/* En escritorio, calendario, listado y detalle conviven sin desperdiciar ancho. */
+.historial-vista__explorar { display: contents; }
+.historial-vista__principal {
+  display: grid;
+  grid-template-columns: minmax(250px, .9fr) minmax(200px, .95fr) minmax(240px, 1.1fr);
+  align-items: start;
+  gap: 22px;
+}
+.historial-calendario { padding: 22px; }
+.historial-lista { min-width: 0; padding: 22px 0; }
+.historial-lista ul { max-height: 300px; overflow-y: auto; padding-right: 4px; }
+@container (max-width: 950px) {
+  .historial-vista__principal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .historial-detalle { grid-column: 1 / -1; }
+}
+@container (max-width: 600px) {
+  .historial-vista__principal { grid-template-columns: minmax(0, 1fr); }
+  .historial-detalle { grid-column: auto; }
+}
+
+/* Jerarquía compacta para explorar registros sin alejar la cabecera del contenido. */
+.historial-cabecera h1 { font-size: clamp(2rem, 2.6vw, 2.5rem); }
+.historial-cabecera__intro > div > p:last-child { margin-top: 6px; }
+.historial-subnav { margin-top: 16px; }
+.historial-filtros { gap: 10px 20px; padding: 14px 0 18px; }
+.historial-vista__principal { grid-template-columns: minmax(250px, 280px) minmax(220px, 1fr) minmax(260px, 1.1fr); gap: 16px; }
+.historial-calendario { border-top: 4px solid #2a7774; padding: 19px 20px; }
+.historial-calendario__mes { margin-top: 13px; }
+.historial-calendario__mes h2 { white-space: nowrap; }
+.historial-lista { padding: 19px 20px; border: 1px solid #d2ded9; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgb(23 43 58 / 6%); }
+.historial-lista li button { background: #f0f5f2; }
+.historial-lista li button:hover, .historial-lista li button[aria-pressed="true"] { background: #d8ebe3; }
+.historial-detalle { padding: 22px; border-color: #285956; background: #285956; }
+.historial-detalle :is(h2, strong, dt, dd) { color: #fff; }
+.historial-detalle > p:not(.historial-eyebrow), .historial-detalle__seccion p { color: #e2f1ea; }
+.historial-detalle .historial-eyebrow { color: #c2e7d8; }
+.historial-detalle .historial-detalle__declaracion { color: #fff !important; }
+.historial-detalle__datos div { border-color: #71918a; }
+.historial-detalle__omitidos, .historial-detalle__fuera { color: #d8ebe4 !important; }
+.historial-detalle .historial-enlace { color: #fff; }
+.historial-detalle :is(button, a):focus-visible { outline-color: #fff; }
+.historial-reflexiones { margin-top: 20px; padding-top: 18px; }
+@container (max-width: 950px) {
+  .historial-vista__principal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .historial-detalle { grid-column: 1 / -1; }
+}
+@container (max-width: 600px) {
+  .historial-vista__principal { grid-template-columns: minmax(0, 1fr); }
+  .historial-detalle { grid-column: auto; }
+}
+/* En español solo se capitaliza el comienzo de las fechas, no cada palabra. */
+.historial-detalle__fecha, .historial-lista li strong, .historial-nota summary,
+.historial-calendario__mes h2 { text-transform: none; }
+.historial-calendario__mes h2, .historial-nota summary span:first-child { display: block; }
+.historial-detalle__fecha::first-letter, .historial-lista li strong::first-letter,
+.historial-nota summary span:first-child::first-letter,
+.historial-calendario__mes h2::first-letter { text-transform: uppercase; }
+
+/* El mes es el título accesible del módulo compacto de participación. */
+.historial-calendario__mes { margin-top: 0; }
+.historial-calendario__mes h2 { margin: 0; }
+
+/* La tarjeta ocupa su columna sin dejar un hueco antes del historial. */
+.historial-calendario { width: 100%; min-width: 0; }
+
+/* El detalle y la leyenda del calendario comparten una lectura cómoda en esta vista. */
+.historial-calendario .heat-calendar-original [role="status"] { font-size: 12px; }
+.historial-calendario .heat-calendar-original [class~="text-[10px]"] { font-size: 12px; }
+
+/* El calendario y el historial conservan sus dimensiones y ganan relieve. */
+.historial-card, .historial-lista {
+  border-radius: 22px;
+  box-shadow: inset 3px 4px 9px rgb(255 255 255 / 75%), inset -5px -6px 12px rgb(23 60 53 / 8%), 0 9px 20px rgb(23 43 58 / 12%);
+}
+.historial-detalle { box-shadow: inset 3px 4px 9px rgb(255 255 255 / 17%), inset -5px -6px 12px rgb(10 40 36 / 22%), 0 9px 20px rgb(23 43 58 / 14%); }

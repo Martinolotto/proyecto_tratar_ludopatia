@@ -1,3 +1,7 @@
+/*
+ * Cliente compartido de Supabase para Auth y las operaciones de datos del frontend.
+ * Las pantallas lo importan para utilizar el entorno y la sesión configurados.
+ */
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;

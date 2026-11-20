@@ -1,0 +1,18 @@
+/* Tokens locales para las utilidades originales de Heat Calendar. */
+.heat-calendar-original {
+  --foreground: #172b3a;
+  --surface: #fff;
+  --border: #cbd7d1;
+  --ring: #145b58;
+  color: var(--foreground);
+}
+.heat-calendar-original .text-muted-foreground { color: #405b59; }
+.heat-calendar-original [class~="text-foreground/75"] { color: rgb(23 43 58 / 75%); }
+.heat-calendar-original [class~="text-foreground/90"] { color: rgb(23 43 58 / 90%); }
+.heat-calendar-original button:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; }
+.heat-calendar-original button:disabled { cursor: default; }
+
+/* Celdas visibles y compactas, con la separación del componente original. */
+.heat-calendar-grid { width: max-content; }
+.heat-calendar-week { flex: none; }
+.heat-calendar-cell { width: 28px; height: 28px; }

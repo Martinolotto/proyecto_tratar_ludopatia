@@ -6,6 +6,7 @@
     "seed:clean": "node scripts/seed.mjs clean"
   },
   "devDependencies": {
+    "@playwright/test": "1.65.1",
     "supabase": "3.0.0"
   }
 }

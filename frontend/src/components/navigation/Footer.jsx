@@ -1,3 +1,7 @@
+/*
+ * Pie de navegación de la Landing pública. PublicLayout lo muestra únicamente
+ * en la ruta inicial, fuera del contenido principal de la página.
+ */
 import { Link } from "react-router";
 
 const footerLinkClass =

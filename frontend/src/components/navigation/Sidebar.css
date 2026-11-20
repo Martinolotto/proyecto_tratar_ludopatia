@@ -1,0 +1,108 @@
+/* Barra personal y layout: la columna sigue su ancho abierto o contraído. */
+.modus-app-shell { --modus-header-height: 80px; }
+.modus-app-body { display: flex; flex: 1; align-items: stretch; min-width: 0; }
+.modus-app-content { display: flex; flex: 1; min-width: 0; flex-direction: column; }
+.modus-sidebar-desktop {
+  display: none;
+  flex: 0 0 276px;
+  width: 276px;
+  transition: width 350ms ease, flex-basis 350ms ease;
+}
+.modus-sidebar-desktop--collapsed { flex-basis: 96px; width: 96px; }
+.modus-sidebar {
+  position: sticky;
+  z-index: 20;
+  top: calc(var(--modus-header-height) + 8px);
+  display: flex;
+  flex-direction: column;
+  width: 84px;
+  height: calc(100dvh - var(--modus-header-height) - 16px);
+  margin: 8px 0 8px 12px;
+  min-height: 0;
+  padding: 18px 20px;
+  border: 1px solid rgb(220 232 229 / 18%);
+  border-radius: 18px;
+  background: #172b3a;
+  box-shadow: 0 8px 24px rgb(23 43 58 / 10%);
+  color: #f3f6f3;
+  transition: width 350ms ease;
+}
+@supports (backdrop-filter: blur(1px)) {
+  .modus-sidebar { background: rgb(23 43 58 / 96%); backdrop-filter: blur(12px); }
+}
+.modus-sidebar--expanded { width: 264px; }
+.modus-sidebar__profile { position: relative; display: flex; align-items: center; flex-shrink: 0; min-height: 44px; margin-bottom: 24px; }
+.modus-sidebar__profile-link { display: flex; align-items: center; gap: 12px; min-width: 0; max-width: calc(100% - 44px); overflow: hidden; color: inherit; text-decoration: none; }
+.modus-sidebar__avatar { position: relative; display: grid; flex: 0 0 36px; height: 36px; overflow: hidden; place-items: center; border-radius: 50%; background: #365952; }
+.modus-sidebar__avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.modus-sidebar__profile-text { display: flex; min-width: 0; flex-direction: column; white-space: nowrap; }
+.modus-sidebar__profile-text strong { overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
+.modus-sidebar__profile-text small { color: #c6d8d2; font-size: 12px; }
+.modus-sidebar__toggle {
+  position: absolute;
+  right: 0;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #e4ede9;
+  cursor: pointer;
+}
+.modus-sidebar__toggle:hover { background: #365952; }
+.modus-sidebar__navigation { min-height: 0; }
+.modus-sidebar__navigation ul { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.modus-sidebar__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 44px;
+  min-height: 44px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #e4ede9;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: width 350ms ease, background-color 160ms ease;
+}
+.modus-sidebar--expanded .modus-sidebar__item { width: 100%; }
+.modus-sidebar__item svg { flex: none; }
+.modus-sidebar__item:hover, .modus-sidebar__item--active { background: #365952; color: white; }
+.modus-sidebar__item--active { box-shadow: inset 2px 0 #b9dfd2; }
+.modus-sidebar__label { overflow: hidden; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; opacity: 0; }
+.modus-sidebar--expanded .modus-sidebar__label { opacity: 1; }
+/* Al contraer, la etiqueta aparece junto al icono tanto con ratón como con foco. */
+.modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__label {
+  position: absolute;
+  z-index: 2;
+  left: 54px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #172b3a;
+  color: white;
+  pointer-events: none;
+}
+.modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__item:hover .modus-sidebar__label,
+.modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__item:focus-visible .modus-sidebar__label { opacity: 1; }
+.modus-sidebar__actions { margin-top: auto; padding-top: 18px; }
+.modus-sidebar__theme { color: #b6c8c2; cursor: not-allowed; }
+.modus-sidebar--expanded .modus-sidebar__theme .modus-sidebar__label {
+  white-space: normal;
+  line-height: 1.25;
+}
+.modus-sidebar__logout:disabled { opacity: .65; cursor: wait; }
+.modus-sidebar__error { margin: 0 0 8px; color: #fff1de; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+.modus-sidebar :focus-visible { outline: 3px solid #c8eee1; outline-offset: 3px; }
+.modus-sidebar-dialog { position: fixed; inset: 0 auto 0 0; max-height: 100dvh; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; }
+.modus-sidebar-dialog::backdrop { background: rgb(23 43 58 / 45%); }
+.modus-sidebar-dialog .modus-sidebar { position: static; height: 100dvh; max-width: 100vw; margin: 0; border-radius: 0 18px 18px 0; }
+@media (min-width: 1024px) { .modus-sidebar-desktop { display: block; } }
+@media (max-width: 1023px) { .modus-app-shell { --modus-header-height: 120px; } }
+@media (max-height: 430px) { .modus-sidebar { overflow-y: auto; } }
+@media (prefers-reduced-motion: reduce) { .modus-sidebar-desktop, .modus-sidebar, .modus-sidebar__item { transition: none; } }

@@ -3,7 +3,7 @@
  * Supabase Auth identifica la sesión; perfiles y Storage conservan alias y avatar.
  */
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 import {
   Camera,
   Eye,
@@ -26,6 +26,7 @@ const MAXIMO_AVATAR = 2 * 1024 * 1024;
 
 export const PerfilPage = () => {
   const navigate = useNavigate();
+  const { refreshNavigationProfile } = useOutletContext();
   const [usuarioId, setUsuarioId] = useState(null);
   const [alias, setAlias] = useState("");
   const [aliasGuardado, setAliasGuardado] = useState("");
@@ -182,6 +183,8 @@ export const PerfilPage = () => {
       setRutaAvatar(data.avatar_path);
       setImagenElegida(null);
       setMensaje("Cambios guardados.");
+      // El layout vuelve a cargar la identidad visible después de confirmar el guardado.
+      refreshNavigationProfile();
       // Solo el propietario puede eliminar; nunca borrar una ruta de otro usuario.
       if (
         nuevaRuta &&

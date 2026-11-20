@@ -1,6 +1,6 @@
 # MODUS — Modelo de datos y trabajo con Supabase
 
-Actualización 2026-11-10 · Modelo aplicado en Supabase local y en el remoto de desarrollo; conexión funcional y reproducción aislada pendientes.
+Modelo aplicado en Supabase local y remoto de desarrollo. Auth y Perfil están conectados; Onboarding está conectado y su guardado remoto fue comprobado por el responsable. La reproducción aislada sigue pendiente.
 
 Este documento reúne el contexto, el Mermaid completo y las decisiones acordadas para la base compartida de MODUS. La sección 9 distingue la estructura aplicada, las migraciones y las verificaciones pendientes; el modelo no acredita funcionalidades conectadas.
 
@@ -16,7 +16,7 @@ La arquitectura se conserva: React utiliza Supabase Auth y la Data API con su se
 
 - Constitución y reglas compartidas: [CONSTITUTION.md](CONSTITUTION.md), [AGENTS.md](../AGENTS.md) y guías técnicas.
 - [Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia): exportación pública consultada el 2026-11-09, con 8 RF de Prevención, 13 de Detección y 12 de Comunidad. El conector rechazó el acceso; la lectura pública sí fue posible.
-- Código local revisado en `develop`: biblioteca `supabase-js`, variables locales y cliente en `frontend/src/lib/supabase.js` preparados; ninguna solicitud desde ese cliente se verificó en esta revisión. Registro, inicio de sesión y protección real de rutas siguen pendientes.
+- Revisión histórica inicial en `develop`: se encontró el cliente `supabase-js` preparado sin solicitudes verificadas. Posteriormente se conectaron registro, ingreso y Perfil; la protección general de rutas sigue pendiente.
 - El proyecto remoto de desarrollo `modus` (`jmtgahbjrvpwofwjbbui`) recibió las ocho migraciones el 2026-11-10. El historial previo se conservó; ver sección 9.
 - Prevención usa contenido en archivos JavaScript. Comunidad contiene interacciones visuales locales; Perfil conecta nombre de usuario y avatar, y mantiene las demás secciones pendientes.
 
@@ -322,7 +322,7 @@ Home y Dashboard no necesitan tablas propias. Historial, calendario, totales, pr
 
 ### Persistencia y permisos actuales: guía para el equipo
 
-**Qué funciona hoy:** PostgreSQL local tiene el esquema y sus permisos aplicados. React conecta el registro y el inicio de sesión mediante Supabase Auth; sus herramientas todavía no guardan registros. Las selecciones actuales de Onboarding y Mi actividad viven en el estado de React y se pierden al salir o recargar. Crear tablas no conectó automáticamente esas pantallas.
+**Estado de integración:** React conecta registro e ingreso mediante Supabase Auth. Onboarding consulta y guarda una finalización por cuenta; las respuestas viven en memoria hasta completarlo u omitirlo y se descartan si se abandona antes. El responsable comprobó el recorrido y guardado remoto; el aislamiento se probó en local. Mi actividad consulta y guarda el registro de hoy mediante funciones de base de datos; la revisión de su interfaz en navegador está pendiente. Crear tablas no conecta automáticamente las pantallas.
 
 **Elegir el entorno antes de conectar:** la base local y el proyecto remoto son bases independientes. Las variables de `frontend/.env` determinan a cuál apunta el cliente; disponer de tablas locales no cambia esas variables. En la copia inspeccionada el cliente apuntaba al remoto. Antes de implementar acceso se acordará el destino y se comprobará que URL y clave pública correspondan al mismo entorno. No se copian valores de `.env` al documento ni se cambia ese archivo en esta revisión.
 
@@ -332,7 +332,7 @@ El flujo previsto es: React envía una solicitud mediante `supabase-js`; Supabas
 - **Perfil:** cualquier cuenta autenticada puede leer las columnas de identidad de `perfiles`; cada persona puede actualizar únicamente su propio `username` y `avatar_path`. Esa tabla no contiene correo, respuestas ni actividad personal. El navegador no tiene permiso directo para insertar perfiles.
 - **Onboarding:** cada cuenta puede consultar e insertar su única finalización, con respuestas opcionales. No tiene permisos de actualización ni eliminación. La clave de usuario evita una segunda fila y las políticas impiden acceder a las respuestas ajenas.
 - **Mi actividad:** solo el dueño consulta sus registros. Puede crear o actualizar la entrada del día argentino; no tiene borrado del registro. Las cantidades omitidas se conservan como `NULL`, el dinero apostado y perdido son distintos y tiempo/unidad deben estar presentes o ausentes juntos. `registro_conductas` asocia las opciones seleccionadas y permite cambiar esas asociaciones solo durante el día vigente.
-- **Guardado conjunto de actividad:** `guardar_actividad_hoy` reúne la entrada y sus conductas en una transacción; si falla una parte, se revierte esa llamada completa. También hay permisos de escritura directa sobre columnas autorizadas: al integrar la pantalla debe usarse el contrato acordado para no separar operaciones que deban guardarse juntas. La existencia de la función no vuelve atómicas varias solicitudes independientes.
+- **Guardado conjunto de actividad:** `consultar_actividad_hoy` devuelve la fecha argentina de la base, el registro propio y sus conductas. `guardar_actividad_hoy_validada` comprueba la fecha abierta y llama a `guardar_actividad_hoy`, que reúne la entrada y sus conductas en una transacción; si falla una parte, se revierte esa llamada completa. También hay permisos de escritura directa sobre columnas autorizadas: al integrar la pantalla debe usarse el contrato acordado para no separar operaciones que deban guardarse juntas. La existencia de la función no vuelve atómicas varias solicitudes independientes.
 - **Participación:** el usuario solo consulta su `participacion_diaria`; la escritura corresponde a operaciones internas que acreditan acciones válidas. Guardar actividad acredita como máximo un día; iniciar sesión no lo acredita. No es un contador de días sin apostar.
 - **Recursos y medidas:** `recursos` permite lectura de filas publicadas incluso sin sesión. Las medidas asociadas a recursos publicados se leen con sesión. Cada cuenta consulta, crea y actualiza únicamente sus estados en `medidas_usuario`; desmarcar cambia el estado a falso, sin borrar la fila ni afirmar que se comprobó una instalación. Los usuarios normales no editan el catálogo.
 - **Vínculos e invitaciones:** las solicitudes se limitan a las cuentas implicadas y responde su destinatario. Un integrante aceptado invita a un compañero con vínculo aceptado; solo el invitado responde. Una invitación pendiente permite consultar la información mínima del tablero, no sus publicaciones internas.
@@ -395,9 +395,9 @@ La siguiente etapa acordada es: lectura del responsable → revisión acotada po
 
 Las skills locales `backlog`, `story` y `pair`, adaptadas de hola-ai, acompañan ese flujo. La historia usa Como/Quiero/Para, Resumen, Contexto, criterios verificables y subtareas `FE · ...` o `BE · ...` solo cuando sean necesarias. No se fuerza Express ni una subtarea BE independiente cuando Supabase resuelve la operación.
 
-La estructura local ya está aplicada. La prioridad actual es conectar registro e inicio/cierre de sesión, resolver el recorrido de onboarding y después Home y las herramientas de Detección, una historia revisada por vez. La preparación técnica es un habilitador: una tabla o una UI local no equivalen a una funcionalidad integrada. El responsable elige la siguiente historia desde Jira; no se mantiene otro backlog en este documento.
+La estructura local ya está aplicada. Registro, ingreso y cierre local de sesión están conectados. Onboarding está conectado y el responsable confirmó su guardado remoto. Home incorpora consultas de identidad y último registro; las siguientes herramientas se desarrollan una historia revisada por vez. La preparación técnica es un habilitador: una tabla o una UI local no equivalen a una funcionalidad integrada. El responsable elige la siguiente historia desde Jira; no se mantiene otro backlog en este documento.
 
-Este documento conserva el contexto de decisiones; Trello conserva RF y Jira las historias y resultados. Las ocho migraciones actuales son la referencia ejecutable de la estructura local; los cambios futuros se incorporarán en archivos nuevos. Al implementar una historia se actualizará este documento si cambian decisiones o estado, sin duplicar explicaciones extensas en otras guías. Las instrucciones personales de skills y agentes no se imponen al equipo.
+Este documento conserva el contexto de decisiones; Trello conserva RF y Jira las historias y resultados. Las diez migraciones propias son la referencia ejecutable de la estructura local; los cambios futuros se incorporarán en archivos nuevos. Al implementar una historia se actualizará este documento si cambian decisiones o estado, sin duplicar explicaciones extensas en otras guías. Las instrucciones personales de skills y agentes no se imponen al equipo.
 
 ### Comprobaciones que exigirán las historias
 
@@ -424,7 +424,7 @@ La página de acceso está conectada a Auth; las herramientas no están conectad
 
 ## 9. Entorno local y verificaciones
 
-La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene nueve archivos: un antecedente remoto y ocho archivos propios: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal local y el remoto tienen aplicadas las ocho migraciones propias. `supabase/tests/` contiene las verificaciones locales no versionadas. Las herramientas de Detección aún no están conectadas.
+La CLI Supabase 3.0.0 se instala con `npm ci` en la raíz y utiliza Podman mediante su socket compatible con Docker. La configuración local activa confirmación de correo; el correo de prueba queda en Mailpit local. `supabase/migrations/` contiene nueve archivos: un antecedente remoto y ocho archivos propios: seis migraciones iniciales de cuentas y avatares, actividad, recursos, vínculos, publicaciones y estructura de logros, más dos correctivas. La base principal local y el remoto tienen aplicadas las ocho migraciones propias. `supabase/tests/` contiene las verificaciones locales no versionadas. Las herramientas de Detección aún no están conectadas; Onboarding conecta su finalización por cuenta.
 
 En el equipo preparado, las funciones personales de Fish se ejecutan así:
 
@@ -506,6 +506,12 @@ La marca administrativa distingue las cuentas del seeder; ante colisiones con cu
 
 Se comprobó creación, ingreso y limpieza de las cuentas en ambos entornos; en local también se repitió la creación sin duplicarlas y se limpió un avatar ficticio. Una prueba con clave administrativa inválida confirmó que la limpieza remota se detiene antes de borrar. La creación del remoto y el borrado selectivo se realizaron exclusivamente sobre los usuarios de prueba.
 
+## Mi actividad: contratos de lectura y guardado — 2026-11-14
+
+Se aplicaron en local y en el remoto de desarrollo las migraciones `20261114120000_actividad_hoy_validada` y `20261114123000_corregir_actividad_hoy`. La primera incorpora las funciones de lectura del día y guardado con fecha esperada; la segunda preserva la precisión de los valores decimales enviados como texto y distingue el cierre del día de otros errores. Se mantiene la función anterior y no se crean tablas.
+
+Las pruebas locales con cuentas ficticias y transacciones descartadas comprobaron actualización, omisiones, ceros, conductas, fecha cerrada y aislamiento. En el remoto, una prueba con las cuentas ficticias 02 y 03 verificó lectura, guardado, actualización y aislamiento; la cuenta 03 conserva un registro identificado como prueba. Se revisaron en navegador la navegación y las principales interacciones de la pantalla. El caso exacto de una operación que atraviesa medianoche y la reproducción completa de la base local siguen pendientes. La CLI local se ejecutó desde una copia temporal de las migraciones propias para no aplicar el antecedente remoto incompatible.
+
 ## Referencias
 
 - Supabase: [gestión de datos de usuarios](https://supabase.com/docs/guides/auth/managing-user-data), [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [permisos por columna](https://supabase.com/docs/guides/database/postgres/column-level-security) y [seguridad de la Data API](https://supabase.com/docs/guides/api/securing-your-api).
@@ -513,4 +519,4 @@ Se comprobó creación, ingreso y limpieza de las cuentas en ambos entornos; en 
 - PostgreSQL: [restricciones](https://www.postgresql.org/docs/17/ddl-constraints.html) y [tipos numéricos](https://www.postgresql.org/docs/17/datatype-numeric.html).
 - RF: [onboarding](https://trello.com/c/GvkSf6nr), [Mi actividad](https://trello.com/c/yckKkt9n), [compartir logros](https://trello.com/c/ceu95Y6z), [Escudo](https://trello.com/c/bkG4LmiA), [medidas](https://trello.com/c/ToxK425G), [Home](https://trello.com/c/vRsSSxAH), [tableros](https://trello.com/c/HoDRN3jl) y [racha grupal](https://trello.com/c/x0QcOuY2).
 
-Se aplicaron las skills de Supabase y PostgreSQL como guía técnica. Las decisiones del responsable y los RF vigentes conservan prioridad. Las ocho migraciones propias se aplicaron en el entorno local y en el remoto de desarrollo.
+Se aplicaron las skills de Supabase y PostgreSQL como guía técnica. Las decisiones del responsable y los RF vigentes conservan prioridad. Las diez migraciones propias se aplicaron en el entorno local y en el remoto de desarrollo.

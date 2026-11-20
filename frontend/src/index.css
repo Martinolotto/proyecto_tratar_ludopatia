@@ -13,6 +13,12 @@
   --modus-surface-soft: #dce8e5;
   --modus-ink: #27343c;
   --modus-surface: #ffffff;
+  /* Superficies y estados compartidos por las herramientas y el Inicio. */
+  --modus-surface-apricot: #f3dfcf;
+  --modus-surface-lavender: #e8e3f2;
+  --modus-border: #cbd7d1;
+  --modus-text-muted: #405b59;
+  --modus-focus: #145b58;
 }
 
 /* Conectar las variables con nombres de utilidades como bg-surface y text-ink.

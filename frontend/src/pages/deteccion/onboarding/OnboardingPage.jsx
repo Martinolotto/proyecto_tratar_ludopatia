@@ -1,13 +1,15 @@
 /*
  * Primera experiencia visual del eje de Detección, basada en RF-DO-01.
  * AppRouter la muestra en /onboarding sin la cabecera de navegación pública.
- * Conserva respuestas solo en memoria durante el recorrido; no autentica, envía ni persiste datos.
- * El registro y la realización única por cuenta se integrarán cuando exista autenticación real.
+ * Consulta la cuenta y guarda una única finalización con respuestas opcionales en Supabase.
+ * Las respuestas solo permanecen en memoria hasta completar u omitir el recorrido.
  */
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ArrowLeft, ArrowRight, Compass } from "lucide-react";
+import { supabase } from "../../../lib/supabase.js";
 import { onboardingQuestions } from "./onboardingQuestions.js";
+import { consultarFinalizacion, guardarFinalizacion } from "./onboardingDatos.js";
 
 export const OnboardingPage = () => {
   // Separar posición, respuestas y cierre permite retroceder sin perder lo seleccionado.
@@ -15,53 +17,140 @@ export const OnboardingPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [completion, setCompletion] = useState(null);
+  const [accountState, setAccountState] = useState("loading");
+  const [userId, setUserId] = useState(null);
+  const [attempt, setAttempt] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const savingRef = useRef(false);
   const titleRef = useRef(null);
+  const navigate = useNavigate();
 
   // Estos valores se derivan del estado; no necesitan otra copia que mantener sincronizada.
   const question = onboardingQuestions[currentStep];
   const selectedAnswer = answers[question.id];
   const isLastStep = currentStep === onboardingQuestions.length - 1;
 
-  // Al cambiar de paso o cerrar el recorrido, anunciar el nuevo título mediante el foco.
-  // La ref apunta a la pregunta visible o al encabezado final, según lo que se renderice.
+  // Auth identifica la cuenta. La consulta posterior solo permite mostrar preguntas
+  // cuando la cuenta todavía no tiene una finalización guardada.
   useEffect(() => {
-    titleRef.current?.focus();
-  }, [currentStep, completion]);
+    let active = true;
+
+    const checkAccount = async () => {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (!active) return;
+        if (error && error.name !== "AuthSessionMissingError") throw error;
+        if (!data.user) {
+          navigate("/login", { replace: true });
+          return;
+        }
+
+        const previousCompletion = await consultarFinalizacion(data.user.id);
+        if (!active) return;
+        if (previousCompletion) {
+          navigate("/inicio", { replace: true });
+          return;
+        }
+        setUserId(data.user.id);
+        setAccountState("ready");
+      } catch {
+        if (active) setAccountState("error");
+      }
+    };
+
+    checkAccount();
+    return () => { active = false; };
+  }, [attempt, navigate]);
+
+  // El título de la pregunta o del cierre recibe foco al aparecer en pantalla.
+  useEffect(() => {
+    if (accountState === "ready") titleRef.current?.focus();
+  }, [accountState, currentStep, completion]);
+
+  // Una consulta previa reconoce un guardado cuya confirmación se haya perdido.
+  // La base impide duplicados incluso si otra pestaña finaliza al mismo tiempo.
+  const finish = async (estado, finalAnswers) => {
+    if (savingRef.current) return;
+    savingRef.current = true;
+    setIsSaving(true);
+    setSaveError("");
+    try {
+      const previousCompletion = await consultarFinalizacion(userId);
+      if (previousCompletion) {
+        navigate("/inicio", { replace: true });
+        return;
+      }
+      try {
+        await guardarFinalizacion(userId, estado, finalAnswers);
+      } catch (error) {
+        // 23505 indica una clave repetida; verificar la fila antes de continuar.
+        if (error.code !== "23505" || !(await consultarFinalizacion(userId))) throw error;
+        navigate("/inicio", { replace: true });
+        return;
+      }
+      setCompletion(estado);
+    } catch {
+      setSaveError("No pudimos guardar tus respuestas. Revisá tu conexión e intentá de nuevo.");
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
+    }
+  };
 
   // Copiar el objeto anterior conserva las otras respuestas sin modificar el estado directamente.
   const selectAnswer = (value) => {
+    setSaveError("");
     setAnswers((previous) => ({ ...previous, [question.id]: value }));
   };
 
-  // Un mismo avance sirve al responder u omitir: el último paso cierra la edición local.
-  const advance = () => {
+  // Al terminar enviamos la copia exacta de respuestas correspondiente a la acción.
+  const advance = (finalAnswers) => {
+    setSaveError("");
     if (isLastStep) {
-      setCompletion("completed");
+      finish("completado", finalAnswers);
     } else {
       setCurrentStep((previous) => previous + 1);
     }
   };
 
-  // Interceptar el formulario evita una recarga o un envío HTTP del navegador.
   const handleContinue = (event) => {
     event.preventDefault();
-    if (selectedAnswer === undefined) return;
-    advance();
+    if (selectedAnswer === undefined || isSaving) return;
+    advance(answers);
   };
 
-  // Si una pregunta ya estaba respondida, omitirla también retira esa respuesta.
-  // No guardar null, cero o una opción supuesta en su lugar: queda sin información.
+  // La copia se usa inmediatamente al guardar la última pregunta: React actualiza
+  // el estado de forma diferida y leer answers aquí conservaría el valor anterior.
   const skipQuestion = () => {
-    setAnswers((previous) => {
-      const updated = { ...previous };
-      delete updated[question.id];
-      return updated;
-    });
-    advance();
+    if (isSaving) return;
+    const updated = { ...answers };
+    delete updated[question.id];
+    setAnswers(updated);
+    advance(updated);
   };
 
-  // Después de completar u omitir todo no se vuelven a renderizar preguntas editables.
-  // Este cierre es local: recargar o salir desmonta la página y descarta sus respuestas.
+  if (accountState === "loading") {
+    return <p role="status" className="text-ink">Comprobando tu cuenta...</p>;
+  }
+
+  if (accountState === "error") {
+    return (
+      <section className="mx-auto max-w-2xl rounded-xl border border-brand-navy/10 bg-surface p-6">
+        <h1 className="font-heading text-2xl font-semibold text-brand-navy">No pudimos abrir el recorrido</h1>
+        <p role="alert" className="mt-3 text-ink">Revisá tu conexión e intentá de nuevo.</p>
+        <button
+          type="button"
+          onClick={() => { setAccountState("loading"); setAttempt((previous) => previous + 1); }}
+          className="mt-5 min-h-11 rounded-lg bg-brand-teal px-5 py-3 font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
+        >
+          Reintentar
+        </button>
+      </section>
+    );
+  }
+
+  // Solo se muestra el cierre cuando la inserción recibió confirmación de Supabase.
   if (completion !== null) {
     return (
       <section className="mx-auto max-w-2xl rounded-xl border border-brand-navy/10 bg-surface p-6 sm:p-8">
@@ -69,16 +158,16 @@ export const OnboardingPage = () => {
         <h1
           ref={titleRef}
           tabIndex={-1}
-          className="mt-4 font-heading text-3xl font-semibold text-brand-navy outline-none"
+          className="mt-4 font-heading text-3xl font-semibold text-brand-navy focus:outline-2 focus:outline-offset-4 focus:outline-brand-teal"
         >
           Seguí explorando a tu ritmo
         </h1>
         <p className="mt-3 leading-relaxed text-ink">
-          {completion === "skipped"
-            ? "Omitiste el recorrido inicial. Podés acceder a MODUS sin responder estas preguntas."
+          {completion === "omitido"
+            ? "Omitiste el resto del recorrido. Se guardaron las respuestas que proporcionaste."
             : "Terminaste el recorrido inicial. Podés acceder a los contenidos y herramientas de MODUS."}
         </p>
-        {/* El enlace abre la Home existente; no crea una sesión ni afirma un guardado en cuenta. */}
+        {/* La finalización ya fue guardada; el enlace abre la página de Inicio. */}
         <Link
           to="/inicio"
           className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand-teal px-5 py-3 font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal hover:underline"
@@ -86,10 +175,6 @@ export const OnboardingPage = () => {
           Ir a Inicio
           <ArrowRight size={18} aria-hidden="true" />
         </Link>
-        <p className="mt-5 text-sm leading-relaxed text-ink">
-          En esta versión, las respuestas solo permanecen en esta pantalla. Al
-          salir o recargar se descartan; no se envían ni se guardan en una cuenta.
-        </p>
       </section>
     );
   }
@@ -116,7 +201,8 @@ export const OnboardingPage = () => {
           </p>
           <button
             type="button"
-            onClick={() => setCompletion("skipped")}
+            onClick={() => finish("omitido", answers)}
+            disabled={isSaving}
             className="min-h-11 rounded-lg px-3 text-sm font-medium text-brand-teal underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
           >
             Omitir recorrido
@@ -133,11 +219,11 @@ export const OnboardingPage = () => {
         <form onSubmit={handleContinue} className="mt-6">
           {/* fieldset y legend agrupan los radios bajo la pregunta que describen.
               La key cambia al avanzar, para montar los controles del nuevo paso. */}
-          <fieldset key={question.id} aria-describedby="onboarding-question-help">
+          <fieldset key={question.id} disabled={isSaving} aria-describedby="onboarding-question-help">
             <legend
               ref={titleRef}
               tabIndex={-1}
-              className="w-full font-heading text-xl font-semibold text-brand-navy outline-none sm:text-2xl"
+              className="w-full font-heading text-xl font-semibold text-brand-navy focus:outline-2 focus:outline-offset-4 focus:outline-brand-teal sm:text-2xl"
             >
               {question.title}
             </legend>
@@ -176,8 +262,11 @@ export const OnboardingPage = () => {
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-brand-navy/10 pt-5">
             <button
               type="button"
-              disabled={currentStep === 0}
-              onClick={() => setCurrentStep((previous) => previous - 1)}
+              disabled={currentStep === 0 || isSaving}
+              onClick={() => {
+                setSaveError("");
+                setCurrentStep((previous) => previous - 1);
+              }}
               className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-medium text-ink hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ArrowLeft size={18} aria-hidden="true" />
@@ -185,7 +274,7 @@ export const OnboardingPage = () => {
             </button>
             <button
               type="submit"
-              disabled={selectedAnswer === undefined}
+              disabled={selectedAnswer === undefined || isSaving}
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-brand-teal px-5 py-3 text-sm font-medium text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isLastStep ? "Finalizar recorrido" : "Continuar"}
@@ -195,6 +284,7 @@ export const OnboardingPage = () => {
           <button
             type="button"
             onClick={skipQuestion}
+            disabled={isSaving}
             className="mt-3 min-h-11 w-full rounded-lg px-3 text-sm font-medium text-brand-teal underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
           >
             Omitir esta pregunta
@@ -202,10 +292,14 @@ export const OnboardingPage = () => {
         </form>
       </div>
 
-      {/* Avisar el límite real de esta entrega evita prometer persistencia aún no implementada. */}
+      {/* El estado anuncia el guardado tanto al finalizar como al omitir el recorrido. */}
+      <p role="status" className="text-sm font-medium text-ink">
+        {isSaving ? "Guardando tus respuestas..." : ""}
+      </p>
+      {saveError && <p role="alert" className="text-sm font-medium text-ink">{saveError}</p>}
       <p className="text-sm leading-relaxed text-ink">
-        En esta versión, las respuestas solo permanecen en esta pantalla. Al salir
-        o recargar se descartan; no se envían ni se guardan en una cuenta.
+        Al finalizar u omitir el recorrido guardaremos las respuestas que hayas proporcionado.
+        Si salís antes, no se guardarán.
       </p>
     </section>
   );

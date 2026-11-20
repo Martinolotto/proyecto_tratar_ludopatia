@@ -1,285 +1,279 @@
-import { useState } from "react";
-import { Link, useOutletContext } from "react-router";
-import {
-  ArrowRight,
-  BookOpen,
-  ChevronRight,
-  Compass,
-  PanelRightOpen,
-  UsersRound,
-} from "lucide-react";
+/*
+ * Página de Inicio: reúne los accesos a los ejes y un resumen personal de actividad.
+ * Supabase identifica la cuenta y el router conecta las páginas disponibles.
+ */
+import { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useOutletContext } from "react-router";
+import { ArrowRight, BookOpen, CalendarDays, ChartNoAxesCombined, Shield, UsersRound } from "lucide-react";
 import {
   categoriasPrevencion,
   contenidosPrevencion,
 } from "../prevencion/prevencionContenido.js";
-
-const pasosGuia = [
-  {
-    id: "prevencion",
-    title: "Informarte",
-    subtitle: "Prevención",
-    description:
-      "Explorá contenidos educativos para comprender mejor las apuestas online y sus posibles impactos.",
-    icon: BookOpen,
-    path: "/prevencion",
-    action: "Explorar Prevención",
-  },
-  {
-    id: "comunidad",
-    title: "Conocer el espacio de pares",
-    subtitle: "Comunidad",
-    description:
-      "Visitá el espacio de Comunidad y conocé las opciones de participación disponibles.",
-    icon: UsersRound,
-    path: "/comunidad",
-    action: "Ir a Comunidad",
-  },
-  {
-    id: "herramientas",
-    title: "Explorar herramientas",
-    subtitle: "Panel de herramientas",
-    description:
-      "Abrí el panel para consultar las páginas de herramientas personales disponibles.",
-    icon: PanelRightOpen,
-    action: "Abrir herramientas",
-  },
-];
+import { supabase } from "../../lib/supabase.js";
+import { consultarDatosInicio } from "./homeDatos.js";
+import { ActividadSemanal } from "../../components/ActividadSemanal.jsx";
+import "./HomePage.css";
 
 const lecturasDestacadas = ["casi-ganar", "publicidad-y-apuestas"]
   .map((id) => contenidosPrevencion.find((contenido) => contenido.id === id))
   .filter(Boolean);
 
 export const HomePage = () => {
-  const { openDashboard } = useOutletContext();
-  const [pasoActivo, setPasoActivo] = useState(pasosGuia[0].id);
-  const pasoSeleccionado =
-    pasosGuia.find((paso) => paso.id === pasoActivo) ?? pasosGuia[0];
-  const IconoPaso = pasoSeleccionado.icon;
+  const navigate = useNavigate();
+  const { openSidebar, signOutInProgress } = useOutletContext();
+  const [estado, setEstado] = useState("cargando");
+  const [datos, setDatos] = useState(null);
+  const [intento, setIntento] = useState(0);
+  const cuentaActual = useRef(undefined);
+  const revisionSesion = useRef(0);
+
+  // Una sesión puede cambiar en otra pestaña mientras Inicio sigue montado.
+  // El callback solo limpia la vista y solicita otra carga; no llama a Supabase.
+  useEffect(() => {
+    let vigente = true;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evento, sesion) => {
+      if (!vigente) return;
+      const usuarioId = sesion?.user?.id ?? null;
+      if (cuentaActual.current === usuarioId) return;
+      cuentaActual.current = usuarioId;
+      revisionSesion.current += 1;
+      setDatos(null);
+      setEstado("cargando");
+      setIntento((anterior) => anterior + 1);
+    });
+    return () => {
+      vigente = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Primero comprobamos la cuenta con Auth; después consultamos solo sus datos.
+  // La limpieza evita actualizar la pantalla si la persona navega mientras carga.
+  useEffect(() => {
+    let vigente = true;
+    // La revisión invalida respuestas en vuelo si llega un cambio de sesión.
+    const revision = revisionSesion.current;
+    const cargarInicio = async () => {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (!vigente || revision !== revisionSesion.current) return;
+        if (error && error.name !== "AuthSessionMissingError") throw error;
+        if (!data.user) {
+          // El layout informa el resultado cuando el cierre local todavía está en curso.
+          if (!signOutInProgress.current) navigate("/login", { replace: true });
+          return;
+        }
+        // No mezclar una identidad anterior con la sesión comunicada por Auth.
+        if (cuentaActual.current !== undefined && cuentaActual.current !== data.user.id) {
+          throw new Error("La sesión cambió durante la consulta.");
+        }
+        const resultado = await consultarDatosInicio(data.user.id);
+        if (!vigente || revision !== revisionSesion.current) return;
+        setDatos(resultado);
+        setEstado("listo");
+      } catch {
+        if (vigente && revision === revisionSesion.current) setEstado("error");
+      }
+    };
+    cargarInicio();
+    return () => { vigente = false; };
+  }, [intento, navigate, signOutInProgress]);
+
+  // Al volver a la pestaña consultamos de nuevo; mientras permanece visible solo
+  // comprobamos el día de la base una vez por minuto, sin refrescar la pantalla.
+  useEffect(() => {
+    if (estado !== "listo" || !datos?.fechaActual) return undefined;
+    let vigente = true;
+    let consultaPendiente = false;
+    const revision = revisionSesion.current;
+
+    const comprobarDia = async () => {
+      if (document.hidden || consultaPendiente || signOutInProgress.current) return;
+      consultaPendiente = true;
+      try {
+        const { data, error } = await supabase.rpc("consultar_actividad_hoy");
+        if (!vigente || revision !== revisionSesion.current) return;
+        if (error || !data?.fecha) throw error || new Error("Fecha no disponible");
+        if (data.fecha !== datos.fechaActual) {
+          // El calendario anterior deja de ser válido al terminar el día argentino.
+          setDatos(null);
+          setEstado("cargando");
+          setIntento((anterior) => anterior + 1);
+        }
+      } catch {
+        if (vigente && revision === revisionSesion.current) setEstado("error");
+      } finally {
+        consultaPendiente = false;
+      }
+    };
+    const alVolver = () => {
+      if (!document.hidden && !signOutInProgress.current) {
+        setIntento((anterior) => anterior + 1);
+      }
+    };
+    const intervalo = window.setInterval(comprobarDia, 60_000);
+    document.addEventListener("visibilitychange", alVolver);
+    return () => {
+      vigente = false;
+      window.clearInterval(intervalo);
+      document.removeEventListener("visibilitychange", alVolver);
+    };
+  }, [estado, datos?.fechaActual, signOutInProgress]);
+
+  // Formateamos la fecha devuelta por PostgreSQL como día calendario argentino.
+  const diaVisible = (fecha) => new Intl.DateTimeFormat("es-AR", {
+    weekday: "long", day: "numeric", month: "long", timeZone: "UTC",
+  }).format(new Date(`${fecha}T12:00:00Z`));
+
+  // La fecha es un día calendario, no un instante: invertir sus partes evita
+  // desplazarla por la zona horaria del navegador.
+  const fechaVisible = (fecha) => fecha.split("-").reverse().join("/");
+
+  // Los enlaces conservan los destinos existentes del router y sus descripciones.
+  const herramientas = [
+    { label: "Mi actividad", description: "Registrá tu día, a tu manera.", path: "/mi-actividad", icon: CalendarDays },
+    { label: "Historial y progreso", description: "Consultá tu espacio de historial.", path: "/historial-y-progreso", icon: ChartNoAxesCombined },
+    { label: "Escudo digital", description: "Explorá las categorías disponibles.", path: "/escudo-digital", icon: Shield },
+  ];
 
   return (
-    <section className="mx-auto max-w-5xl space-y-8">
-      <header className="rounded-2xl bg-brand-navy p-6 text-white md:p-8">
-        <span className="inline-flex items-center gap-2 text-sm font-semibold text-white/85">
-          <Compass size={18} aria-hidden="true" />
-          Bienvenido a MODUS
-        </span>
-        <h1 className="mt-3 max-w-2xl font-heading text-2xl font-bold md:text-3xl">
-          Un espacio para informarte y explorar MODUS a tu ritmo.
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/85 md:text-base">
-          Encontrá contenidos de Prevención, conocé Comunidad y accedé a las
-          herramientas disponibles desde un mismo lugar.
-        </p>
+    <section className="home-b2" aria-labelledby="home-welcome-title">
+      {/* El alias llega de Supabase; mientras carga usamos una bienvenida neutral. */}
+      <header className="home-b2__welcome">
+        <div>
+          <h1 id="home-welcome-title">
+            {estado === "listo" ? `Hola, ${datos.alias}.` : "Un espacio para vos."}
+          </h1>
+          {estado === "listo" ? (
+            <p className="home-b2__today">
+              Hoy es <time dateTime={datos.fechaActual}>{diaVisible(datos.fechaActual)}</time>.
+              {" "}{datos.registradoHoy
+                ? "Tu registro de hoy está disponible."
+                : "Todavía no registraste tu actividad de hoy."}
+            </p>
+          ) : (
+            <p>Un punto de partida para entender tu actividad y encontrar lo que necesitás.</p>
+          )}
+        </div>
+        {/* El layout abre la sidebar existente y enfoca su primer acceso. */}
+        <button
+          type="button"
+          className="home-b2__welcome-link"
+          onClick={() => openSidebar({ focusFirst: true })}
+        >
+          Explorá tus herramientas <ArrowRight size={18} aria-hidden="true" />
+        </button>
       </header>
 
-      <section aria-labelledby="home-access-title">
-        <h2
-          id="home-access-title"
-          className="font-heading text-xl font-semibold text-brand-navy"
-        >
-          ¿Por dónde querés empezar?
-        </h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <Link
-            to="/prevencion"
-            className="rounded-xl border border-brand-navy/10 bg-surface p-5 transition hover:border-brand-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-          >
-            <BookOpen className="text-brand-teal" size={22} aria-hidden="true" />
-            <h3 className="mt-3 font-heading text-lg font-semibold text-brand-navy">
-              Prevención
-            </h3>
-            <p className="mt-2 text-sm text-ink/80">
-              Explorá contenidos educativos sobre apuestas online.
-            </p>
-          </Link>
-
-          <Link
-            to="/comunidad"
-            className="rounded-xl border border-brand-navy/10 bg-surface p-5 transition hover:border-brand-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-          >
-            <UsersRound
-              className="text-brand-teal"
-              size={22}
-              aria-hidden="true"
-            />
-            <h3 className="mt-3 font-heading text-lg font-semibold text-brand-navy">
-              Comunidad
-            </h3>
-            <p className="mt-2 text-sm text-ink/80">
-              Conocé el espacio de participación entre pares.
-            </p>
-          </Link>
-
-          <button
-            type="button"
-            onClick={openDashboard}
-            aria-haspopup="dialog"
-            aria-controls="app-dashboard"
-            className="rounded-xl border border-brand-navy/10 bg-surface p-5 text-left transition hover:border-brand-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-          >
-            <PanelRightOpen
-              className="text-brand-teal"
-              size={22}
-              aria-hidden="true"
-            />
-            <span className="mt-3 block font-heading text-lg font-semibold text-brand-navy">
-              Herramientas personales
-            </span>
-            <span className="mt-2 block text-sm text-ink/80">
-              Abrí el panel para consultar sus páginas disponibles.
-            </span>
-          </button>
-        </div>
-      </section>
-
-      <section
-        aria-labelledby="home-guide-title"
-        className="rounded-2xl border border-brand-navy/10 bg-surface p-5 md:p-7"
-      >
-        <div>
-          <h2
-            id="home-guide-title"
-            className="font-heading text-xl font-semibold text-brand-navy"
-          >
-            Una guía rápida para empezar
-          </h2>
-          <p className="mt-1 text-sm text-ink/75">
-            Elegí un espacio para conocer qué podés encontrar en MODUS.
-          </p>
-        </div>
-
-        <div className="mt-5 grid gap-5 md:grid-cols-5">
-          <div className="space-y-2 md:col-span-2">
-            {pasosGuia.map((paso) => {
-              const Icono = paso.icon;
-              const seleccionado = paso.id === pasoActivo;
-
-              return (
-                <button
-                  key={paso.id}
-                  type="button"
-                  aria-pressed={seleccionado}
-                  onClick={() => setPasoActivo(paso.id)}
-                  className={`flex w-full items-center justify-between gap-3 rounded-xl border p-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal ${
-                    seleccionado
-                      ? "border-brand-teal bg-surface-soft/60"
-                      : "border-brand-navy/10 hover:bg-canvas"
-                  }`}
-                >
-                  <span className="flex items-center gap-3">
-                    <Icono
-                      className="shrink-0 text-brand-teal"
-                      size={20}
-                      aria-hidden="true"
-                    />
-                    <span>
-                      <span className="block font-medium text-brand-navy">
-                        {paso.title}
-                      </span>
-                      <span className="text-sm text-ink/70">
-                        {paso.subtitle}
-                      </span>
-                    </span>
-                  </span>
-                  <ChevronRight
-                    className="shrink-0 text-brand-teal"
-                    size={18}
-                    aria-hidden="true"
-                  />
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex flex-col justify-between rounded-xl bg-canvas p-5 md:col-span-3">
-            <div>
-              <IconoPaso
-                className="text-brand-teal"
-                size={24}
-                aria-hidden="true"
-              />
-              <p className="mt-3 text-sm font-medium text-brand-teal">
-                {pasoSeleccionado.subtitle}
-              </p>
-              <h3 className="mt-1 font-heading text-lg font-semibold text-brand-navy">
-                {pasoSeleccionado.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink/80">
-                {pasoSeleccionado.description}
-              </p>
-            </div>
-
-            {pasoSeleccionado.path ? (
-              <Link
-                to={pasoSeleccionado.path}
-                className="mt-5 inline-flex w-fit items-center gap-2 rounded-lg bg-brand-teal px-4 py-2.5 text-sm font-semibold text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-              >
-                {pasoSeleccionado.action}
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={openDashboard}
-                aria-haspopup="dialog"
-                aria-controls="app-dashboard"
-                className="mt-5 inline-flex w-fit items-center gap-2 rounded-lg bg-brand-teal px-4 py-2.5 text-sm font-semibold text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-              >
-                {pasoSeleccionado.action}
-                <ArrowRight size={16} aria-hidden="true" />
-              </button>
+      <div className="home-b2__workspace">
+        {/* La ausencia de registro nunca se interpreta como un día sin apuestas. */}
+        <section className="home-b2__activity" aria-labelledby="home-activity-title">
+          <div className="home-b2__activity-heading">
+            <h2 id="home-activity-title">Tu actividad</h2>
+            {estado === "listo" && (
+              <span className="home-b2__status">
+                {datos.ultimoRegistro ? "Último registro" : "Sin registros"}
+              </span>
             )}
           </div>
-        </div>
-      </section>
-
-      <section aria-labelledby="home-readings-title">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2
-              id="home-readings-title"
-              className="font-heading text-xl font-semibold text-brand-navy"
-            >
-              Para explorar en Prevención
-            </h2>
-            <p className="mt-1 text-sm text-ink/75">
-              Algunas lecturas disponibles en el eje.
-            </p>
-          </div>
-          <Link
-            to="/prevencion"
-            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-teal hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-          >
-            Ver Prevención <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </div>
-
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {lecturasDestacadas.map((contenido) => {
-            const categoria = categoriasPrevencion.find(
-              (item) => item.id === contenido.category,
-            );
-
-            return (
-              <Link
-                key={contenido.id}
-                to="/prevencion"
-                className="rounded-xl border border-brand-navy/10 bg-surface p-5 transition hover:border-brand-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-              >
-                {categoria && (
-                  <span className="text-sm font-medium text-brand-teal">
-                    {categoria.label}
-                  </span>
-                )}
-                <h3 className="mt-2 font-heading font-semibold text-brand-navy">
-                  {contenido.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-ink/80">
-                  {contenido.summary}
+          <div className="home-b2__activity-content" role="status" aria-live="polite">
+            {estado === "cargando" && (
+              <p className="home-b2__activity-copy">Cargando tu información...</p>
+            )}
+            {estado === "listo" && (datos.ultimoRegistro ? (
+              <>
+                <p className="home-b2__activity-date">
+                  <time dateTime={datos.ultimoRegistro.fecha}>
+                    {fechaVisible(datos.ultimoRegistro.fecha)}
+                  </time>
                 </p>
+                <p className="home-b2__activity-statement">
+                  Declaraste que {datos.ultimoRegistro.aposto ? "sí" : "no"} realizaste apuestas.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="home-b2__activity-statement">Tu primer registro empieza acá.</p>
+                <p className="home-b2__activity-copy">
+                  Podés contar si apostaste, si tuviste ganas y lo que quieras sumar sobre tu día.
+                </p>
+              </>
+            ))}
+          </div>
+          {estado === "error" && (
+            <div className="home-b2__error">
+              <p role="alert">No pudimos cargar tu información. Revisá tu conexión e intentá de nuevo.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setEstado("cargando");
+                  setIntento((anterior) => anterior + 1);
+                }}
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+          <div className="home-b2__activity-actions">
+            <Link to="/mi-actividad" className="home-b2__button">
+              Ir a Mi actividad <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+            <span>Tu registro es privado.</span>
+          </div>
+        </section>
+
+        {/* Los accesos abren las páginas reales sin atribuirles funciones pendientes. */}
+        <section className="home-b2__tools" aria-labelledby="home-tools-title">
+          <div className="home-b2__tools-heading">
+            <h2 id="home-tools-title">A tu alcance</h2>
+            <p>Tres herramientas para explorar a tu ritmo.</p>
+          </div>
+          <div className="home-b2__tool-list">
+            {herramientas.map(({ label, description, path, icon: Icon }) => (
+              <Link key={path} to={path} className="home-b2__tool">
+                <span className="home-b2__tool-icon"><Icon size={20} aria-hidden="true" /></span>
+                <span className="home-b2__tool-text"><strong>{label}</strong><small>{description}</small></span>
+                <ArrowRight className="home-b2__tool-arrow" size={18} aria-hidden="true" />
               </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* El calendario se dibuja solo con la respuesta confirmada para esta cuenta. */}
+      {estado === "listo" && (
+        <div className="home-b2__week">
+          <ActividadSemanal dias={datos.semana} racha={datos.racha} hoy={datos.fechaActual} />
+        </div>
+      )}
+
+      {/* El catálogo de Prevención mantiene los textos; no se prometen enlaces directos. */}
+      <section className="home-b2__discover" aria-labelledby="home-readings-title">
+        <div className="home-b2__discover-heading">
+          <div>
+            <h2 id="home-readings-title">Para mirar con otra perspectiva</h2>
+            <p>Ideas para conocer más sobre las apuestas.</p>
+          </div>
+          <Link to="/prevencion">Explorar Prevención <ArrowRight size={16} aria-hidden="true" /></Link>
+        </div>
+        <div className="home-b2__discover-grid">
+          {lecturasDestacadas.map((contenido) => {
+            const categoria = categoriasPrevencion.find((item) => item.id === contenido.category);
+            return (
+              <article className="home-b2__reading" key={contenido.id}>
+                <BookOpen size={20} aria-hidden="true" />
+                {categoria && <span>{categoria.label}</span>}
+                <h3>{contenido.title}</h3>
+                <p>{contenido.summary}</p>
+              </article>
             );
           })}
+          <aside className="home-b2__community">
+            <UsersRound size={22} aria-hidden="true" />
+            <h3>También hay un espacio compartido.</h3>
+            <p>Conocé Comunidad, el espacio de intercambio entre pares.</p>
+            <Link to="/comunidad">Conocer Comunidad <ArrowRight size={16} aria-hidden="true" /></Link>
+          </aside>
         </div>
       </section>
     </section>

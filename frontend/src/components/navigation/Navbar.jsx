@@ -1,58 +1,31 @@
 /*
- * Cabecera compartida que AppLayout muestra en todas sus páginas.
- * Incluye el isotipo del logo MODUS y la navegación principal.
+ * Cabecera de MODUS: marca, destinos principales y acceso al perfil real.
+ * AppLayout comparte el estado de la barra lateral y la foto de la cuenta.
  */
 import { Link } from "react-router";
-import { PanelRightOpen, UserRound } from "lucide-react";
+import { PanelLeftOpen, UserRound } from "lucide-react";
 import { AppNavigation } from "./AppNavigation.jsx";
 import logoModus from "../../assets/logo.jpg";
+import "./Navbar.css";
 
-export const Navbar = ({ onOpenDashboard }) => {
-  return (
-    // El fondo opaco asegura legibilidad; si el navegador soporta desenfoque,
-    // deja entrever suavemente el contenido al desplazarse bajo la cabecera.
-    <header className="sticky top-0 z-10 border-b border-brand-navy/20 bg-surface supports-[backdrop-filter:blur(1px)]:bg-surface/90 supports-[backdrop-filter:blur(1px)]:backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        {/* Marca con Iso-Logo */}
-        <Link
-          to="/inicio"
-          aria-label="MODUS — Inicio"
-          className="flex items-center gap-2.5 rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-        >
-          <img
-            src={logoModus}
-            alt=""
-            aria-hidden="true"
-            className="h-8 w-auto rounded object-contain"
-          />
-          <span className="font-heading text-xl font-bold text-brand-navy">
-            MODUS
-          </span>
+export const Navbar = ({ onOpenSidebar, sidebarExpanded, sidebarControls, profile }) => (
+  <header className="modus-header">
+    <div className="modus-navbar">
+      <Link to="/inicio" aria-label="MODUS — Inicio" className="modus-navbar__brand">
+        <img src={logoModus} alt="" aria-hidden="true" />
+        <span>MODUS</span>
+      </Link>
+      <AppNavigation />
+      <div className="modus-navbar__actions">
+        <button type="button" onClick={onOpenSidebar} aria-controls={sidebarControls}
+          aria-expanded={sidebarExpanded} aria-label="Herramientas" className="modus-navbar__tools">
+          <PanelLeftOpen size={21} aria-hidden="true" />
+        </button>
+        <Link to="/perfil" aria-label="Mi perfil" className="modus-navbar__profile">
+          <UserRound size={21} aria-hidden="true" />
+          {profile.avatar && <img key={profile.avatar} src={profile.avatar} alt="" onError={(event) => { event.currentTarget.hidden = true; }} />}
         </Link>
-
-        <AppNavigation />
-
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onOpenDashboard}
-            aria-haspopup="dialog"
-            aria-controls="app-dashboard"
-            className="flex min-h-11 items-center gap-2 rounded-lg bg-brand-teal px-3 py-2 text-sm font-medium text-white hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-          >
-            <PanelRightOpen size={20} aria-hidden="true" />
-            Herramientas
-          </button>
-
-          <Link
-            to="/perfil"
-            className="flex min-h-11 items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink hover:bg-surface-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal"
-          >
-            <UserRound size={20} aria-hidden="true" />
-            <span className="sr-only sm:not-sr-only">Mi perfil</span>
-          </Link>
-        </div>
       </div>
-    </header>
-  );
-};
+    </div>
+  </header>
+);
