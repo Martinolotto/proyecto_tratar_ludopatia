@@ -5,6 +5,7 @@
 import { NavLink } from "react-router";
 import {
   CalendarDays,
+  ClipboardCheck,
   ChartNoAxesCombined,
   LogOut,
   Moon,
@@ -19,6 +20,7 @@ import "./Sidebar.css";
 const tools = [
   { label: "Mi actividad", path: "/mi-actividad", icon: CalendarDays },
   { label: "Historial y progreso", path: "/historial-y-progreso", icon: ChartNoAxesCombined },
+  { label: "Evaluar mi comportamiento", path: "/evaluar-mi-comportamiento", icon: ClipboardCheck },
   { label: "Escudo digital", path: "/escudo-digital", icon: Shield },
 ];
 

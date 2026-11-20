@@ -25,6 +25,7 @@ import { MiActividadPage } from "../pages/deteccion/mi-actividad/MiActividadPage
 // Los gráficos se descargan solo cuando se abre Historial y progreso.
 const HistorialYProgresoPage = lazy(() => import("../pages/deteccion/historial-y-progreso/HistorialYProgresoPage.jsx")
   .then(({ HistorialYProgresoPage }) => ({ default: HistorialYProgresoPage })));
+import { EvaluarComportamientoPage } from "../pages/deteccion/evaluar-comportamiento/EvaluarComportamientoPage.jsx";
 import { EscudoDigitalPage } from "../pages/deteccion/escudo-digital/EscudoDigitalPage.jsx";
 
 // Páginas públicas y flujo inicial.
@@ -73,6 +74,7 @@ export const AppRouter = () => {
             path="/historial-y-progreso"
             element={<Suspense fallback={<p role="status">Cargando historial...</p>}><HistorialYProgresoPage /></Suspense>}
           />
+          <Route path="/evaluar-mi-comportamiento" element={<EvaluarComportamientoPage />} />
           <Route path="/escudo-digital" element={<EscudoDigitalPage />} />
         </Route>
       </Routes>
