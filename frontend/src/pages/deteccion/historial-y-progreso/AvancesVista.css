@@ -1,215 +1,109 @@
-/* Superficies locales del recorrido y sus reconocimientos. */
+/* Presentación del recorrido y reconocimientos, conectada a la vista de avances. */
 .avances-vista {
-  display:grid;
-  grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);
-  gap:18px;
-  color:#172b3a
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 18px;
+  color: #172b3a;
 }
-.avances-vista h2,.avances-vista h3,.avances-vista p {
-  margin:0
-}
+.avances-vista h2,
+.avances-vista h3,
+.avances-vista p { margin: 0; }
 .avances-vista h2 {
-  font-family:var(--font-heading,sans-serif);
-  font-size:1.55rem;
-  font-weight:800;
-  letter-spacing:-.025em
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -.025em;
 }
-.avances-vista p {
-  line-height:1.5
-}
-.avances-vista>section {
-  padding:26px;
-  border:1px solid #d4dfdb;
-  border-radius:18px;
-  background:#fff
+.avances-vista p { line-height: 1.5; }
+
+/* Superficies redondeadas con una luz interior y sombra moderada. */
+.avances-vista > section {
+  padding: 26px;
+  border: 1px solid #cbdcd5;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 9px 22px rgb(23 43 58 / 7%), inset 0 2px 3px rgb(255 255 255 / 95%);
 }
 .avance-etiqueta {
-  color:#246865;
-  font-size:.75rem;
-  font-weight:800;
-  letter-spacing:.08em;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  margin-bottom:8px!important
+  color: #246865;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px !important;
 }
-.avance-participacion {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:24px;
-  min-height:230px
-}
-.avance-participacion p:not(.avance-etiqueta),.avance-recorrido p:not(.avance-etiqueta),.avance-continuidad p:not(.avance-etiqueta),.avance-logros>p {
-  color:#49615e;
-  margin-top:8px
-}
-.avance-fraccion {
-  display:block;
-  margin-top:20px;
-  font-size:1.2rem
-}
-.avance-radial {
-  position:relative;
-  width:160px;
-  height:160px;
-  flex:none
-}
-.avance-radial>strong {
-  position:absolute;
-  inset:0;
-  display:grid;
-  place-items:center;
-  font-size:2rem
-}
+.avance-participacion { display: flex; justify-content: space-between; align-items: center; gap: 24px; min-height: 230px; }
+.avance-participacion p:not(.avance-etiqueta),
+.avance-recorrido p:not(.avance-etiqueta),
+.avance-continuidad p:not(.avance-etiqueta),
+.avance-logros > p { color: #354f4d; margin-top: 8px; }
+.avance-fraccion { display: block; margin-top: 20px; font-size: 1.2rem; }
+.avance-radial { position: relative; width: 160px; height: 160px; flex: none; }
+.avance-radial > strong { position: absolute; inset: 0; display: grid; place-items: center; font-size: 2rem; }
 .avances-vista .avance-recorrido {
-  background:#d9ece4;
-  display:flex;
-  flex-direction:column;
-  justify-content:space-between;
-  gap:18px
+  background: #d6eae1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  box-shadow: 0 9px 22px rgb(23 43 58 / 8%), inset 0 2px 4px rgb(255 255 255 / 70%);
 }
-.avance-total strong {
-  display:block;
-  font:800 3.8rem/1 var(--font-heading,sans-serif)
-}
-.avance-total span {
-  font-weight:700
-}
-.avance-continuidad,.avance-logros {
-  grid-column:1/-1
-}
-.avance-indicadores {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:14px;
-  margin-top:22px
-}
-.avance-indicadores>div {
-  padding:16px 18px;
-  background:#edf3f2;
-  border-radius:12px
-}
-.avance-indicadores strong,.avance-indicadores span {
-  display:block
-}
-.avance-indicadores strong {
-  font:800 2rem/1.1 var(--font-heading,sans-serif)
-}
-.avance-indicadores span {
-  margin-top:6px;
-  color:#405b59;
-  font-size:.88rem
-}
-.avance-logros__cabecera {
-  display:flex;
-  flex-wrap:wrap;
-  align-items:end;
-  justify-content:space-between;
-  gap:12px
-}
-.avance-logros__cabecera>span {
-  color:#405b59;
-  font-weight:700
-}
-.avance-insignias {
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:12px;
-  padding:0;
-  margin:22px 0 28px;
-  list-style:none
-}
+.avance-total strong { display: block; font: 800 3.8rem/1 var(--font-heading, sans-serif); }
+.avance-total span { font-weight: 700; }
+.avance-continuidad,
+.avance-logros { grid-column: 1 / -1; }
+.avance-indicadores { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 22px; }
+.avance-indicadores > div { padding: 16px 18px; background: #edf3f2; border-radius: 14px; }
+.avance-indicadores strong,
+.avance-indicadores span { display: block; }
+.avance-indicadores strong { font: 800 2rem/1.1 var(--font-heading, sans-serif); }
+.avance-indicadores span { margin-top: 6px; color: #354f4d; font-size: .9rem; }
+.avance-logros__cabecera { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+.avance-logros__cabecera > span { color: #354f4d; font-weight: 700; }
+.avance-insignias { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 22px 0 28px; list-style: none; }
 .avance-insignia {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  text-align:center;
-  gap:7px;
-  border:1px solid #dce4e2;
-  border-radius:14px;
-  padding:18px 10px;
-  background:#f5f7f6;
-  color:#425754
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 7px;
+  border: 1px solid #d6e2dd;
+  border-radius: 18px;
+  padding: 18px 10px;
+  background: #f3f6f4;
+  color: #354f4d;
 }
+/* Una insignia conseguida se distingue por relieve y texto, no solo por color. */
 .avance-insignia--lograda {
-  background:#eff5ef;
-  border-color:#bed8ce;
-  color:#193c39
+  background: #e3f0e8;
+  border-color: #accfc0;
+  color: #193c39;
+  box-shadow: 0 5px 12px rgb(31 80 69 / 10%), inset 0 2px 2px rgb(255 255 255 / 75%);
 }
-.avance-insignia__icono {
-  display:grid;
-  place-items:center;
-  width:58px;
-  height:58px;
-  border-radius:50%;
-  background:#e3e9e6;
-  color:#657a76
+.avance-insignia__icono { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #e1e9e5; color: #526e66; }
+.avance-insignia--lograda .avance-insignia__icono { background: #2a7774; color: white; }
+.avance-insignia strong { font-size: .98rem; }
+.avance-insignia span:not(.avance-insignia__icono),
+.avance-insignia small { font-size: .82rem; }
+.avance-logros h3 { font-size: 1.1rem; }
+.avance-camino { margin-top: 12px; }
+.avance-camino__pista { height: 9px; border-radius: 999px; background: #dbe7e2; overflow: hidden; }
+.avance-camino__pista span { display: block; height: 100%; background: #2a7774; border-radius: inherit; }
+.avance-camino__hitos { display: flex; justify-content: space-between; margin-top: 8px; color: #405b59; font-size: .85rem; }
+.avance-camino__hitos span { display: inline-flex; align-items: center; gap: 3px; }
+.avance-camino__hitos .alcanzado { color: #1d6b64; font-weight: 800; }
+.avance-camino p { margin-top: 12px; color: #354f4d; }
+
+/* Al cambiar el espacio de la sidebar, el contenido se redistribuye naturalmente. */
+@container (max-width: 760px) {
+  .avances-vista { grid-template-columns: 1fr; }
+  .avance-continuidad,
+  .avance-logros { grid-column: auto; }
+  .avance-insignias { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-.avance-insignia--lograda .avance-insignia__icono {
-  background:#2a7774;
-  color:white
-}
-.avance-insignia strong {
-  font-size:.98rem
-}
-.avance-insignia span:not(.avance-insignia__icono),.avance-insignia small {
-  font-size:.78rem
-}
-.avance-logros h3 {
-  font-size:1.1rem
-}
-.avance-camino {
-  margin-top:12px
-}
-.avance-camino__pista {
-  height:9px;
-  border-radius:999px;
-  background:#dbe7e2;
-  overflow:hidden
-}
-.avance-camino__pista span {
-  display:block;
-  height:100%;
-  background:#2a7774;
-  border-radius:inherit
-}
-.avance-camino__hitos {
-  display:flex;
-  justify-content:space-between;
-  margin-top:8px;
-  color:#5b6e69;
-  font-size:.8rem
-}
-.avance-camino__hitos span {
-  display:inline-flex;
-  align-items:center;
-  gap:3px
-}
-.avance-camino__hitos .alcanzado {
-  color:#1d6b64;
-  font-weight:800
-}
-.avance-camino p {
-  margin-top:12px;
-  color:#405b59
-}
-@container (max-width:760px) {
-  .avances-vista {
-    grid-template-columns:1fr
-  }
-  .avance-continuidad,.avance-logros {
-    grid-column:auto
-  }
-  .avance-insignias {
-    grid-template-columns:repeat(2,minmax(0,1fr))
-  }
-}
-@container (max-width:440px) {
-  .avance-participacion {
-    flex-wrap:wrap
-  }
-  .avance-indicadores {
-    grid-template-columns:1fr
-  }
+@container (max-width: 440px) {
+  .avance-participacion { flex-wrap: wrap; }
+  .avance-indicadores { grid-template-columns: 1fr; }
 }

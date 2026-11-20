@@ -273,3 +273,7 @@
 
 /* La tarjeta ocupa su columna sin dejar un hueco antes del historial. */
 .historial-calendario { width: 100%; min-width: 0; }
+
+/* El detalle y la leyenda del calendario comparten una lectura cómoda en esta vista. */
+.historial-calendario .heat-calendar-original [role="status"] { font-size: 12px; }
+.historial-calendario .heat-calendar-original [class~="text-[10px]"] { font-size: 12px; }
