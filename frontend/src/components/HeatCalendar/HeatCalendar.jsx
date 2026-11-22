@@ -53,7 +53,7 @@ function HeatCalendarOriginal({
   const focoActual = habilitadas.find(({ w, d }) => foco?.w === w && foco?.d === d)
     ?? habilitadas.find(({ fecha }) => fecha === fechaSeleccionada) ?? habilitadas.at(-1)
   const moverFoco = (evento, w, d) => {
-    const pasos = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 }
+    const pasos = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }
     const paso = pasos[evento.key]
     if (!paso) return
     evento.preventDefault()
@@ -72,9 +72,9 @@ function HeatCalendarOriginal({
 
   // La separación de 4 px se suma al tamaño visual de cada celda.
   const posicionTooltip = hover ? {
-    left: hover.w * 32 + (hover.w === 0 ? 0 : hover.w === weeks - 1 ? 28 : 14),
-    top: hover.d * 32 - 4,
-    translate: hover.w === 0 ? '0 -100%' : hover.w === weeks - 1 ? '-100% -100%' : '-50% -100%',
+    left: `${(hover.d + 0.5) * 100 / 7}%`,
+    top: `calc(${hover.w} * 38px - 4px)`,
+    translate: hover.d < 2 ? '0 -100%' : hover.d > 4 ? '-100% -100%' : '-50% -100%',
   } : {}
 
   return (
@@ -84,6 +84,7 @@ function HeatCalendarOriginal({
         <span className="text-[11px] text-muted-foreground">{weeks} semanas</span>
       </div>
 
+      <div className="heat-calendar-days" aria-hidden="true">{DOW.map((dia) => <span key={dia}>{dia}</span>)}</div>
       <div ref={grilla} className="heat-calendar-grid relative mt-3 flex gap-[4px]" onPointerLeave={() => setHover(null)}>
         {Array.from({ length: weeks }, (_, w) => {
           const colOn = pinWeek === w || hover?.w === w
@@ -156,6 +157,7 @@ function HeatCalendarOriginal({
                       animate={{ scale: lift }}
                       transition={{ ...LIFT_SPRING, delay: Math.min(dist, 3) * 0.03 }}
                     />
+                    <span className="heat-calendar-number" aria-hidden="true" style={{ color: v && habilitado ? '#fff' : '#263e48' }}>{Number(fecha.slice(8))}</span>
                   </button>
                   </span>
                 )
@@ -211,7 +213,7 @@ export function HeatCalendar({ mes, desde, hasta, fechasRegistradas, seleccion, 
   const primerDia = new Date(Date.UTC(ano, numeroMes - 1, 1))
   const ultimoDia = new Date(Date.UTC(ano, numeroMes, 0))
   const inicio = new Date(primerDia.getTime() - ((primerDia.getUTCDay() + 6) % 7) * 86400000)
-  const semanas = Math.ceil(((ultimoDia - inicio) / 86400000 + 1) / 7)
+  const semanas = Math.max(5, Math.ceil(((ultimoDia - inicio) / 86400000 + 1) / 7))
   const registradas = new Set(fechasRegistradas)
   const etiquetas = Array.from({ length: semanas }, (_, w) => Array.from({ length: DAYS }, (_, d) =>
     new Date(inicio.getTime() + (w * DAYS + d) * 86400000).toISOString().slice(0, 10)))
