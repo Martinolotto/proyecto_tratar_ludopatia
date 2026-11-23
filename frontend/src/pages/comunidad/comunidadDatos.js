@@ -269,3 +269,18 @@ export async function retirarComentarioComunidad(comentarioId) {
   });
   if (error) throw error;
 }
+
+export async function responderComentarioComunidad({
+  publicacionId,
+  respuestaAId,
+  contenido,
+  anonimo,
+}) {
+  const { error } = await supabase.rpc("crear_comentario", {
+    p_publicacion: publicacionId,
+    p_respuesta: respuestaAId,
+    p_contenido: contenido.trim(),
+    p_anonimo: Boolean(anonimo),
+  });
+  if (error) throw error;
+}
