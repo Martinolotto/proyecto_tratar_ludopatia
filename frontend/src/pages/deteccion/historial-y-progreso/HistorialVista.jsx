@@ -57,6 +57,12 @@ function Detalle({ fecha, registro, hoy, fueraDelPeriodo, estado, onReintentar }
   ] : [];
   const presentes = campos.filter((campo) => campo.valor !== null);
   const omitidos = campos.filter((campo) => campo.valor === null);
+  const accesoActividad = estado === "listo" && fecha && fecha === hoy && (
+    <Link className="historial-enlace" to="/mi-actividad">
+      {registro ? "Ir a Mi actividad" : "Registrar mi día"}
+      <ArrowRight size={16} aria-hidden="true" />
+    </Link>
+  );
 
   return (
     <aside className="historial-card historial-detalle" aria-labelledby="historial-detalle-titulo" aria-live="polite">
@@ -102,13 +108,13 @@ function Detalle({ fecha, registro, hoy, fueraDelPeriodo, estado, onReintentar }
                 </div>
               )}
             </>
-          ) : <p>No hay información para este día.</p>)}
-          {estado === "listo" && fecha === hoy && (
-            <Link className="historial-enlace" to="/mi-actividad">
-              {registro ? "Ir a Mi actividad" : "Registrar mi día"}
-              <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-          )}
+          ) : (
+            <div className="historial-detalle__vacio">
+              <p>No hay información para este día.</p>
+              {accesoActividad}
+            </div>
+          ))}
+          {registro && accesoActividad}
         </>
       )}
     </aside>
@@ -169,11 +175,13 @@ export function HistorialVista({
     <div className="historial-vista">
       <MetricasHistorial registros={registros} desde={desde} hasta={hasta} onSeleccionarFecha={onSeleccionarFecha} />
       <div className="historial-vista__principal">
-        <div className="historial-vista__explorar">
-          <Calendario mes={mes} desdeMes={desdeMes} hastaMes={hastaMes} fechasMes={fechasMes}
-            estadoMes={estadoMes} seleccion={fechaSeleccionada} onSeleccionar={onSeleccionarFecha}
-            onAnterior={onMesAnterior} onSiguiente={onMesSiguiente} puedeAnterior={puedeMesAnterior}
-            puedeSiguiente={puedeMesSiguiente} onReintentar={onReintentarMes} />
+        <Calendario mes={mes} desdeMes={desdeMes} hastaMes={hastaMes} fechasMes={fechasMes}
+          estadoMes={estadoMes} seleccion={fechaSeleccionada} onSeleccionar={onSeleccionarFecha}
+          onAnterior={onMesAnterior} onSiguiente={onMesSiguiente} puedeAnterior={puedeMesAnterior}
+          puedeSiguiente={puedeMesSiguiente} onReintentar={onReintentarMes} />
+        <div className="historial-vista__registros">
+          <Detalle fecha={fechaSeleccionada} registro={registroSeleccionado} hoy={hoy}
+            fueraDelPeriodo={fueraDelPeriodo} estado={estadoDetalle} onReintentar={onReintentarDetalle} />
           <section className="historial-lista" aria-labelledby="historial-lista-titulo">
             <div className="historial-card__encabezado">
               <div>
@@ -203,10 +211,11 @@ export function HistorialVista({
                 ))}
               </ul>
             ) : <p>Todavía no hay registros en este período.</p>}
+            {historial.length > 3 && (
+              <p className="historial-lista__ayuda">Desplazate para consultar más registros.</p>
+            )}
           </section>
         </div>
-        <Detalle fecha={fechaSeleccionada} registro={registroSeleccionado} hoy={hoy}
-          fueraDelPeriodo={fueraDelPeriodo} estado={estadoDetalle} onReintentar={onReintentarDetalle} />
       </div>
       <Reflexiones
         notas={notas}

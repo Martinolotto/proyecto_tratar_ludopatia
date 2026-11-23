@@ -166,7 +166,7 @@
 .historial-leyenda__marca--no-aposto { border-color: #d4c8e3; background: #ebe4f1; }
 .historial-detalle { background: #edf4ef; border-color: #ccddd1; }
 .historial-detalle > p:not(.historial-eyebrow), .historial-detalle__seccion p { color: #405b59; line-height: 1.55; }
-.historial-detalle__fecha { margin: 18px 0 4px; font-size: .9rem; font-weight: 700; text-transform: capitalize; }
+.historial-detalle__fecha { margin: 6px 0 0; font-size: .9375rem; font-weight: 700; text-transform: capitalize; }
 .historial-detalle__declaracion { margin: 0; color: #173c39 !important; font-size: 1.12rem; font-weight: 800; }
 .historial-detalle__datos { display: grid; gap: 0; margin: 20px 0 0; }
 .historial-detalle__datos div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 9px 0; border-bottom: 1px solid #d0dfd5; }
@@ -179,12 +179,32 @@
 .historial-enlace { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #145b58; font-size: .9rem; font-weight: 800; text-align: left; text-decoration: none; cursor: pointer; }
 .historial-enlace:hover { text-decoration: underline; text-underline-offset: 3px; }
 .historial-lista > p, .historial-reflexiones > p:not(.historial-card__ayuda) { color: #405b59; line-height: 1.5; }
-.historial-lista ul { display: grid; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
-.historial-lista li button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 62px; padding: 10px 14px; border: 1px solid transparent; border-radius: 11px; background: #fff; color: #172b3a; text-align: left; cursor: pointer; }
+/* El listado conserva todos los registros y permite recorrerlos sin alargar la columna. */
+.historial-lista ul {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  max-block-size: 13.25rem;
+  margin: 10px -3px 0;
+  padding: 3px 6px 3px 3px;
+  list-style: none;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.historial-lista ul::-webkit-scrollbar { width: 8px; }
+.historial-lista ul::-webkit-scrollbar-track { border-radius: 8px; background: #e6f0eb; }
+.historial-lista ul::-webkit-scrollbar-thumb { border-radius: 8px; background: #64877f; }
+@supports not selector(::-webkit-scrollbar) {
+  .historial-lista ul { scrollbar-width: thin; scrollbar-color: #64877f #e6f0eb; }
+}
+.historial-lista .historial-lista__ayuda { margin: 8px 0 0; font-size: .75rem; text-align: center; }
+.historial-lista li button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 46px; padding: 5px 10px; border: 1px solid transparent; border-radius: 11px; background: #fff; color: #172b3a; text-align: left; cursor: pointer; }
 .historial-lista li button:hover, .historial-lista li button[aria-pressed="true"] { border-color: #b7d1c7; background: #e8f1ec; }
-.historial-lista li strong, .historial-lista li small { display: block; }
+.historial-lista li strong, .historial-lista li small { display: block; line-height: 1.3; }
+.historial-lista li strong { font-size: .875rem; }
+.historial-lista li svg { flex: none; }
 .historial-lista li strong { text-transform: capitalize; }
-.historial-lista li small { margin-top: 3px; color: #405b59; font-size: .82rem; }
+.historial-lista li small { margin-top: 1px; color: #405b59; font-size: .8rem; }
 .historial-reflexiones { margin-top: 42px; padding-top: 24px; border-top: 1px solid #cbdad3; }
 .historial-notas { display: grid; gap: 8px; margin-top: 18px; }
 .historial-nota { border: 1px solid #d0ddd7; border-radius: 12px; background: #fff; }
@@ -194,6 +214,7 @@
 .historial-nota p { margin: 0; padding: 0 16px 16px; color: #405b59; line-height: 1.6; }
 .historial-cabecera :is(button, a):focus-visible,
 .historial-vista :is(button, a, summary):focus-visible { outline: 3px solid #145b58; outline-offset: 3px; }
+.historial-lista li button:focus-visible { outline-offset: -3px; }
 @media (max-width: 767px) {
   .historial-subnav { margin-top: 22px; }
   .historial-tabs { gap: 16px; }
@@ -203,33 +224,42 @@
 }
 
 /* El calendario conserva sus celdas compactas y controles mensuales propios. */
-.historial-calendario__mes { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; }
-.historial-calendario__mes h2 { color: #172b3a; font-size: 1rem; text-transform: capitalize; }
-.historial-calendario__flechas { display: flex; gap: 5px; }
+.historial-calendario__mes { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.historial-calendario__mes h2 { margin: 0; color: #172b3a; font-size: clamp(1.125rem, 1.8cqi, 1.375rem); font-weight: 800; line-height: 1.25; }
+.historial-calendario__flechas { display: flex; flex: none; gap: 5px; }
 .historial-calendario__flechas button { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid #cbdad3; border-radius: 9px; background: #fff; color: #145b58; cursor: pointer; }
 .historial-calendario__flechas button:disabled { color: #8b9995; cursor: not-allowed; }
 .historial-detalle__fuera { margin: 4px 0 10px; color: #516863; font-size: .8rem; }
 .historial-detalle__omitidos { margin: 13px 0 0; font-size: .8rem; }
-.historial-lista li button { min-height: 52px; }
 .historial-reflexiones { margin-top: 26px; }
-/* En escritorio, calendario, listado y detalle conviven sin desperdiciar ancho. */
-.historial-vista__explorar { display: contents; }
+/* El detalle y el listado comparten columna y siguen ese orden también con teclado. */
 .historial-vista__principal {
   display: grid;
-  grid-template-columns: minmax(250px, .9fr) minmax(200px, .95fr) minmax(240px, 1.1fr);
+  grid-template-columns: minmax(0, 45fr) minmax(0, 55fr);
   align-items: start;
-  gap: 22px;
+  gap: 16px;
 }
-.historial-calendario { padding: 22px; }
-.historial-lista { min-width: 0; padding: 22px 0; }
-.historial-lista ul { max-height: 300px; overflow-y: auto; padding-right: 4px; }
-@container (max-width: 950px) {
-  .historial-vista__principal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .historial-detalle { grid-column: 1 / -1; }
+.historial-vista__registros { display: grid; min-width: 0; gap: 16px; }
+@container (width > 600px) {
+  .historial-vista__registros:has(.historial-lista__ayuda) {
+    align-self: stretch;
+    grid-template-rows: auto 1fr;
+    gap: 12px;
+  }
+  .historial-lista:has(.historial-lista__ayuda) { display: flex; flex-direction: column; }
+  .historial-lista .historial-lista__ayuda { display: none; }
+  .historial-lista .historial-eyebrow { margin-bottom: 0; }
+  .historial-lista:has(.historial-lista__ayuda) ul {
+    /* El calendario y el detalle definen el espacio; el listado conserva unas tres filas como mínimo. */
+    contain: size;
+    flex: 1;
+    min-block-size: 10rem;
+    max-block-size: none;
+    margin-top: 2px;
+  }
 }
 @container (max-width: 600px) {
   .historial-vista__principal { grid-template-columns: minmax(0, 1fr); }
-  .historial-detalle { grid-column: auto; }
 }
 
 /* Jerarquía compacta para explorar registros sin alejar la cabecera del contenido. */
@@ -237,31 +267,29 @@
 .historial-cabecera__intro > div > p:last-child { margin-top: 6px; }
 .historial-subnav { margin-top: 16px; }
 .historial-filtros { gap: 10px 20px; padding: 14px 0 18px; }
-.historial-vista__principal { grid-template-columns: minmax(250px, 280px) minmax(220px, 1fr) minmax(260px, 1.1fr); gap: 16px; }
 .historial-calendario { border-top: 4px solid #2a7774; padding: 19px 20px; }
-.historial-calendario__mes { margin-top: 13px; }
-.historial-calendario__mes h2 { white-space: nowrap; }
-.historial-lista { padding: 19px 20px; border: 1px solid #d2ded9; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgb(23 43 58 / 6%); }
+.historial-lista { min-width: 0; padding: 16px 18px; border: 1px solid #d2ded9; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgb(23 43 58 / 6%); }
 .historial-lista li button { background: #f0f5f2; }
 .historial-lista li button:hover, .historial-lista li button[aria-pressed="true"] { background: #d8ebe3; }
-.historial-detalle { padding: 22px; border-color: #285956; background: #285956; }
+.historial-detalle { padding: 16px 18px; border-color: #285956; background: #285956; }
 .historial-detalle :is(h2, strong, dt, dd) { color: #fff; }
 .historial-detalle > p:not(.historial-eyebrow), .historial-detalle__seccion p { color: #e2f1ea; }
-.historial-detalle .historial-eyebrow { color: #c2e7d8; }
+.historial-detalle .historial-eyebrow { margin-bottom: 3px; color: #c2e7d8; }
+.historial-detalle__vacio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 12px;
+}
+.historial-detalle__vacio p { margin: 4px 0; color: #e2f1ea; font-size: .875rem; }
 .historial-detalle .historial-detalle__declaracion { color: #fff !important; }
 .historial-detalle__datos div { border-color: #71918a; }
 .historial-detalle__omitidos, .historial-detalle__fuera { color: #d8ebe4 !important; }
 .historial-detalle .historial-enlace { color: #fff; }
+.historial-detalle__vacio .historial-enlace { min-height: 32px; }
 .historial-detalle :is(button, a):focus-visible { outline-color: #fff; }
 .historial-reflexiones { margin-top: 20px; padding-top: 18px; }
-@container (max-width: 950px) {
-  .historial-vista__principal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .historial-detalle { grid-column: 1 / -1; }
-}
-@container (max-width: 600px) {
-  .historial-vista__principal { grid-template-columns: minmax(0, 1fr); }
-  .historial-detalle { grid-column: auto; }
-}
 /* En español solo se capitaliza el comienzo de las fechas, no cada palabra. */
 .historial-detalle__fecha, .historial-lista li strong, .historial-nota summary,
 .historial-calendario__mes h2 { text-transform: none; }
@@ -270,16 +298,11 @@
 .historial-nota summary span:first-child::first-letter,
 .historial-calendario__mes h2::first-letter { text-transform: uppercase; }
 
-/* El mes es el título accesible del módulo compacto de participación. */
-.historial-calendario__mes { margin-top: 0; }
-.historial-calendario__mes h2 { margin: 0; }
-
 /* La tarjeta ocupa su columna sin dejar un hueco antes del historial. */
 .historial-calendario { width: 100%; min-width: 0; }
 
 /* El detalle y la leyenda del calendario comparten una lectura cómoda en esta vista. */
 .historial-calendario .heat-calendar-original [role="status"] { font-size: 12px; }
-.historial-calendario .heat-calendar-original [class~="text-[10px]"] { font-size: 12px; }
 
 /* El calendario y el historial conservan sus dimensiones y ganan relieve. */
 .historial-card, .historial-lista {

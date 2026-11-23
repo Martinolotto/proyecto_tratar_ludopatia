@@ -10,7 +10,7 @@ const EASE = [0.16, 1, 0.3, 1]
 /* El resorte conserva el movimiento original del componente. */
 const LIFT_SPRING = { type: 'spring', stiffness: 500, damping: 30 }
 /** Escalas para la celda apuntada y sus vecinas. */
-const LIFT = [1.3, 1.08, 1.03]
+const LIFT = [1.06, 1.025, 1.01]
 
 /** Solo los dispositivos con puntero muestran la respuesta de hover. */
 function useCanHover() {
@@ -70,10 +70,10 @@ function HeatCalendarOriginal({
   const weekTotal = (w) =>
     Array.from({ length: DAYS }, (_, d) => count(level(w, d))).reduce((a, b) => a + b, 0)
 
-  // La separación de 4 px se suma al tamaño visual de cada celda.
+  // El tooltip usa el mismo alto y separación que las filas del calendario.
   const posicionTooltip = hover ? {
     left: `${(hover.d + 0.5) * 100 / 7}%`,
-    top: `calc(${hover.w} * 38px - 4px)`,
+    top: `calc(${hover.w} * (var(--heat-celda-alto) + var(--heat-separacion)) - var(--heat-separacion))`,
     translate: hover.d < 2 ? '0 -100%' : hover.d > 4 ? '-100% -100%' : '-50% -100%',
   } : {}
 
@@ -85,13 +85,13 @@ function HeatCalendarOriginal({
       </div>
 
       <div className="heat-calendar-days" aria-hidden="true">{DOW.map((dia) => <span key={dia}>{dia}</span>)}</div>
-      <div ref={grilla} className="heat-calendar-grid relative mt-3 flex gap-[4px]" onPointerLeave={() => setHover(null)}>
+      <div ref={grilla} className="heat-calendar-grid relative" onPointerLeave={() => setHover(null)}>
         {Array.from({ length: weeks }, (_, w) => {
           const colOn = pinWeek === w || hover?.w === w
           return (
             <motion.div
               key={w}
-              className="heat-calendar-week flex flex-col gap-[4px] rounded-[5px] transition-colors"
+              className="heat-calendar-week rounded-[5px] transition-colors"
               style={{
                 background: pinWeek === w ? 'color-mix(in srgb, var(--foreground) 6%, transparent)' : 'transparent',
               }}
@@ -142,7 +142,7 @@ function HeatCalendarOriginal({
                     <motion.span
                       className="pointer-events-none absolute inset-0.5 block rounded-[3.5px]"
                       style={{
-                        background: !habilitado ? '#cbd2d6' : v ? '#3978c8' : '#e9edf0',
+                        background: !habilitado ? '#cbd2d6' : v ? '#2a7774' : '#e9edf0',
                         // El día seleccionado conserva un contorno visible aunque no tenga registro.
                         outline: habilitado && seleccionado ? '2px solid #172b3a' : undefined,
                         outlineOffset: '1px',
@@ -190,12 +190,11 @@ function HeatCalendarOriginal({
         </AnimatePresence>
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
-        <span className="flex items-center gap-1 whitespace-nowrap" role="group" aria-label="Leyenda del calendario: sin registro y con registro">
-          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: '#e9edf0' }} />
-          <span className="text-[10px] text-muted-foreground" aria-hidden="true">Sin</span>
-          <span className="h-[11px] w-[11px] rounded-[3px]" style={{ background: '#3978c8' }} />
-          <span className="text-[10px] text-muted-foreground" aria-hidden="true">Con</span>
+      <div className="heat-calendar-footer">
+        <span className="heat-calendar-legend" role="group" aria-label="Leyenda del calendario">
+          <span><i style={{ background: '#2a7774' }} aria-hidden="true" />Registrado</span>
+          <span><i style={{ background: '#e9edf0' }} aria-hidden="true" />Sin registro</span>
+          <span><i style={{ background: '#cbd2d6' }} aria-hidden="true" />No disponible</span>
         </span>
         {/* El total de la semana fijada permanece cuando el puntero sale. */}
         <span className="whitespace-nowrap tabular-nums text-[11px] text-muted-foreground">
@@ -222,7 +221,7 @@ export function HeatCalendar({ mes, desde, hasta, fechasRegistradas, seleccion, 
   const values = etiquetas.map((columna, w) => columna.map((fecha, d) =>
     habilitados[w][d] && registradas.has(fecha) ? 1 : 0))
 
-  return <HeatCalendarOriginal key={mes} title="Registro diario" unit="registros" weeks={semanas}
+  return <HeatCalendarOriginal key={mes} title="Tu calendario de registros" unit="registros" weeks={semanas}
     maxCount={1} values={values} etiquetas={etiquetas} habilitados={habilitados}
     fechaSeleccionada={seleccion} onSelectDay={onSeleccionar} />
 }
