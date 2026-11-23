@@ -2,10 +2,13 @@
  * Presenta el calendario, los registros y las reflexiones recibidas de la página.
  * La selección sincroniza calendario, lista y detalle sin modificar datos privados.
  */
+import { useRef } from "react";
+import { createPortal } from "react-dom";
 import { HeatCalendar } from "../../../components/HeatCalendar/HeatCalendar.jsx";
 import { MetricasHistorial } from "./MetricasHistorial.jsx";
+import { formatearCantidad, formatearDuracion, formatearMoneda } from "./formatosMetricas.js";
 import { Link } from "react-router";
-import { ArrowRight, ChevronLeft, ChevronRight, NotebookPen } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, NotebookPen, X } from "lucide-react";
 import "./HistorialVista.css";
 
 const fechaComoDate = (fecha) => new Date(`${fecha}T12:00:00Z`);
@@ -16,12 +19,6 @@ const formatearFecha = (fecha, opciones) => new Intl.DateTimeFormat("es-AR", {
 const fechaLarga = (fecha) => formatearFecha(fecha, {
   weekday: "long", day: "numeric", month: "long", year: "numeric",
 });
-const moneda = (valor) => new Intl.NumberFormat("es-AR", {
-  style: "currency", currency: "ARS", minimumFractionDigits: 2,
-}).format(valor);
-const cantidad = (valor) => new Intl.NumberFormat("es-AR", {
-  maximumFractionDigits: 2,
-}).format(valor);
 const hayValor = (valor) => valor !== null && valor !== undefined;
 
 // El calendario mensual usa una lectura de fechas propia, independiente de los filtros.
@@ -46,14 +43,18 @@ function Calendario({ mes, desdeMes, hastaMes, fechasMes, estadoMes, seleccion, 
   );
 }
 
-function Detalle({ fecha, registro, hoy, fueraDelPeriodo, estado, onReintentar }) {
+function Detalle({ fecha, registro, hoy, fueraDelPeriodo, estado, onReintentar, detalleRef }) {
+  const dialogo = useRef(null);
+  const tituloModal = useRef(null);
   // Solo se listan valores presentes. Los omitidos se mencionan juntos, nunca como cero.
+  const minutos = registro?.tiempo_unidad === "horas" && hayValor(registro.tiempo_valor)
+    ? Number(registro.tiempo_valor) * 60 : registro?.tiempo_valor;
   const campos = registro ? [
     { nombre: "Ganas de apostar", valor: hayValor(registro.tuvo_ganas) ? (registro.tuvo_ganas ? "Sí" : "No") : null },
-    { nombre: "Tiempo", valor: hayValor(registro.tiempo_valor) ? `${cantidad(registro.tiempo_valor)} ${registro.tiempo_unidad || ""}` : null },
-    { nombre: "Cantidad de apuestas", valor: hayValor(registro.cantidad_apuestas) ? cantidad(registro.cantidad_apuestas) : null },
-    { nombre: "Dinero apostado", valor: hayValor(registro.dinero_apostado) ? moneda(registro.dinero_apostado) : null },
-    { nombre: "Dinero perdido", valor: hayValor(registro.dinero_perdido) ? moneda(registro.dinero_perdido) : null },
+    { nombre: "Tiempo", valor: hayValor(minutos) ? formatearDuracion(minutos) : null },
+    { nombre: "Cantidad de apuestas", valor: hayValor(registro.cantidad_apuestas) ? formatearCantidad(registro.cantidad_apuestas) : null },
+    { nombre: "Dinero apostado", valor: hayValor(registro.dinero_apostado) ? formatearMoneda(registro.dinero_apostado) : null },
+    { nombre: "Dinero perdido", valor: hayValor(registro.dinero_perdido) ? formatearMoneda(registro.dinero_perdido) : null },
   ] : [];
   const presentes = campos.filter((campo) => campo.valor !== null);
   const omitidos = campos.filter((campo) => campo.valor === null);
@@ -65,7 +66,7 @@ function Detalle({ fecha, registro, hoy, fueraDelPeriodo, estado, onReintentar }
   );
 
   return (
-    <aside className="historial-card historial-detalle" aria-labelledby="historial-detalle-titulo" aria-live="polite">
+    <aside ref={detalleRef} tabIndex={-1} className="historial-card historial-detalle" aria-labelledby="historial-detalle-titulo" aria-live="polite">
       <p className="historial-eyebrow">DÍA SELECCIONADO</p>
       <h2 id="historial-detalle-titulo">Tu día en detalle</h2>
       {!fecha ? (
@@ -81,6 +82,26 @@ function Detalle({ fecha, registro, hoy, fueraDelPeriodo, estado, onReintentar }
               <p className="historial-detalle__declaracion">
                 {registro.aposto ? "Declaraste apuestas" : "Declaraste que no apostaste"}
               </p>
+              <button className="historial-detalle__abrir" type="button" aria-haspopup="dialog" onClick={(evento) => {
+                // El diálogo nativo conserva y restaura el foco del botón que lo abrió.
+                evento.currentTarget.focus({ preventScroll: true });
+                dialogo.current.showModal();
+                tituloModal.current.focus({ preventScroll: true });
+              }}>Ver información del día</button>
+              {createPortal(
+                <dialog className="metricas-modal historial-modal" ref={dialogo} aria-labelledby="historial-modal-titulo">
+                  <div className="metricas-modal__panel">
+                    <header className="metricas-modal__cabecera">
+                      <div>
+                        <h2 id="historial-modal-titulo" ref={tituloModal} tabIndex={-1}>Tu registro del día</h2>
+                        <p>{fechaLarga(fecha)}</p>
+                      </div>
+                      <button type="button" className="metricas-modal__icono" aria-label="Cerrar detalles" onClick={() => dialogo.current.close()}>
+                        <X size={20} aria-hidden="true" />
+                      </button>
+                    </header>
+                    <div className="metricas-modal__scroll historial-modal__contenido" tabIndex={0}>
+                      <p className="historial-modal__declaracion">{registro.aposto ? "Declaraste apuestas" : "Declaraste que no apostaste"}</p>
               {presentes.length > 0 && (
                 <dl className="historial-detalle__datos">
                   {presentes.map((campo) => (
@@ -106,6 +127,14 @@ function Detalle({ fecha, registro, hoy, fueraDelPeriodo, estado, onReintentar }
                   <strong>Tu nota</strong>
                   <p className="historial-texto-personal">{registro.observacion}</p>
                 </div>
+              )}
+                    </div>
+                    <footer className="metricas-modal__pie">
+                      <button type="button" className="metricas-modal__cerrar" onClick={() => dialogo.current.close()}>Cerrar</button>
+                    </footer>
+                  </div>
+                </dialog>,
+                document.body
               )}
             </>
           ) : (
@@ -170,17 +199,27 @@ export function HistorialVista({
   notas = [], notasEstado = "listo", mostrarTodas = false, onVerTodas,
   onVolverNotas, cargarMasNotas, hayMasNotas = false,
 }) {
+  const detalleRef = useRef(null);
+  const consultarDetalle = (fecha) => {
+    onSeleccionarFecha(fecha);
+    // El modal ya se cerró; el detalle recibe el foco después de la selección.
+    requestAnimationFrame(() => {
+      detalleRef.current?.focus({ preventScroll: true });
+      detalleRef.current?.scrollIntoView({ block: "start" });
+    });
+  };
   const historial = [...registros].sort((a, b) => b.fecha.localeCompare(a.fecha));
   return (
     <div className="historial-vista">
-      <MetricasHistorial registros={registros} desde={desde} hasta={hasta} onSeleccionarFecha={onSeleccionarFecha} />
+      <MetricasHistorial registros={registros} desde={desde} hasta={hasta}
+        onSeleccionarFecha={onSeleccionarFecha} onConsultarDetalle={consultarDetalle} />
       <div className="historial-vista__principal">
         <Calendario mes={mes} desdeMes={desdeMes} hastaMes={hastaMes} fechasMes={fechasMes}
           estadoMes={estadoMes} seleccion={fechaSeleccionada} onSeleccionar={onSeleccionarFecha}
           onAnterior={onMesAnterior} onSiguiente={onMesSiguiente} puedeAnterior={puedeMesAnterior}
           puedeSiguiente={puedeMesSiguiente} onReintentar={onReintentarMes} />
         <div className="historial-vista__registros">
-          <Detalle fecha={fechaSeleccionada} registro={registroSeleccionado} hoy={hoy}
+          <Detalle detalleRef={detalleRef} fecha={fechaSeleccionada} registro={registroSeleccionado} hoy={hoy}
             fueraDelPeriodo={fueraDelPeriodo} estado={estadoDetalle} onReintentar={onReintentarDetalle} />
           <section className="historial-lista" aria-labelledby="historial-lista-titulo">
             <div className="historial-card__encabezado">

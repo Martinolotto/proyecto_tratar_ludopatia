@@ -168,6 +168,12 @@
 .historial-detalle > p:not(.historial-eyebrow), .historial-detalle__seccion p { color: #405b59; line-height: 1.55; }
 .historial-detalle__fecha { margin: 6px 0 0; font-size: .9375rem; font-weight: 700; text-transform: capitalize; }
 .historial-detalle__declaracion { margin: 0; color: #173c39 !important; font-size: 1.12rem; font-weight: 800; }
+.historial-detalle__abrir { margin-top: 6px; color: #fff; font-size: .875rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.historial-modal__contenido { color: #172b3a; line-height: 1.5; }
+.historial-modal__contenido .historial-detalle__datos { margin-top: 12px; }
+.historial-modal__contenido .historial-detalle__seccion li { color: inherit; }
+.historial-modal__contenido:focus-visible { outline: 3px solid #145b58; outline-offset: -3px; }
+.historial-modal .metricas-modal__pie { justify-content: flex-end; }
 .historial-detalle__datos { display: grid; gap: 0; margin: 20px 0 0; }
 .historial-detalle__datos div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 12px; padding: 9px 0; border-bottom: 1px solid #d0dfd5; }
 .historial-detalle__datos dt { color: #405b59; font-size: .85rem; }
@@ -184,18 +190,13 @@
   display: grid;
   align-content: start;
   gap: 4px;
-  max-block-size: 13.25rem;
+  max-block-size: 10.25rem;
   margin: 10px -3px 0;
   padding: 3px 6px 3px 3px;
   list-style: none;
   overflow-y: auto;
-  scrollbar-gutter: stable;
-}
-.historial-lista ul::-webkit-scrollbar { width: 8px; }
-.historial-lista ul::-webkit-scrollbar-track { border-radius: 8px; background: #e6f0eb; }
-.historial-lista ul::-webkit-scrollbar-thumb { border-radius: 8px; background: #64877f; }
-@supports not selector(::-webkit-scrollbar) {
-  .historial-lista ul { scrollbar-width: thin; scrollbar-color: #64877f #e6f0eb; }
+  scrollbar-width: thin;
+  scrollbar-color: #64877f #e6f0eb;
 }
 .historial-lista .historial-lista__ayuda { margin: 8px 0 0; font-size: .75rem; text-align: center; }
 .historial-lista li button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 46px; padding: 5px 10px; border: 1px solid transparent; border-radius: 11px; background: #fff; color: #172b3a; text-align: left; cursor: pointer; }
@@ -240,22 +241,18 @@
   gap: 16px;
 }
 .historial-vista__registros { display: grid; min-width: 0; gap: 16px; }
+/* El listado usa el alto sobrante cuando el calendario es más alto. */
 @container (width > 600px) {
   .historial-vista__registros:has(.historial-lista__ayuda) {
     align-self: stretch;
     grid-template-rows: auto 1fr;
-    gap: 12px;
   }
   .historial-lista:has(.historial-lista__ayuda) { display: flex; flex-direction: column; }
-  .historial-lista .historial-lista__ayuda { display: none; }
-  .historial-lista .historial-eyebrow { margin-bottom: 0; }
   .historial-lista:has(.historial-lista__ayuda) ul {
-    /* El calendario y el detalle definen el espacio; el listado conserva unas tres filas como mínimo. */
     contain: size;
     flex: 1;
-    min-block-size: 10rem;
+    min-block-size: 5rem;
     max-block-size: none;
-    margin-top: 2px;
   }
 }
 @container (max-width: 600px) {
@@ -271,9 +268,9 @@
 .historial-lista { min-width: 0; padding: 16px 18px; border: 1px solid #d2ded9; border-radius: 18px; background: #fff; box-shadow: 0 8px 24px rgb(23 43 58 / 6%); }
 .historial-lista li button { background: #f0f5f2; }
 .historial-lista li button:hover, .historial-lista li button[aria-pressed="true"] { background: #d8ebe3; }
-.historial-detalle { padding: 16px 18px; border-color: #285956; background: #285956; }
+.historial-detalle { scroll-margin-block-start: 8.5rem; padding: 16px 18px; border-color: #285956; background: #285956; }
 .historial-detalle :is(h2, strong, dt, dd) { color: #fff; }
-.historial-detalle > p:not(.historial-eyebrow), .historial-detalle__seccion p { color: #e2f1ea; }
+.historial-detalle > p:not(.historial-eyebrow), .historial-detalle .historial-detalle__seccion p { color: #e2f1ea; }
 .historial-detalle .historial-eyebrow { margin-bottom: 3px; color: #c2e7d8; }
 .historial-detalle__vacio {
   display: flex;
