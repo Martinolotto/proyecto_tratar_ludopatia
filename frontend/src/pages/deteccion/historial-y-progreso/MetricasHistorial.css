@@ -104,14 +104,149 @@
 .metricas-grafico__lienzo { width: 100%; min-width: 0; height: 220px; margin-top: 12px; }
 .metricas-economia .metricas-grafico__lienzo { height: 260px; }
 .metricas-dos-columnas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.metricas-tabla { margin-top: 16px; font-size: .9rem; }
-.metricas-tabla summary { color: #145b58; font-weight: 700; cursor: pointer; }
-.metricas-tabla__scroll { overflow-x: auto; }
-.metricas-tabla table { width: 100%; margin-top: 12px; border-collapse: collapse; text-align: left; }
-.metricas-tabla th,
-.metricas-tabla td { padding: 8px; border-bottom: 1px solid #e3ebe8; font-weight: 400; white-space: nowrap; }
-.metricas-tabla thead th { font-weight: 700; }
-.metricas-tabla button { border: 0; background: none; padding: 0; color: #145b58; font-weight: 700; text-decoration: underline; cursor: pointer; }
+.metricas-tooltip {
+  display: grid;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  background: #1e303d;
+  color: #fff;
+  font-size: .8rem;
+  box-shadow: 0 3px 10px rgb(23 43 58 / 24%);
+}
+.metricas-tooltip span, .metricas-tooltip strong { display: block; }
+.metricas-tooltip strong { font-variant-numeric: tabular-nums; }
+.metricas-valores__accion {
+  display: block;
+  min-height: 44px;
+  margin-top: 8px;
+  color: #145b58;
+  font-size: .9rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.metricas-valores__accion:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* El diálogo nativo mantiene inerte el fondo; el scroll se limita a la tabla. */
+html:has(.metricas-modal[open]) { overflow: hidden; }
+.metricas-modal {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: min(51rem, calc(100% - 2rem));
+  max-width: none;
+  max-height: min(46rem, calc(100dvh - 2rem));
+  margin: auto;
+  padding: clamp(6px, 1.25vw, 14px);
+  overflow: hidden;
+  border: 1px solid #cdd9d3;
+  border-radius: 20px;
+  background: #dfe7e2;
+  color: var(--modus-brand-navy);
+  box-shadow: 0 22px 60px rgb(12 30 33 / 28%);
+}
+.metricas-modal[open] { display: flex; }
+.metricas-modal::backdrop { background: rgb(17 33 39 / 62%); backdrop-filter: blur(2px); }
+.metricas-modal__panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 clamp(10px, 2vw, 16px);
+  overflow: hidden;
+  border: 1px solid #cdd9d3;
+  border-radius: 15px;
+  background: #fff;
+}
+.metricas-modal__cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0 12px;
+  border-bottom: 1px solid #dce5df;
+}
+.metricas-modal__cabecera h2 {
+  margin: 0;
+  font-family: var(--font-heading, Manrope, sans-serif);
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+/* El título recibe el foco de lectura. Los controles mantienen su indicador. */
+.metricas-modal__cabecera h2:focus { outline: none; }
+.metricas-modal__cabecera p, .metricas-modal__pie span {
+  margin: 4px 0 0;
+  color: #405b59;
+  font-size: .875rem;
+}
+.metricas-modal__icono, .metricas-modal__cerrar {
+  min-height: 40px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.metricas-modal__icono {
+  display: grid;
+  width: 40px;
+  flex: none;
+  place-items: center;
+  color: #405b59;
+}
+.metricas-modal__icono:hover { background: #e8f0ed; }
+.metricas-modal__scroll {
+  min-height: 0;
+  margin: 12px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-padding-block-start: 3.25rem;
+}
+.metricas-modal__scroll::-webkit-scrollbar { width: 11px; }
+.metricas-modal__scroll::-webkit-scrollbar-track { background: #e2e9e5; border-radius: 999px; }
+.metricas-modal__scroll::-webkit-scrollbar-thumb { background: #6f8c83; border: 1px solid #e2e9e5; border-radius: 999px; }
+@supports not selector(::-webkit-scrollbar) {
+  .metricas-modal__scroll { scrollbar-color: #6f8c83 #e2e9e5; }
+}
+.metricas-modal__tabla {
+  width: calc(100% - 8px);
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: clamp(.875rem, 1.8vw, 1.2rem);
+  font-variant-numeric: tabular-nums;
+}
+.metricas-modal__tabla :is(th, td) { padding: 8px clamp(6px, 2vw, 16px); }
+.metricas-modal__tabla thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  background: #e7efea;
+}
+.metricas-modal__tabla thead th { padding-block: 12px; font-weight: 800; }
+.metricas-modal__tabla thead th:first-child { border-radius: 9px 0 0 9px; }
+.metricas-modal__tabla thead th:last-child { border-radius: 0 9px 9px 0; }
+.metricas-modal__tabla tbody :is(th, td) { border-bottom: 1px solid #dce5df; }
+.metricas-modal__tabla tbody th { padding-block: 0; }
+.metricas-modal__tabla tbody button {
+  min-height: clamp(44px, 4vw, 56px);
+  color: #145b58;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.metricas-modal__tabla tbody button:hover { text-decoration: underline; text-underline-offset: 3px; }
+.metricas-modal__pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #dce5df;
+}
+.metricas-modal__cerrar { padding: 0 12px; background: #145b58; color: #fff; font-weight: 700; }
+.metricas-modal__cerrar:hover { background: #173c39; }
 .metricas-vacio { display: grid; min-height: 76px; place-items: center; padding: 16px; border-radius: 14px; background: #f1f5f2; text-align: center; }
 .metricas-semana,
 .metricas-situaciones { display: grid; gap: 9px; margin: 18px 0 0; padding: 0; list-style: none; }
