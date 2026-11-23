@@ -1,7 +1,7 @@
 /*
  * Muestra y permite actualizar los datos reales de la cuenta en /perfil.
  * Supabase Auth identifica la sesión; perfiles y Storage conservan alias y avatar,
- * y perfil_preferencias (más caché local) guarda portada, colores, bio, meta e insignias.
+ * y perfil_preferencias guarda en PostgreSQL portada, colores, bio, meta e insignias.
  */
 import { useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router";
@@ -80,10 +80,6 @@ function esDataImagenValida(valor) {
   );
 }
 
-function clavePrefsLocal(usuarioId) {
-  return `modus_perfil_prefs_${usuarioId}`;
-}
-
 function prefsPorDefecto() {
   return {
     portada: PORTADA_POR_DEFECTO,
@@ -101,88 +97,59 @@ function normalizarPrefs(rawObj) {
   const base = prefsPorDefecto();
   if (!rawObj || typeof rawObj !== "object") return base;
 
-  const visiblesFuente = Array.isArray(rawObj.insigniasVisibles)
-    ? rawObj.insigniasVisibles
-    : Array.isArray(rawObj.insignias_visibles)
-      ? rawObj.insignias_visibles
-      : ["inicio_consciente"];
+  const visiblesFuente = Array.isArray(rawObj.insignias_visibles)
+    ? rawObj.insignias_visibles
+    : ["inicio_consciente"];
 
   const visiblesValidas = visiblesFuente.filter((id) =>
     CATALOGO_INSIGNIAS.some((item) => item.id === id),
   );
 
-  const destacadaRaw = rawObj.insigniaDestacada ?? rawObj.insignia_destacada;
+  const destacadaRaw = rawObj.insignia_destacada;
   const destacadaValida =
     typeof destacadaRaw === "string" &&
     CATALOGO_INSIGNIAS.some((item) => item.id === destacadaRaw)
       ? destacadaRaw
       : "inicio_consciente";
 
-  const portadaRaw = rawObj.portada ?? rawObj.portada_color;
-  const portadaImagenRaw = rawObj.portadaImagen ?? rawObj.portada_imagen;
-  const colorAvatarRaw = rawObj.colorAvatar ?? rawObj.color_avatar;
-  const metaRaw = rawObj.metaPrincipal ?? rawObj.meta_principal;
-  const anonimoRaw = rawObj.anonimoPorDefecto ?? rawObj.anonimo_por_defecto;
-
   return {
-    portada: esHexValido(portadaRaw) ? portadaRaw : PORTADA_POR_DEFECTO,
-    portadaImagen: esDataImagenValida(portadaImagenRaw) ? portadaImagenRaw : "",
-    colorAvatar: esHexValido(colorAvatarRaw)
-      ? colorAvatarRaw
+    portada: esHexValido(rawObj.portada_color)
+      ? rawObj.portada_color
+      : PORTADA_POR_DEFECTO,
+    portadaImagen: esDataImagenValida(rawObj.portada_imagen)
+      ? rawObj.portada_imagen
+      : "",
+    colorAvatar: esHexValido(rawObj.color_avatar)
+      ? rawObj.color_avatar
       : COLOR_AVATAR_POR_DEFECTO,
     biografia:
       typeof rawObj.biografia === "string"
         ? rawObj.biografia.slice(0, MAX_BIO)
         : "",
     metaPrincipal:
-      typeof metaRaw === "string" ? metaRaw.slice(0, MAX_META) : "",
-    anonimoPorDefecto: typeof anonimoRaw === "boolean" ? anonimoRaw : true,
+      typeof rawObj.meta_principal === "string"
+        ? rawObj.meta_principal.slice(0, MAX_META)
+        : "",
+    anonimoPorDefecto:
+      typeof rawObj.anonimo_por_defecto === "boolean"
+        ? rawObj.anonimo_por_defecto
+        : true,
     insigniasVisibles: visiblesValidas,
     insigniaDestacada: destacadaValida,
   };
 }
 
-function leerPrefsLocal(usuarioId) {
-  if (!usuarioId) return prefsPorDefecto();
-  try {
-    const raw = window.localStorage.getItem(clavePrefsLocal(usuarioId));
-    if (!raw) return prefsPorDefecto();
-    return normalizarPrefs(JSON.parse(raw));
-  } catch {
-    return prefsPorDefecto();
-  }
-}
-
-function guardarPrefsLocal(usuarioId, prefs) {
-  if (!usuarioId) return;
-  try {
-    window.localStorage.setItem(
-      clavePrefsLocal(usuarioId),
-      JSON.stringify(prefs),
-    );
-  } catch {
-    // Ignoramos si storage está lleno o restringido
-  }
-}
-
 async function leerPrefsRemotas(usuarioId) {
-  const local = leerPrefsLocal(usuarioId);
-  try {
-    const { data, error } = await supabase
-      .from("perfil_preferencias")
-      .select(
-        "portada_color, portada_imagen, color_avatar, biografia, meta_principal, anonimo_por_defecto, insignias_visibles, insignia_destacada",
-      )
-      .eq("usuario_id", usuarioId)
-      .maybeSingle();
+  const { data, error } = await supabase
+    .from("perfil_preferencias")
+    .select(
+      "portada_color, portada_imagen, color_avatar, biografia, meta_principal, anonimo_por_defecto, insignias_visibles, insignia_destacada",
+    )
+    .eq("usuario_id", usuarioId)
+    .maybeSingle();
 
-    if (error || !data) return local;
-    const normalizadas = normalizarPrefs(data);
-    guardarPrefsLocal(usuarioId, normalizadas);
-    return normalizadas;
-  } catch {
-    return local;
-  }
+  if (error || !data) return prefsPorDefecto();
+  return normalizarPrefs(data);
 }
 
 async function contarFilasSeguras(tabla, columnaUsuario, usuarioId) {
@@ -353,7 +320,6 @@ export const PerfilPage = () => {
 
   useEffect(() => {
     if (!rutaAvatar || quitarFotoPendiente) {
-      setFotoPerfil(null);
       return undefined;
     }
     let vigente = true;
@@ -402,7 +368,6 @@ export const PerfilPage = () => {
       "Se quitará la foto de perfil al guardar cambios y volverá al avatar por defecto.",
     );
   };
-
   const handlePortadaImagenUpload = async (event) => {
     const archivo = event.target.files?.[0];
     event.target.value = "";
@@ -504,18 +469,6 @@ export const PerfilPage = () => {
         return;
       }
 
-      const prefsActuales = {
-        portada: portadaColor,
-        portadaImagen,
-        colorAvatar,
-        biografia: bioLimpia,
-        metaPrincipal: metaLimpia,
-        anonimoPorDefecto,
-        insigniasVisibles,
-        insigniaDestacada,
-      };
-      guardarPrefsLocal(usuarioId, prefsActuales);
-
       const { error: errorPrefs } = await supabase
         .from("perfil_preferencias")
         .upsert(
@@ -534,6 +487,13 @@ export const PerfilPage = () => {
           { onConflict: "usuario_id" },
         );
 
+      if (errorPrefs) {
+        setMensaje(
+          "No pudimos guardar las preferencias en la base de datos. Intentá de nuevo.",
+        );
+        return;
+      }
+
       const rutaAnterior = rutaAvatar;
       setAlias(data.username);
       setAliasGuardado(data.username);
@@ -542,11 +502,7 @@ export const PerfilPage = () => {
       setRutaAvatar(data.avatar_path);
       setImagenElegida(null);
       setQuitarFotoPendiente(false);
-      setMensaje(
-        errorPrefs
-          ? "Perfil guardado, aunque hubo un aviso al sincronizar preferencias en la base."
-          : "Cambios guardados en la base de datos.",
-      );
+      setMensaje("Cambios guardados en la base de datos.");
       refreshNavigationProfile();
 
       if (

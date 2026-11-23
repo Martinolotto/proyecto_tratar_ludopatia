@@ -1,7 +1,7 @@
 /*
- * Pantalla de Comunidad (/comunidad) conectada a Supabase.
- * Gestiona publicaciones generales, filtros por etiqueta, apoyos, comentarios
- * (incluidas respuestas y retiro ocultando los retirados), retirada de publicaciones propias e insignias.
+ * Pantalla de Comunidad (/comunidad) conectada 100% a Supabase.
+ * Lee preferencias e insignias desde perfil_preferencias y gestiona publicaciones,
+ * filtros por etiqueta, apoyos, comentarios y retiros en la base de datos.
  */
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -72,46 +72,46 @@ export const ComunidadPage = () => {
 
       const usuarioId = data.user.id;
 
-      try {
-        const prefsRaw = window.localStorage.getItem(
-          `modus_perfil_prefs_${usuarioId}`,
-        );
-        if (prefsRaw) {
-          const prefs = JSON.parse(prefsRaw);
-          if (typeof prefs?.anonimoPorDefecto === "boolean") {
-            setPublicarAnonimo(prefs.anonimoPorDefecto);
-            setComentarioAnonimo(prefs.anonimoPorDefecto);
-          }
+      const [perfilRes, prefsRes] = await Promise.all([
+        supabase
+          .from("perfiles")
+          .select("username")
+          .eq("usuario_id", usuarioId)
+          .maybeSingle(),
+        supabase
+          .from("perfil_preferencias")
+          .select("anonimo_por_defecto, insignias_visibles, insignia_destacada")
+          .eq("usuario_id", usuarioId)
+          .maybeSingle(),
+      ]);
 
-          const visibles = Array.isArray(prefs?.insigniasVisibles)
-            ? prefs.insigniasVisibles.filter((id) => TITULOS_INSIGNIAS[id])
-            : [];
-          const destacada = prefs?.insigniaDestacada;
+      if (!activo) return;
 
-          if (visibles.length > 0) {
-            const principalId =
-              destacada && visibles.includes(destacada)
-                ? destacada
-                : visibles[0];
-            setInsigniaPrincipal(TITULOS_INSIGNIAS[principalId] || "");
-            setCantidadExtraInsignias(Math.max(0, visibles.length - 1));
-          } else {
-            setInsigniaPrincipal("");
-            setCantidadExtraInsignias(0);
-          }
-        }
-      } catch {
-        // Ignoramos errores de lectura de storage
+      if (perfilRes.data?.username) {
+        setAliasUsuarioActual(perfilRes.data.username);
       }
 
-      const { data: perfil } = await supabase
-        .from("perfiles")
-        .select("username")
-        .eq("usuario_id", usuarioId)
-        .maybeSingle();
+      const prefs = prefsRes.data;
+      if (prefs) {
+        if (typeof prefs.anonimo_por_defecto === "boolean") {
+          setPublicarAnonimo(prefs.anonimo_por_defecto);
+          setComentarioAnonimo(prefs.anonimo_por_defecto);
+        }
 
-      if (activo && perfil?.username) {
-        setAliasUsuarioActual(perfil.username);
+        const visibles = Array.isArray(prefs.insignias_visibles)
+          ? prefs.insignias_visibles.filter((id) => TITULOS_INSIGNIAS[id])
+          : [];
+        const destacada = prefs.insignia_destacada;
+
+        if (visibles.length > 0) {
+          const principalId =
+            destacada && visibles.includes(destacada) ? destacada : visibles[0];
+          setInsigniaPrincipal(TITULOS_INSIGNIAS[principalId] || "");
+          setCantidadExtraInsignias(Math.max(0, visibles.length - 1));
+        } else {
+          setInsigniaPrincipal("");
+          setCantidadExtraInsignias(0);
+        }
       }
     };
 
@@ -276,7 +276,7 @@ export const ComunidadPage = () => {
     } catch {
       setErrorMsg("No pudimos guardar tu comentario. Intentá nuevamente.");
     } finally {
-      setEnviandoComentarioId(null);
+      setEnviandoComentarioId(postId);
     }
   };
 
