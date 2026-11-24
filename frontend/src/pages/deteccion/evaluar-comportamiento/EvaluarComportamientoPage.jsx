@@ -1,6 +1,6 @@
 /* Las decisiones pertenecen al recorrido actual y se conservan en memoria. */
 import { useEffect, useId, useRef, useState } from 'react';
-import { ArrowRight, ChevronRight, Clock, Maximize, Minimize, ShieldCheck, X } from 'lucide-react';
+import { ArrowRight, ChevronRight, Clock, Gamepad2, GitBranch, ScanSearch, Maximize, Minimize, ShieldCheck, X } from 'lucide-react';
 import { supabase } from '../../../lib/supabase.js';
 import { LivingPOV, Retrato } from './LivingPOV.jsx';
 import { obtenerEntorno, obtenerEscena, siguienteEscena } from './guionFinal.js';
@@ -8,48 +8,85 @@ import { Devolucion, Modal, PanelContextual } from './PanelesFinal.jsx';
 import { evaluarDecisiones } from './evaluarDecisiones.js';
 import './EvaluarComportamientoPage.css';
 
+const pasos = [
+  [Gamepad2, 'Explorá', 'Formá parte de una situación e interactuá con tu entorno.'],
+  [GitBranch, 'Decidí', 'Elegí cómo actuar frente a lo que va sucediendo.'],
+  [ScanSearch, 'Reflexioná', 'Comprendé qué aspectos de tus decisiones podrían merecer atención.'],
+];
+
 function Catalogo({ entrar, tituloRef }) {
   return <section className="final-catalogo-vista">
-    <p className="final-etiqueta">DETECCIÓN / EXPERIENCIAS</p>
-    <h1 tabIndex={-1} ref={tituloRef}>Ponete en situación.</h1>
-    <p>Viví una situación cotidiana, interactuá con tu entorno y descubrí qué pueden contarte tus decisiones.</p>
+    <header className="final-catalogo__encabezado">
+      <p className="final-etiqueta">Detección / Experiencias</p>
+      <h1 tabIndex={-1} ref={tituloRef}>Evaluá tu comportamiento.</h1>
+      <p>Descubrí cómo podrían influir distintas situaciones en tus decisiones.</p>
+      <p>Viví experiencias cotidianas, interactuá con tu entorno y recibí una orientación personalizada sobre las decisiones que tomaste.</p>
+    </header>
     <article className="final-catalogo">
       <LivingPOV />
-      <div>
-        <small><Clock size={16} /> 3–5 min</small>
-        <h2>La noche de la final</h2>
-        <p>Una noche de fútbol, tus amigos y una conversación inesperada.</p>
+      <div className="final-catalogo__contenido">
+        <p className="final-etiqueta">Experiencia 01</p>
+        <h2>La noche de la final.</h2>
+        <p>Una final de fútbol, una juntada entre amigos y decisiones que pueden cambiar tus planes.</p>
+        <small><Clock size={16} aria-hidden="true" /> 3–5 min · A tu ritmo</small>
         <button className="final-accion" type="button" onClick={entrar}>Entrar a la situación <ArrowRight size={17} /></button>
       </div>
     </article>
-    <p className="final-privacidad"><ShieldCheck size={19} /> Tus decisiones no se guardan ni modifican tus registros personales.</p>
+    <section className="final-pasos">
+      <h2>Una experiencia, tus propias decisiones.</h2>
+      <ul>{pasos.map(([Icono, titulo, texto]) => <li key={titulo}>
+        <Icono size={23} aria-hidden="true" /><h3>{titulo}</h3><p>{texto}</p>
+      </li>)}</ul>
+    </section>
+    <p className="final-privacidad"><ShieldCheck size={19} aria-hidden="true" /> Tu experiencia es privada. Las decisiones y los resultados no se guardan ni modifican tu historial personal.</p>
   </section>;
 }
 
-function PanelNarrativo({ escena, parlamento, ultimo, reaccion, elegir, seguir, finalizar, tituloRef }) {
-  const personaje = reaccion?.personaje ?? parlamento[0];
-  const parlamentoId = useId();
-  const mensaje = personaje === 'Gonza' || personaje === 'Emi';
+const esMensaje = (nombre) => nombre === 'Gonza' || nombre === 'Emi';
+
+// Los mensajes del grupo y la conversación del living conservan su propio turno.
+function agruparIntervenciones(intervenciones) {
+  const turnos = [];
+  for (const intervencion of intervenciones) {
+    const anterior = turnos.at(-1);
+    if (!anterior || anterior.length === 3 || esMensaje(anterior[0][0]) !== esMensaje(intervencion[0])) {
+      turnos.push([intervencion]);
+    } else anterior.push(intervencion);
+  }
+  const ultimo = turnos.at(-1);
+  const previo = turnos.at(-2);
+  if (ultimo.length === 1 && previo?.length === 3 && esMensaje(previo[0][0]) === esMensaje(ultimo[0][0])) {
+    ultimo.unshift(previo.pop());
+  }
+  return turnos;
+}
+
+function PanelNarrativo({ escena, intervenciones, ultimo, reaccion, elegir, seguir, finalizar, tituloRef, expresion }) {
+  const conversacionId = useId();
   return <section className="final-dialogo" aria-label="Diálogo">
     <div className="final-progreso" role="img" aria-label={`Momento ${escena.momento + 1} de 6`}>
       {Array.from({ length: 6 }, (_, indice) => <span key={indice} className={indice === escena.momento ? 'activo' : indice < escena.momento ? 'pasado' : ''} />)}
     </div>
-    <div className="final-interlocutor">
-      {!mensaje && personaje !== 'Narrador' && <Retrato nombre={personaje} />}
-      <h2 ref={tituloRef} tabIndex={-1} aria-describedby={parlamentoId}>{personaje === 'Narrador' ? 'Fin del tiempo reglamentario' : mensaje ? `${personaje} · Mensaje` : personaje}</h2>
+    <h2 ref={tituloRef} tabIndex={-1} aria-describedby={conversacionId} className="final-etiqueta">
+      {reaccion ? 'Reacción' : esMensaje(intervenciones[0][0]) ? 'Mensajes · Los pibes ⚽' : `Conversación · ${escena.etapa}`}
+    </h2>
+    <div id={conversacionId} className="final-conversacion">
+      {reaccion && <p className="final-eleccion">Elegiste «{reaccion.texto}»</p>}
+      {(reaccion ? [[reaccion.personaje, reaccion.reaccion]] : intervenciones).map(([nombre, texto]) => (
+        <div className="final-interlocutor" key={texto}>
+          {!esMensaje(nombre) && nombre !== 'Narrador' && <Retrato nombre={nombre} expresion={expresion(nombre)} />}
+          <div><strong>{nombre === 'Narrador' ? 'En el living' : nombre}</strong><p className="final-parlamento">{texto}</p></div>
+        </div>
+      ))}
     </div>
-    {reaccion ? <>
-      <p className="final-eleccion">Elegiste «{reaccion.texto}»</p>
-      <p className="final-parlamento" id={parlamentoId}>{reaccion.reaccion}</p>
-      <button className="final-accion" type="button" onClick={seguir}>Continuar <ArrowRight size={17} /></button>
-    </> : <>
-      <p className="final-parlamento" id={parlamentoId}>{parlamento[1]}</p>
-      {ultimo && escena.opciones.length ? <div className="final-opciones">{escena.opciones.map((opcion) => (
+    {!reaccion && ultimo && escena.opciones.length > 0 ? <>
+      <p className="final-etiqueta">Tu turno</p>
+      <div className="final-opciones">{escena.opciones.map((opcion) => (
         <button key={opcion.id} type="button" onClick={(evento) => { if (evento.detail < 2) elegir(opcion); }}>{opcion.texto}<ChevronRight size={16} aria-hidden="true" /></button>
-      ))}</div> : ultimo
-        ? <button className="final-accion" type="button" onClick={finalizar}>Finalizar situación y ver mi resumen <ArrowRight size={17} /></button>
-        : <button className="final-accion" type="button" onClick={seguir}>Continuar <ArrowRight size={17} /></button>}
-    </>}
+      ))}</div>
+    </> : <button className="final-accion" type="button" onClick={!reaccion && ultimo ? finalizar : seguir}>
+      {!reaccion && ultimo ? 'Finalizar situación y ver mi resumen' : 'Continuar'} <ArrowRight size={17} />
+    </button>}
   </section>;
 }
 
@@ -65,10 +102,14 @@ export function EvaluarComportamientoPage() {
   const focoAlCerrar = useRef(false);
   const { fase, bloque, turno, reaccionId, decisiones, mensajesVistos } = recorrido;
   const escena = obtenerEscena(bloque, reaccionId ? decisiones.slice(0, -1) : decisiones);
-  const parlamento = escena.intervenciones[turno];
-  const ultimo = turno === escena.intervenciones.length - 1;
+  const turnos = agruparIntervenciones(escena.intervenciones);
+  const intervenciones = turnos[turno];
+  const ultimo = turno === turnos.length - 1;
   const reaccion = escena.opciones.find(({ id }) => id === reaccionId);
   const entorno = obtenerEntorno(escena, decisiones);
+  const interlocutor = reaccion?.personaje ?? intervenciones.at(-1)[0];
+  const expresion = (nombre) => nombre === 'Tomi' && escena.id === 's4_perdida'
+    ? 'preocupado' : nombre === interlocutor ? 'hablando' : undefined;
 
   useEffect(() => {
     const contenedor = marco.current;
@@ -94,7 +135,9 @@ export function EvaluarComportamientoPage() {
 
   useEffect(() => {
     if (!modal && focoAlCerrar.current) {
-      titulo.current?.focus({ preventScroll: true });
+      const encabezado = titulo.current;
+      if (fase === 'experiencia' && encabezado) encabezado.closest('.final-dialogo').scrollTop = 0;
+      encabezado?.focus({ preventScroll: true });
       focoAlCerrar.current = false;
     }
   }, [fase, bloque, turno, reaccion, modal]);
@@ -147,8 +190,8 @@ export function EvaluarComportamientoPage() {
           <button type="button" onClick={() => setModal('salir')}>Salir <X size={16} /></button>
         </div>
       </header>
-      <LivingPOV minuto={escena.minuto} marcador={escena.marcador} hora={escena.hora} etapa={escena.etapa} novedad={entorno.mensajes.length > mensajesVistos} interactivo interlocutor={reaccion?.personaje ?? parlamento[0]} onAbrir={setModal} />
-      <PanelNarrativo {...{ escena, parlamento, ultimo, reaccion, elegir, seguir, finalizar }} tituloRef={titulo} />
+      <LivingPOV minuto={escena.minuto} marcador={escena.marcador} hora={escena.hora} etapa={escena.etapa} novedad={entorno.mensajes.length > mensajesVistos} interactivo interlocutor={interlocutor} expresion={expresion} onAbrir={setModal} />
+      <PanelNarrativo {...{ escena, intervenciones, ultimo, reaccion, elegir, seguir, finalizar, expresion }} tituloRef={titulo} />
       <footer>Experiencia ficticia · Sin límite de tiempo</footer>
     </div>}
     {fase === 'resultado' && <Devolucion decisiones={decisiones} tituloRef={titulo} volver={() => reiniciar()} repetir={() => reiniciar('experiencia')} />}
@@ -170,7 +213,7 @@ export function EvaluarComportamientoPage() {
       <button type="button" className="final-accion" onClick={cerrar}>Seguir en la situación <ArrowRight size={17} /></button>
       <button type="button" className="final-secundario" onClick={() => reiniciar()}>Salir y descartar recorrido</button>
     </Modal>}
-    {modal && !['intro', 'salir'].includes(modal) && <PanelContextual objeto={modal} {...{ escena, entorno, cerrar }}
+    {modal && !['intro', 'salir'].includes(modal) && <PanelContextual objeto={modal} {...{ escena, entorno, cerrar, expresion }}
       verMensajes={() => setRecorrido((actual) => ({ ...actual, mensajesVistos: entorno.mensajes.length }))} />}
   </div>;
 }

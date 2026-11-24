@@ -1,18 +1,18 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { ArrowRight, CalendarDays, CreditCard, MessageCircle, Tv, X } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, CreditCard, MessageCircle, Shield, ShieldCheck, X } from 'lucide-react';
 import { Retrato } from './LivingPOV.jsx';
 import { evaluarDecisiones } from './evaluarDecisiones.js';
 
 import { estadosPlan } from './guionFinal.js';
 
 const ubicaciones = {
-  Tomi: 'En el sillón de la izquierda',
+  Tomi: 'Sigue el partido y los mensajes del grupo',
   Nico: 'Anfitrión de la juntada',
-  Juli: 'En el sillón de la derecha',
+  Juli: 'Organiza la juntada del sábado',
 };
 
-export function Modal({ titulo, cerrar, variante = '', children }) {
+export function Modal({ titulo, cerrar, rotulo = titulo, variante = '', children }) {
   const ref = useRef(null);
   useLayoutEffect(() => {
     const dialogo = ref.current;
@@ -26,7 +26,7 @@ export function Modal({ titulo, cerrar, variante = '', children }) {
   return (
     <dialog ref={ref} className={`final-modal ${variante}`} aria-label={titulo}
       onCancel={(evento) => { evento.preventDefault(); cerrar(); }}>
-      <header><span>{titulo}</span><button type="button" onClick={cerrar} aria-label="Cerrar"><X size={18} /></button></header>
+      <header><span>{rotulo}</span><button type="button" onClick={cerrar} aria-label="Cerrar"><X size={18} /></button></header>
       <div className="final-modal__cuerpo">{children}</div>
     </dialog>
   );
@@ -45,54 +45,72 @@ function Celular({ hora, entorno, verMensajes }) {
       </div>
       <div className="final-telefono__contenido">
         {tab === 'Billetera' && <>
-          <h3>Saldo ficticio</h3><strong className="final-saldo">$12.000 ARS</strong>
+          <div className="final-billetera"><h3>Saldo ficticio</h3><strong className="final-saldo">$12.000 ARS</strong></div>
           <dl><div><dt>Reserva inicial para la salida</dt><dd>$6.000</dd></div><div><dt>Transporte de la semana</dt><dd>$2.000</dd></div><div><dt>Sin destino asignado</dt><dd>$4.000</dd></div></dl>
         </>}
         {tab === 'Mensajes' && <><h3>Los pibes ⚽</h3><ul>{mensajes.map(([autor, texto]) => <li key={texto}><strong>{autor}</strong><p>{texto}</p></li>)}</ul></>}
-        {tab === 'Mis planes' && <><h3>Mis planes</h3><dl><div><dt>Sábado · Salir a comer</dt><dd>{costoActualizado ? '$9.000' : '$6.000'}</dd></div>{costoActualizado && <div><dt>Diferencia con la reserva inicial</dt><dd>$3.000</dd></div>}<div><dt>Estado</dt><dd>{estadosPlan[plan]}</dd></div><div><dt>Lunes a viernes · Transporte</dt><dd>$2.000</dd></div></dl></>}
+        {tab === 'Mis planes' && <><h3>Mis planes</h3><p className="final-plan-estado">{estadosPlan[plan]}</p><dl><div><dt>Sábado · Salir a comer</dt><dd>{costoActualizado ? '$9.000' : '$6.000'}</dd></div>{costoActualizado && <div><dt>Diferencia con la reserva inicial</dt><dd>$3.000</dd></div>}<div><dt>Lunes a viernes · Transporte</dt><dd>$2.000</dd></div></dl></>}
       </div>
     </div>
   );
 }
 
-export function PanelContextual({ objeto, escena, entorno, cerrar, verMensajes }) {
+export function PanelContextual({ objeto, escena, entorno, cerrar, verMensajes, expresion }) {
+  const celular = objeto === 'Tu celular';
+  const partido = objeto === 'Partido';
   return (
-    <Modal titulo={objeto} cerrar={cerrar} variante={objeto === 'Tu celular' ? 'final-modal--celular' : 'final-modal--escena'}>
-      {objeto === 'Tu celular' ? <Celular hora={escena.hora} entorno={entorno} verMensajes={verMensajes} /> : objeto === 'Partido' ? (
-        <section className="final-partido">
-          <h2><Tv size={20} /> La final</h2>
-          <p>Atlético del Sur · Deportivo Norte</p>
-          <div className="final-marcador"><span>SUR</span><strong>{escena.marcador}</strong><span>NORTE</span></div>
-          <p>{escena.minuto}′ · {escena.etapa}</p>
+    <Modal titulo={objeto} rotulo={celular ? 'Tu celular' : partido ? 'Transmisión de la final' : 'Conversación'}
+      cerrar={cerrar} variante={celular ? 'final-modal--celular' : 'final-modal--escena'}>
+      {celular ? <Celular hora={escena.hora} entorno={entorno} verMensajes={verMensajes} /> : partido ? (
+        <section className="final-partido" aria-label="La final">
+          <div className="final-transmision">
+            <h2>Torneo Continental</h2>
+            <div className="final-marcador">
+              <span><Shield size={24} aria-hidden="true" /> Atlético del Sur</span>
+              <strong>{escena.marcador}</strong>
+              <span><Shield size={24} aria-hidden="true" /> Deportivo Norte</span>
+            </div>
+            <p>{escena.minuto}′ · {escena.etapa}</p>
+          </div>
+          <p>{escena.minuto === 90 ? 'La final sigue en el alargue.' : escena.minuto === 45
+            ? 'Atlético del Sur se va al descanso en ventaja.' : 'La final se ve desde la casa de Nico, con todos pendientes de la tele.'}</p>
         </section>
       ) : (
         <section className="final-amigo">
-          <Retrato nombre={objeto} />
+          <Retrato nombre={objeto} expresion={expresion(objeto)} />
           <div><h2>{objeto}</h2><p>{ubicaciones[objeto]}</p></div>
-          <p>{entorno.amigos[objeto]}</p>
+          <p>«{entorno.amigos[objeto]}»</p>
         </section>
       )}
+      <button className="final-secundario" type="button" onClick={cerrar}>{partido ? 'Volver al living' : 'Volver a la situación'}</button>
     </Modal>
   );
 }
+
+const recursos = [
+  [BookOpen, '/prevencion', 'Prevención', 'Conocé más sobre las apuestas y sus posibles consecuencias.', 'Explorar recursos'],
+  [ShieldCheck, '/escudo-digital', 'Escudo digital', 'Descubrí herramientas de protección y apoyo.', 'Conocer herramientas'],
+];
 
 export function Devolucion({ decisiones, volver, repetir, tituloRef }) {
   const { resumen, observaciones, proteccion, recorrido } = evaluarDecisiones(decisiones);
   return (
     <section className="final-resultado">
-      <h1 tabIndex={-1} ref={tituloRef}>Tus decisiones también cuentan una historia</h1>
+      <header><p className="final-etiqueta">La noche de la final</p><h1 tabIndex={-1} ref={tituloRef}>Comprendé tus decisiones.</h1></header>
       <p>{resumen}</p>
       {['atencion', 'reflexion'].map((tipo) => {
         const grupo = observaciones.filter((observacion) => observacion.tipo === tipo);
         if (!grupo.length) return null;
-        return <section key={tipo}>
-          <h2>{tipo === 'atencion' ? 'Para prestar atención' : 'Para reflexionar'}</h2>
+        return <section key={tipo} className={`final-resultados-${tipo}`}>
+          <h2>{tipo === 'atencion' ? 'Aspectos que merecen atención' : 'Aspectos para reflexionar'}</h2>
           <div className="final-devoluciones">
             {grupo.map(({ id, titulo, evidencias, observado, porQueImporta, orientacion, matiz }) => (
-              <article key={id}><h3>{titulo}</h3>
+              <article key={id}>
+                <p className="final-etiqueta">{tipo === 'atencion' ? 'Atención' : 'Reflexión'}</p>
+                <h3>{id === 'continuidad_resultado' ? 'Después de una ganancia, ¿cuándo parar?' : titulo}</h3>
                 {evidencias.map((cita) => <blockquote key={cita.id}>«{cita.texto}»</blockquote>)}
                 <p>{observado}</p>{matiz && <p>{matiz}</p>}
-                <p>{porQueImporta}</p><strong>{orientacion}</strong>
+                <h4>¿Por qué es importante?</h4><p>{porQueImporta}</p><p className="final-orientacion">{orientacion}</p>
               </article>
             ))}
           </div>
@@ -100,16 +118,26 @@ export function Devolucion({ decisiones, volver, repetir, tituloRef }) {
       })}
       {proteccion.length > 0 && <section>
         <h2>Decisiones de protección</h2>
-        <div className="final-devoluciones">
-          {proteccion.map(({ id, titulo, evidencias }) => <article key={id}>
-            <h3>{titulo}</h3>
-            {evidencias.map((cita) => <blockquote key={cita.id}>«{cita.texto}»</blockquote>)}
-          </article>)}
-        </div>
+        <ul className="final-proteccion">
+          {proteccion.map(({ id, titulo, evidencias }) => <li key={id}>
+            <ShieldCheck size={19} aria-hidden="true" />
+            <div><h3>{titulo}</h3>
+              {evidencias.map((cita) => <blockquote key={cita.id}>«{cita.texto}»</blockquote>)}
+            </div>
+          </li>)}
+        </ul>
       </section>}
       <details><summary>Ver las decisiones de mi recorrido</summary><ol>{recorrido.map(({ id, texto }) => <li key={id}>{texto}</li>)}</ol></details>
-      <p>Estas observaciones se basan únicamente en tus decisiones dentro de una situación ficticia. No constituyen un diagnóstico ni permiten determinar tu conducta real. Tu recorrido y devolución no se guardarán.</p>
-      <div className="final-recursos"><Link to="/prevencion">Explorar Prevención <ArrowRight size={16} /></Link><Link to="/escudo-digital">Escudo digital <ArrowRight size={16} /></Link></div>
+      <section>
+        <h2>Seguí descubriendo herramientas.</h2>
+        <div className="final-recursos">{recursos.map(([Icono, ruta, nombre, descripcion, accion]) => (
+          <Link to={ruta} key={ruta}>
+            <Icono size={21} aria-hidden="true" /><h3>{nombre}</h3><p>{descripcion}</p>
+            <span>{accion} <ArrowRight size={16} aria-hidden="true" /></span>
+          </Link>
+        ))}</div>
+      </section>
+      <p className="final-privacidad">Estas observaciones se basan en una experiencia ficticia. No constituyen un diagnóstico ni permiten determinar tu conducta real. Tu recorrido y devolución no se guardarán.</p>
       <div className="final-resultado__acciones"><button type="button" onClick={volver}>Volver a situaciones</button><button type="button" onClick={repetir}>Realizar otro recorrido</button></div>
     </section>
   );

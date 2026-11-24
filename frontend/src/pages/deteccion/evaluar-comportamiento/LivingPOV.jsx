@@ -7,7 +7,7 @@ const elenco = {
   Juli: { piel: '#d7a480', pelo: '#45372d', ropa: '#6f9383', sombra: '#456858', cabello: 'M-35 9Q-41-16-17-29Q4-40 25-27Q38-22 37 7L22-6L-4-1L-22 15Z' },
 };
 
-function Cara({ nombre }) {
+function Cara({ nombre, expresion }) {
   const { piel, pelo, cabello } = elenco[nombre];
   return <g>
     <path d="M-13 23h26v33q-13 13-26 0Z" fill={piel} />
@@ -15,39 +15,41 @@ function Cara({ nombre }) {
     <path d="M-34-4Q0-34 34-4V14Q29 41 0 44Q-29 41-34 14Z" fill={piel} />
     <path d={cabello} fill={pelo} />
     <path d="M-18 9h5m26 0h5" stroke="#332c28" strokeWidth="3.5" strokeLinecap="round" />
-    <path d="M-6 27q6 5 13-1" fill="none" stroke="#805743" strokeWidth="2" strokeLinecap="round" />
+    {expresion === 'preocupado' && <path d="M-20 4l10-4m20 0 10 4" stroke="#604332" strokeWidth="2" strokeLinecap="round" />}
+    <path d={expresion === 'preocupado' ? 'M-6 29q6-7 13-1' : expresion === 'hablando' ? 'M-6 27q7-2 13 0q-6 9-13 0Z' : 'M-6 27q6 5 13-1'} fill={expresion === 'hablando' ? '#805743' : 'none'} stroke="#805743" strokeWidth="2" strokeLinecap="round" />
     {nombre === 'Juli' && <circle cx="35" cy="19" r="3" fill="#e9ce94" />}
   </g>;
 }
 
-export function Retrato({ nombre }) {
+export function Retrato({ nombre, expresion }) {
   return <svg className="final-retrato" aria-hidden="true" viewBox="-45 -42 90 98">
     <rect x="-45" y="-42" width="90" height="98" fill="#a5b7a2" />
     <path d="M-45 56q14-28 45-27q31-1 45 27" fill={elenco[nombre].ropa} />
-    <Cara nombre={nombre} />
+    <Cara nombre={nombre} expresion={expresion} />
   </svg>;
 }
 
-function Persona({ nombre, x, y, escala = 1 }) {
+function Persona({ nombre, x, y, escala = 1, activo, expresion }) {
   const { piel, ropa, sombra } = elenco[nombre];
   return <g transform={`translate(${x} ${y}) scale(${escala})`}>
+    {activo && <ellipse cy="39" rx="62" ry="81" fill="none" stroke="#d8e9bb" strokeWidth="2" opacity=".8" />}
     <ellipse cy="158" rx="82" ry="13" fill="#263d36" opacity=".45" />
     <path d="M-42 126Q-69 128-73 160L-34 169L-5 146L23 167L66 162Q61 133 43 125Z" fill="#304744" />
     <path d="M-35 40L-55 56L-60 109Q-56 136-37 140H38Q55 130 56 106L47 57L25 40Z" fill={ropa} />
     <path d="M-48 83L-35 108L30 126L37 140H-37Q-56 138-60 111Z" fill={sombra} opacity=".55" />
-    <Cara nombre={nombre} />
+    <Cara nombre={nombre} expresion={expresion} />
     {nombre === 'Tomi' && <g fill={piel}><path d="M-54 67L-70 113Q-72 126-57 130L-12 111L-22 94L-47 108L-35 74Z" /><path d="M48 65L65 109Q71 122 58 129L29 113L38 96L47 102L32 71Z" /><rect x="21" y="92" width="20" height="33" rx="4" transform="rotate(15 30 108)" fill="#1f3833" /><path d="M25 98l12 3-5 20-11-3z" fill="#91a99d" /></g>}
     {nombre === 'Nico' && <g fill={piel}><path d="M-52 65L-64 115Q-65 130-46 132L1 114L-9 99L-44 113L-30 72Z" /><path d="M45 65L64 106Q69 119 56 126L8 114L14 96L43 106L28 73Z" /></g>}
     {nombre === 'Juli' && <g fill={piel}><path d="M-53 69L-66 114Q-65 127-51 129L-11 113L-21 93L-46 109L-34 72Z" /><path d="M47 73L62 112L42 133L15 117L26 100L41 111L30 80Z" /></g>}
   </g>;
 }
 
-const controles = [['Tomi', 12, 67], ['Nico', 81, 59], ['Juli', 92, 74], ['Partido', 50, 44], ['Tu celular', 52, 84]];
-export function LivingPOV({ minuto = 0, marcador = '0 — 0', hora = '21:30', etapa, novedad, interactivo = false, interlocutor, onAbrir }) {
+const controles = [['Tomi', 12, 67], ['Nico', 79, 59], ['Juli', 92, 74], ['Partido', 50, 44], ['Tu celular', 52, 84]];
+export function LivingPOV({ minuto = 0, marcador = '0 — 0', hora = '21:30', etapa, novedad, interactivo = false, interlocutor, expresion, onAbrir }) {
   const luz = useId();
   return <div className="final-living">
     <div className="final-encuadre">
-      <svg viewBox="0 0 1000 540" role="img" aria-label="Living de noche con tres amigos mirando la final">
+      <svg viewBox="0 0 1000 540" preserveAspectRatio={interactivo ? undefined : "xMidYMid slice"} role="img" aria-label="Living de noche con tres amigos mirando la final">
         <defs><radialGradient id={luz} cx=".67" cy=".25" r=".83"><stop stopColor="#8c9985" /><stop offset="1" stopColor="#486053" /></radialGradient></defs>
         <rect width="1000" height="540" fill={`url(#${luz})`} />
         <path d="M0 365H1000V540H0Z" fill="#596252" />
@@ -79,7 +81,7 @@ export function LivingPOV({ minuto = 0, marcador = '0 — 0', hora = '21:30', et
         <path d="M0 280q10-34 43-34h143q38 0 38 41v171H0zm777 7q0-41 38-41h143q39 0 42 37v175H777Z" fill="#3f594c" />
         <path d="M9 273q0-17 24-17h151q27 0 27 23v71H9zm790 7q0-24 22-24h145q27 0 27 24v70H799Z" fill="#718875" />
         <path d="M0 366h224v49H0zm777 0h223v49H777Z" fill="#516f5d" />
-        <Persona nombre="Tomi" x={119} y={186} escala={1.35} /><Persona nombre="Nico" x={811} y={174} escala={1.18} /><Persona nombre="Juli" x={932} y={223} escala={.96} />
+        <Persona nombre="Tomi" activo={interlocutor === 'Tomi'} expresion={expresion?.('Tomi')} x={119} y={186} escala={1.35} /><Persona nombre="Nico" activo={interlocutor === 'Nico'} expresion={expresion?.('Nico')} x={811} y={174} escala={1.18} /><Persona nombre="Juli" activo={interlocutor === 'Juli'} expresion={expresion?.('Juli')} x={932} y={223} escala={.96} />
         <path d="M290 352H710L811 540H190Z" fill="#b29b77" /><path d="M231 463h538l42 77H190Z" fill="#75634e" />
         <ellipse cx="366" cy="402" rx="55" ry="20" fill="#cbc4a7" /><ellipse cx="366" cy="398" rx="45" ry="15" fill="#ded6ba" />
         <path d="M335 395q8-13 18-3q9-5 16 1q10-10 20-2q9 10-15 14q-30 4-39-10" fill="#c5a35e" />
@@ -89,13 +91,13 @@ export function LivingPOV({ minuto = 0, marcador = '0 — 0', hora = '21:30', et
         <path d="M0 540l143-78 79 78m778 0l-143-78-79 78" fill="#304d45" />
       </svg>
       {interactivo && <>
-        <span className="final-ambiente">DOMINGO · CASA DE NICO <strong>{hora} · {etapa}</strong></span>
-        <span className="final-pista">Tocá un elemento para interactuar</span>
+
         <div className="final-hotspots" role="group" aria-label="Elementos del living">{controles.map(([nombre,x,y]) => <button key={nombre} type="button"
           className={`final-hotspot${interlocutor === nombre ? ' activo' : ''}`}
           style={{ left: `${x}%`, top: `${y}%` }} aria-label={nombre === 'Tu celular' && novedad ? 'Tu celular: mensajes nuevos' : undefined}
-          onClick={() => onAbrir(nombre)}>{nombre}{nombre === 'Tu celular' && novedad && <span aria-hidden="true">•</span>}</button>)}</div>
+          onClick={() => onAbrir(nombre)}>{nombre}{nombre === 'Tu celular' && novedad && <span className="final-novedad" aria-hidden="true" />}</button>)}</div>
       </>}
     </div>
+    {interactivo && <p className="final-pista"><span>{hora} · {etapa}</span><span>Explorá los elementos de la escena</span></p>}
   </div>;
 }
