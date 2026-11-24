@@ -148,3 +148,8 @@
 .avance-grupos button { min-height: 44px; color: #145b58; font-weight: 700; text-decoration: underline; cursor: pointer; }
 @container (max-width: 760px) { .avance-grupos { grid-template-columns: 1fr; } }
 @container (max-width: 440px) { .avance-nuevos { grid-auto-flow: row; grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .avance-participacion { flex-wrap: wrap; }
+  .avance-participacion > div:first-child { flex-basis: 100%; }
+  .avance-radial { margin-inline: auto; }
+}
