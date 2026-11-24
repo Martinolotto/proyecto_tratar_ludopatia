@@ -171,6 +171,7 @@
 .historial-detalle__abrir { margin-top: 6px; color: #fff; font-size: .875rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .historial-modal__contenido { color: #172b3a; line-height: 1.5; }
 .historial-modal__contenido .historial-detalle__datos { margin-top: 12px; }
+.historial-modal__contenido .historial-detalle__omitidos { color: #405b59 !important; }
 .historial-modal__contenido .historial-detalle__seccion li { color: inherit; }
 .historial-modal__contenido:focus-visible { outline: 3px solid #145b58; outline-offset: -3px; }
 .historial-modal .metricas-modal__pie { justify-content: flex-end; }
