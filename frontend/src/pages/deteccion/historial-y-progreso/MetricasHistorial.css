@@ -320,3 +320,7 @@ html:has(.metricas-modal[open]) { overflow: hidden; }
 .metricas-economia { display: block; }
 .metricas-promedio { display: block; font-size: 1.7rem; margin-top: 8px; }
 @media (max-width: 650px) { .metricas-resumen, .metricas-resumen--dinero { grid-template-columns: 1fr; } }
+
+/* Cantidades extensas pueden pasar a otra línea sin ensanchar la tarjeta. */
+.metricas-resumen--dinero article strong, .metricas-promedio { overflow-wrap: anywhere; line-height: 1.18; }
+.metricas-tooltip { max-inline-size: min(18rem, 80vw); overflow-wrap: anywhere; }

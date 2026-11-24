@@ -92,7 +92,7 @@ main:has(> .mi-actividad) {
 .actividad-distribucion {
   display: grid;
   grid-template-columns: minmax(260px, .76fr) minmax(0, 1.24fr);
-  align-items: stretch;
+  align-items: start;
   gap: 18px;
 }
 .actividad-principal {
@@ -270,3 +270,5 @@ main:has(> .mi-actividad) {
 .actividad-bloque--nota { background: #cddfe9; }
 .actividad-icono { box-shadow: inset 2px 2px 5px rgb(255 255 255 / 85%), 0 4px 8px rgb(23 43 58 / 12%); }
 .actividad-accion { box-shadow: inset 2px 3px 5px rgb(255 255 255 / 23%), inset -2px -3px 5px rgb(10 45 43 / 22%), 0 5px 10px rgb(23 43 58 / 16%); }
+
+.actividad-estado[role="status"] { min-block-size: 10rem; }

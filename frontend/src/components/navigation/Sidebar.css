@@ -6,7 +6,7 @@
   display: none;
   flex: 0 0 276px;
   width: 276px;
-  transition: width 350ms ease, flex-basis 350ms ease;
+  transition: width 220ms ease, flex-basis 220ms ease;
 }
 .modus-sidebar-desktop--collapsed { flex-basis: 96px; width: 96px; }
 .modus-sidebar {
@@ -25,22 +25,22 @@
   background: #172b3a;
   box-shadow: 0 8px 24px rgb(23 43 58 / 10%);
   color: #f3f6f3;
-  transition: width 350ms ease;
+  transition: width 220ms ease;
 }
 @supports (backdrop-filter: blur(1px)) {
   .modus-sidebar { background: rgb(23 43 58 / 96%); backdrop-filter: blur(12px); }
 }
 .modus-sidebar--expanded { width: 264px; }
-.modus-sidebar__profile { position: relative; display: flex; align-items: center; flex-shrink: 0; min-height: 44px; margin-bottom: 24px; }
-.modus-sidebar__profile-link { display: flex; align-items: center; gap: 12px; min-width: 0; max-width: calc(100% - 44px); overflow: hidden; color: inherit; text-decoration: none; }
+.modus-sidebar__profile { position: relative; display: flex; align-items: center; gap: 8px; flex-shrink: 0; min-height: 44px; margin-bottom: 16px; }
+.modus-sidebar__profile-link { display: flex; flex: 1 1 0; align-items: center; gap: 10px; min-width: 0; color: inherit; text-decoration: none; }
 .modus-sidebar__avatar { position: relative; display: grid; flex: 0 0 36px; height: 36px; overflow: hidden; place-items: center; border-radius: 50%; background: #365952; }
 .modus-sidebar__avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .modus-sidebar__profile-text { display: flex; min-width: 0; flex-direction: column; white-space: nowrap; }
 .modus-sidebar__profile-text strong { overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
 .modus-sidebar__profile-text small { color: #c6d8d2; font-size: 12px; }
 .modus-sidebar__toggle {
-  position: absolute;
-  right: 0;
+  flex: 0 0 42px;
+  margin-inline-start: auto;
   display: grid;
   width: 44px;
   height: 44px;
@@ -58,10 +58,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 11px;
   width: 44px;
   min-height: 44px;
-  padding: 0 11px;
+  padding: 8px 10px;
   border: 0;
   border-radius: 10px;
   background: transparent;
@@ -69,19 +69,22 @@
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: width 350ms ease, background-color 160ms ease;
+  transition: width 220ms ease, background-color 160ms ease;
 }
 .modus-sidebar--expanded .modus-sidebar__item { width: 100%; }
 .modus-sidebar__item svg { flex: none; }
 .modus-sidebar__item:hover, .modus-sidebar__item--active { background: #365952; color: white; }
 .modus-sidebar__item--active { box-shadow: inset 2px 0 #b9dfd2; }
-.modus-sidebar__label { overflow: hidden; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; opacity: 0; }
-.modus-sidebar--expanded .modus-sidebar__label { opacity: 1; }
+.modus-sidebar__label { min-width: 0; font-size: .875rem; line-height: 1.3; opacity: 0; }
+.modus-sidebar--expanded .modus-sidebar__label { opacity: 1; overflow-wrap: anywhere; }
 /* Al contraer, la etiqueta aparece junto al icono tanto con ratón como con foco. */
 .modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__label {
   position: absolute;
   z-index: 2;
   left: 54px;
+  width: max-content;
+  max-width: 220px;
+  visibility: hidden;
   padding: 7px 10px;
   border-radius: 8px;
   background: #172b3a;
@@ -89,13 +92,8 @@
   pointer-events: none;
 }
 .modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__item:hover .modus-sidebar__label,
-.modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__item:focus-visible .modus-sidebar__label { opacity: 1; }
-.modus-sidebar__actions { margin-top: auto; padding-top: 18px; }
-.modus-sidebar__theme { color: #b6c8c2; cursor: not-allowed; }
-.modus-sidebar--expanded .modus-sidebar__theme .modus-sidebar__label {
-  white-space: normal;
-  line-height: 1.25;
-}
+.modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__item:focus-visible .modus-sidebar__label { opacity: 1; visibility: visible; }
+.modus-sidebar__actions { margin-top: auto; padding-top: 12px; border-top: 1px solid #ffffff24; }
 .modus-sidebar__logout:disabled { opacity: .65; cursor: wait; }
 .modus-sidebar__error { margin: 0 0 8px; color: #fff1de; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
 .modus-sidebar :focus-visible { outline: 3px solid #c8eee1; outline-offset: 3px; }
@@ -104,5 +102,12 @@
 .modus-sidebar-dialog .modus-sidebar { position: static; height: 100dvh; max-width: 100vw; margin: 0; border-radius: 0 18px 18px 0; }
 @media (min-width: 1024px) { .modus-sidebar-desktop { display: block; } }
 @media (max-width: 1023px) { .modus-app-shell { --modus-header-height: 120px; } }
-@media (max-height: 430px) { .modus-sidebar { overflow-y: auto; } }
+@media (max-height: 430px) {
+  .modus-sidebar--expanded { overflow-y: auto; }
+  .modus-sidebar:not(.modus-sidebar--expanded) { padding-block: 8px; }
+  .modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__profile { min-height: 38px; margin-bottom: 5px; }
+  .modus-sidebar:not(.modus-sidebar--expanded) :is(.modus-sidebar__toggle, .modus-sidebar__item) { min-height: 38px; height: 38px; }
+  .modus-sidebar:not(.modus-sidebar--expanded) .modus-sidebar__actions { padding-top: 5px; }
+}
+@media (max-height: 355px) { .modus-sidebar:not(.modus-sidebar--expanded) { overflow-y: auto; } }
 @media (prefers-reduced-motion: reduce) { .modus-sidebar-desktop, .modus-sidebar, .modus-sidebar__item { transition: none; } }

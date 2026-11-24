@@ -96,11 +96,11 @@ export const LoginPage = () => {
         <div className="access-panel" aria-hidden="true" />
         <div className="access-invitation">
           <div>
-            <h2>{isRegister ? "¿Ya tenés una cuenta?" : "Tu espacio empieza acá"}</h2>
+            <h2>{isRegister ? "¿Ya tenés una cuenta?" : "¿Primera vez en MODUS?"}</h2>
             <p>
               {isRegister
-                ? "Ingresá para continuar a tu ritmo."
-                : "Creá tu cuenta y explorá MODUS a tu ritmo."}
+                ? "Volvé a tus herramientas y registros privados."
+                : "Encontrá herramientas para entender tus decisiones y cuidar tu entorno."}
             </p>
             <button type="button" onClick={switchMode} disabled={isSubmitting}>
               {isRegister ? "Iniciar sesión" : "Crear cuenta"}
