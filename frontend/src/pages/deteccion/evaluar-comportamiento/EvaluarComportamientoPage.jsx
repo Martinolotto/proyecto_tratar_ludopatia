@@ -3,8 +3,9 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowRight, ChevronRight, Clock, Maximize, Minimize, ShieldCheck, X } from 'lucide-react';
 import { supabase } from '../../../lib/supabase.js';
 import { LivingPOV, Retrato } from './LivingPOV.jsx';
-import { GUION, obtenerEscena } from './guionFinal.js';
+import { obtenerEntorno, obtenerEscena, siguienteEscena } from './guionFinal.js';
 import { Devolucion, Modal, PanelContextual } from './PanelesFinal.jsx';
+import { evaluarDecisiones } from './evaluarDecisiones.js';
 import './EvaluarComportamientoPage.css';
 
 function Catalogo({ entrar, tituloRef }) {
@@ -25,31 +26,34 @@ function Catalogo({ entrar, tituloRef }) {
   </section>;
 }
 
-function PanelNarrativo({ escena, momento, reaccion, elegir, seguir, finalizar, tituloRef }) {
-  const personaje = reaccion?.personaje ?? escena.personaje;
+function PanelNarrativo({ escena, parlamento, ultimo, reaccion, elegir, seguir, finalizar, tituloRef }) {
+  const personaje = reaccion?.personaje ?? parlamento[0];
   const parlamentoId = useId();
+  const mensaje = personaje === 'Gonza' || personaje === 'Emi';
   return <section className="final-dialogo" aria-label="Diálogo">
-    <div className="final-progreso" role="img" aria-label={`Momento ${momento + 1} de ${GUION.length}`}>
-      {GUION.map(({ minuto }, indice) => <span key={minuto} className={indice === momento ? 'activo' : indice < momento ? 'pasado' : ''} />)}
+    <div className="final-progreso" role="img" aria-label={`Momento ${escena.momento + 1} de 6`}>
+      {Array.from({ length: 6 }, (_, indice) => <span key={indice} className={indice === escena.momento ? 'activo' : indice < escena.momento ? 'pasado' : ''} />)}
     </div>
     <div className="final-interlocutor">
-      {personaje !== 'Narrador' && <Retrato nombre={personaje} />}
-      <h2 ref={tituloRef} tabIndex={-1} aria-describedby={parlamentoId}>{personaje === 'Narrador' ? 'Fin del tiempo reglamentario' : personaje}</h2>
+      {!mensaje && personaje !== 'Narrador' && <Retrato nombre={personaje} />}
+      <h2 ref={tituloRef} tabIndex={-1} aria-describedby={parlamentoId}>{personaje === 'Narrador' ? 'Fin del tiempo reglamentario' : mensaje ? `${personaje} · Mensaje` : personaje}</h2>
     </div>
     {reaccion ? <>
       <p className="final-eleccion">Elegiste «{reaccion.texto}»</p>
       <p className="final-parlamento" id={parlamentoId}>{reaccion.reaccion}</p>
       <button className="final-accion" type="button" onClick={seguir}>Continuar <ArrowRight size={17} /></button>
     </> : <>
-      <p className="final-parlamento" id={parlamentoId}>{escena.texto}</p>
-      {escena.opciones.length ? <div className="final-opciones">{escena.opciones.map((opcion) => (
-        <button key={opcion.id} type="button" onClick={() => elegir(opcion)}>{opcion.texto}<ChevronRight size={16} aria-hidden="true" /></button>
-      ))}</div> : <button className="final-accion" type="button" onClick={finalizar}>Finalizar situación <ArrowRight size={17} /></button>}
+      <p className="final-parlamento" id={parlamentoId}>{parlamento[1]}</p>
+      {ultimo && escena.opciones.length ? <div className="final-opciones">{escena.opciones.map((opcion) => (
+        <button key={opcion.id} type="button" onClick={(evento) => { if (evento.detail < 2) elegir(opcion); }}>{opcion.texto}<ChevronRight size={16} aria-hidden="true" /></button>
+      ))}</div> : ultimo
+        ? <button className="final-accion" type="button" onClick={finalizar}>Finalizar situación y ver mi resumen <ArrowRight size={17} /></button>
+        : <button className="final-accion" type="button" onClick={seguir}>Continuar <ArrowRight size={17} /></button>}
     </>}
   </section>;
 }
 
-const recorridoInicial = { fase: 'catalogo', momento: 0, decisiones: [] };
+const recorridoInicial = { fase: 'catalogo', bloque: 0, turno: 0, reaccionId: null, decisiones: [], mensajesVistos: 3 };
 
 export function EvaluarComportamientoPage() {
   const [recorrido, setRecorrido] = useState(recorridoInicial);
@@ -59,9 +63,12 @@ export function EvaluarComportamientoPage() {
   const marco = useRef(null);
   const titulo = useRef(null);
   const focoAlCerrar = useRef(false);
-  const { fase, momento, decisiones } = recorrido;
-  const escena = obtenerEscena(momento, decisiones);
-  const reaccion = escena.opciones.find(({ id }) => id === decisiones[momento]);
+  const { fase, bloque, turno, reaccionId, decisiones, mensajesVistos } = recorrido;
+  const escena = obtenerEscena(bloque, reaccionId ? decisiones.slice(0, -1) : decisiones);
+  const parlamento = escena.intervenciones[turno];
+  const ultimo = turno === escena.intervenciones.length - 1;
+  const reaccion = escena.opciones.find(({ id }) => id === reaccionId);
+  const entorno = obtenerEntorno(escena, decisiones);
 
   useEffect(() => {
     const contenedor = marco.current;
@@ -90,7 +97,7 @@ export function EvaluarComportamientoPage() {
       titulo.current?.focus({ preventScroll: true });
       focoAlCerrar.current = false;
     }
-  }, [fase, momento, reaccion, modal]);
+  }, [fase, bloque, turno, reaccion, modal]);
 
   function cambiarPantalla() {
     if (document.fullscreenElement === marco.current) return document.exitFullscreen().catch(() => {});
@@ -106,25 +113,27 @@ export function EvaluarComportamientoPage() {
   }
 
   function elegir(opcion) {
+    if (modal || !ultimo || reaccion || !escena.opciones.includes(opcion)) return;
     focoAlCerrar.current = true;
-    setRecorrido((actual) => actual.momento === momento && actual.decisiones.length === momento
-      ? { ...actual, decisiones: [...actual.decisiones, opcion.id] } : actual);
-    if (opcion.etiqueta === 'billetera') {
-      focoAlCerrar.current = true;
-      setModal('Tu celular');
-    }
+    setRecorrido((actual) => actual === recorrido
+      ? { ...actual, reaccionId: opcion.id, decisiones: [...actual.decisiones, opcion.id] } : actual);
   }
 
-  function seguir() {
+  function seguir(evento) {
+    if (modal || evento.detail > 1) return;
     focoAlCerrar.current = true;
-    setRecorrido((actual) => actual.momento === momento && actual.decisiones.length === momento + 1
-      ? { ...actual, momento: momento + 1 } : actual);
+    setRecorrido((actual) => {
+      if (actual !== recorrido) return actual;
+      if (reaccion) return { ...actual, bloque: siguienteEscena(bloque, decisiones), turno: 0, reaccionId: null };
+      return ultimo ? actual : { ...actual, turno: turno + 1 };
+    });
   }
 
-  function finalizar() {
+  function finalizar(evento) {
+    if (evento.detail > 1 || modal || escena.id !== 'fin' || !ultimo || evaluarDecisiones(decisiones).estado !== 'completo') return;
     focoAlCerrar.current = true;
     if (document.fullscreenElement === marco.current) cambiarPantalla();
-    setRecorrido((actual) => ({ ...actual, fase: 'resultado' }));
+    setRecorrido((actual) => actual === recorrido ? { ...actual, fase: 'resultado' } : actual);
   }
 
   const cerrar = () => setModal(null);
@@ -138,8 +147,8 @@ export function EvaluarComportamientoPage() {
           <button type="button" onClick={() => setModal('salir')}>Salir <X size={16} /></button>
         </div>
       </header>
-      <LivingPOV minuto={escena.minuto} interactivo interlocutor={reaccion?.personaje ?? escena.personaje} onAbrir={setModal} />
-      <PanelNarrativo {...{ escena, momento, reaccion, elegir, seguir, finalizar }} tituloRef={titulo} />
+      <LivingPOV minuto={escena.minuto} marcador={escena.marcador} hora={escena.hora} etapa={escena.etapa} novedad={entorno.mensajes.length > mensajesVistos} interactivo interlocutor={reaccion?.personaje ?? parlamento[0]} onAbrir={setModal} />
+      <PanelNarrativo {...{ escena, parlamento, ultimo, reaccion, elegir, seguir, finalizar }} tituloRef={titulo} />
       <footer>Experiencia ficticia · Sin límite de tiempo</footer>
     </div>}
     {fase === 'resultado' && <Devolucion decisiones={decisiones} tituloRef={titulo} volver={() => reiniciar()} repetir={() => reiniciar('experiencia')} />}
@@ -153,7 +162,7 @@ export function EvaluarComportamientoPage() {
         cerrar();
         setRecorrido({ ...recorridoInicial, fase: 'experiencia' });
       }}>Continuar con la situación <ArrowRight size={17} /></button>
-      <small>Es una situación ficticia y temporal. Tu recorrido no se guardará.</small>
+      <small>Es una situación ficticia que te ayudará a reflexionar sobre tus decisiones. Podés salir cuando quieras. Tu recorrido no se guardará</small>
     </Modal>}
     {modal === 'salir' && <Modal titulo="SALIR DE LA EXPERIENCIA" cerrar={cerrar}>
       <h2>¿Querés dejar la situación?</h2>
@@ -161,6 +170,7 @@ export function EvaluarComportamientoPage() {
       <button type="button" className="final-accion" onClick={cerrar}>Seguir en la situación <ArrowRight size={17} /></button>
       <button type="button" className="final-secundario" onClick={() => reiniciar()}>Salir y descartar recorrido</button>
     </Modal>}
-    {modal && !['intro', 'salir'].includes(modal) && <PanelContextual objeto={modal} {...{ escena, momento, reaccion, cerrar }} />}
+    {modal && !['intro', 'salir'].includes(modal) && <PanelContextual objeto={modal} {...{ escena, entorno, cerrar }}
+      verMensajes={() => setRecorrido((actual) => ({ ...actual, mensajesVistos: entorno.mensajes.length }))} />}
   </div>;
 }

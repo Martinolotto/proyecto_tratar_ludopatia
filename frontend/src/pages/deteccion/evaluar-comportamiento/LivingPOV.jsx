@@ -43,7 +43,7 @@ function Persona({ nombre, x, y, escala = 1 }) {
 }
 
 const controles = [['Tomi', 12, 67], ['Nico', 81, 59], ['Juli', 92, 74], ['Partido', 50, 44], ['Tu celular', 52, 84]];
-export function LivingPOV({ minuto = 68, interactivo = false, interlocutor, onAbrir }) {
+export function LivingPOV({ minuto = 0, marcador = '0 — 0', hora = '21:30', etapa, novedad, interactivo = false, interlocutor, onAbrir }) {
   const luz = useId();
   return <div className="final-living">
     <div className="final-encuadre">
@@ -65,7 +65,7 @@ export function LivingPOV({ minuto = 68, interactivo = false, interlocutor, onAb
         <g>
           <rect x="214" y="44" width="574" height="225" rx="12" fill="#1a302b" />
           <rect x="228" y="58" width="546" height="29" fill="#203f39" />
-          <g fill="#edf6ea" fontFamily="sans-serif" fontWeight="700" fontSize="15"><text x="248" y="78">SUR</text><text x="469" y="78">1 — 1</text><text x="625" y="78">{minuto}′</text><text x="706" y="78">NORTE</text></g>
+          <g fill="#edf6ea" fontFamily="sans-serif" fontWeight="700" fontSize="15"><text x="248" y="78">SUR</text><text x="469" y="78">{marcador}</text><text x="625" y="78">{minuto}′</text><text x="706" y="78">NORTE</text></g>
           <rect x="228" y="87" width="546" height="168" fill="#68986d" />
           <path d="M235 87h82v168h-82zm166 0h82v168h-82zm166 0h82v168h-82zm166 0h41v168h-41z" fill="#81aa7f" />
           <path d="M239 97h524v148H239zM501 97v148M239 132h56v79h-56M763 132h-56v79h56" fill="none" stroke="#c7dfbe" strokeWidth="2" />
@@ -89,11 +89,12 @@ export function LivingPOV({ minuto = 68, interactivo = false, interlocutor, onAb
         <path d="M0 540l143-78 79 78m778 0l-143-78-79 78" fill="#304d45" />
       </svg>
       {interactivo && <>
-        <span className="final-ambiente">DOMINGO · CASA DE NICO <strong>21:30 · La final</strong></span>
+        <span className="final-ambiente">DOMINGO · CASA DE NICO <strong>{hora} · {etapa}</strong></span>
         <span className="final-pista">Tocá un elemento para interactuar</span>
         <div className="final-hotspots" role="group" aria-label="Elementos del living">{controles.map(([nombre,x,y]) => <button key={nombre} type="button"
           className={`final-hotspot${interlocutor === nombre ? ' activo' : ''}`}
-          style={{ left: `${x}%`, top: `${y}%` }} onClick={() => onAbrir(nombre)}>{nombre}</button>)}</div>
+          style={{ left: `${x}%`, top: `${y}%` }} aria-label={nombre === 'Tu celular' && novedad ? 'Tu celular: mensajes nuevos' : undefined}
+          onClick={() => onAbrir(nombre)}>{nombre}{nombre === 'Tu celular' && novedad && <span aria-hidden="true">•</span>}</button>)}</div>
       </>}
     </div>
   </div>;
