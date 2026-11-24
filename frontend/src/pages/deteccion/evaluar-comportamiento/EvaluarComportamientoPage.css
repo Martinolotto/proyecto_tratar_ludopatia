@@ -1,0 +1,27 @@
+.final-pagina { color:#172b3a; max-width:1200px; margin:auto; }
+.final-pagina h1 { font:800 clamp(2rem,4vw,3rem)/1.1 var(--font-heading,sans-serif); }
+.final-pagina p { line-height:1.55; }
+.final-etiqueta { color:#176b60; font-size:.78rem; font-weight:800; letter-spacing:.1em; }
+.final-catalogo { max-width:600px; overflow:hidden; border-radius:22px; background:#203c34; color:white; box-shadow:0 10px 24px #152d282b; }
+.final-catalogo > div:last-child { padding:24px; }
+.final-catalogo h2 { font-size:1.6rem; font-weight:800; }
+.final-pagina button { cursor:pointer; }
+.final-accion { display:block; width:100%; padding:13px; border-radius:10px; background:#c7dfb5; color:#163a30; font-weight:800; text-align:left; }
+.final-experiencia { overflow:hidden; border-radius:20px; background:#122721; color:#eaf3e9; }
+.final-pagina:fullscreen { overflow:auto; max-width:none; background:#122721; }
+.final-barra { display:flex; justify-content:space-between; gap:12px; padding:14px 18px; background:#192e28; }
+.final-barra strong,.final-barra small { display:block; }
+.final-barra button { margin-left:8px; padding:8px 12px; border:1px solid #69867a; border-radius:8px; }
+.final-living { position:relative; width:100%; }
+.final-living svg { display:block; width:100%; height:auto; }
+.final-hotspot { position:absolute; transform:translate(-50%,-50%); padding:7px 11px; border:1px solid #98bcaa; border-radius:30px; background:#173c31; color:#e8f2e8; font-size:.75rem; font-weight:700; white-space:nowrap; }
+.final-hotspot.activo { background:#c7dfb5; color:#163a30; }
+.final-dialogo { padding:20px 24px; }
+.final-progreso { display:flex; gap:6px; margin-bottom:18px; }.final-progreso span { flex:1; height:4px; border-radius:9px; background:#36544b; }.final-progreso .activo { background:#c7dfb5; }
+.final-opciones { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }.final-opciones button { display:flex; justify-content:space-between; gap:10px; min-height:52px; padding:12px; border:1px solid #526f62; border-radius:10px; background:#253f35; text-align:left; }
+.final-experiencia footer { padding:14px 24px; border-top:1px solid #395049; font-size:.75rem; }
+.final-modal { width:min(560px,calc(100% - 32px)); max-height:calc(100dvh - 32px); margin:auto; padding:24px; overflow:auto; border:1px solid #84a7be; border-radius:18px; background:#234969; color:#eef7ff; box-shadow:0 18px 60px #0006; }
+.final-modal::backdrop { background:#071b16bb; }.final-modal header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #628299; padding-bottom:14px; font-size:.75rem; font-weight:800; letter-spacing:.06em; }.final-modal header button { font-size:1.6rem; }.final-modal h2 { font-size:1.6rem; line-height:1.3; margin:20px 0; }.final-modal label { display:block; padding:14px; border:1px solid #7190a5; border-radius:10px; margin:18px 0; }.final-modal label small { display:block; margin-left:22px; }.final-modal > small { display:block; margin-top:14px; }.final-secundario { width:100%; padding:12px; margin-top:10px; border:1px solid #8ba8bb; border-radius:10px; }.final-telefonotabs { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }.final-telefonotabs button { padding:8px; border:1px solid #8ba8bb; border-radius:8px; }.final-telefonotabs [aria-pressed=true] { background:#e4f1f8; color:#234969; }
+.final-resultado { padding:28px; border-radius:20px; background:#172f39; color:white; }.final-resultado article { margin:16px 0; padding:24px; border:1px solid #668277; border-radius:16px; background:#24483f; }.final-resultado blockquote { border-left:3px solid #b8d7bd; padding-left:14px; }.final-recursos { display:flex; flex-wrap:wrap; gap:18px; margin:18px 0; }.final-recursos a { color:#d1ead1; text-decoration:underline; }.final-resultado > button { padding:12px; border:1px solid #a7c3b5; border-radius:10px; margin:5px; }
+.final-pagina :is(button,a,summary):focus-visible,.final-modal :is(button,input):focus-visible { outline:3px solid #f0bc72; outline-offset:3px; }
+@media(max-width:600px){.final-opciones{grid-template-columns:1fr}.final-hotspot{font-size:.62rem;padding:5px}.final-dialogo{padding:16px}.final-barra{flex-wrap:wrap}}
