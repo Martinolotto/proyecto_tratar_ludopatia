@@ -449,7 +449,7 @@ export const HistorialYProgresoPage = () => {
             )}
             {estadoVisible === "listo" && estadoHistorico === "listo" && (
               <AvancesVista registrosPeriodo={registros} registrosHistoricos={historialCompleto}
-                desde={rango.desde} hasta={rango.hasta} hoy={cuenta.hoy} />
+                desde={rango.desde} hasta={rango.hasta} hoy={cuenta.hoy} usuarioId={cuenta.id} />
             )}
           </div>
         </>
