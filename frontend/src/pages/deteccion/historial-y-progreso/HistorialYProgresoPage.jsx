@@ -8,8 +8,9 @@ import { supabase } from "../../../lib/supabase.js";
 import { CabeceraHistorial } from "./CabeceraHistorial.jsx";
 import { HistorialVista } from "./HistorialVista.jsx";
 import { AvancesVista } from "./AvancesVista.jsx";
+import { ResumenVista } from "./mi resumen/ResumenVista.jsx";
 import { consultarFechaActual, consultarFechasMes, consultarHistorialCompleto, consultarNotas, consultarRegistros } from "./historialDatos.js";
-import { alinearBloque30, desplazarPeriodo, fechaCordoba, obtenerPeriodo, puedeNavegar } from "./historialFechas.js";
+import { alinearBloque30, desplazarPeriodo, fechaCordoba, obtenerPeriodo, puedeNavegar, sumarDias } from "./historialFechas.js";
 
 const PERIODOS = ["dia", "semana", "mes", "30dias"];
 
@@ -77,7 +78,7 @@ export const HistorialYProgresoPage = () => {
   const parametrosActuales = useRef(parametros);
   useEffect(() => { parametrosActuales.current = parametros; }, [parametros]);
 
-  const vista = parametros.get("vista") === "avances" ? "avances" : "historial";
+  const vista = ["avances", "resumen"].includes(parametros.get("vista")) ? parametros.get("vista") : "historial";
   const periodoUrl = parametros.get("periodo");
   const periodo = PERIODOS.includes(periodoUrl) ? periodoUrl : "30dias";
   const fechaUrl = cuenta ? limitarFecha(parametros.get("fecha"), cuenta.creacion, cuenta.hoy) : "";
@@ -406,8 +407,8 @@ export const HistorialYProgresoPage = () => {
             onCambiarVista={(siguiente) => cambiarParametros({ vista: siguiente })}
             periodo={periodo}
             onCambiarPeriodo={cambiarPeriodo}
-            desde={rango.desde}
-            hasta={rango.hasta}
+            desde={vista === 'resumen' ? sumarDias(cuenta.hoy, -29) : rango.desde}
+            hasta={vista === 'resumen' ? cuenta.hoy : rango.hasta}
             onAnterior={() => moverPeriodo(-1)}
             onSiguiente={() => moverPeriodo(1)}
             onPeriodoActual={() => cambiarParametros({ fecha: cuenta.hoy, seleccion: null, mes: null })}
@@ -461,6 +462,9 @@ export const HistorialYProgresoPage = () => {
               <AvancesVista registrosPeriodo={registros} registrosHistoricos={historialCompleto}
                 desde={rango.desde} hasta={rango.hasta} hoy={cuenta.hoy} usuarioId={cuenta.id} />
             )}
+          </div>
+          <div className="historial-panel" id="panel-resumen" role="tabpanel" aria-labelledby="tab-resumen" hidden={vista !== "resumen"}>
+            {vista === 'resumen' && <ResumenVista usuarioId={cuenta.id} desde={sumarDias(cuenta.hoy, -29)} hasta={cuenta.hoy} />}
           </div>
         </>
       )}

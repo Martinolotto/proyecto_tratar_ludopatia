@@ -14,6 +14,7 @@ const opcionesPeriodo = [
 const vistas = [
   { valor: "historial", etiqueta: "Mi historial" },
   { valor: "avances", etiqueta: "Mis avances" },
+  { valor: "resumen", etiqueta: "Tu resumen" },
 ];
 
 // Las fechas llegan como días de Córdoba, por lo que no se convierten a hora local.
@@ -85,10 +86,10 @@ export function CabeceraHistorial({
       </nav>
       <div className="historial-filtros">
         <div className="historial-filtros__titulo">
-          <span className="historial-eyebrow">TU PERÍODO</span>
+          <span className="historial-eyebrow">{vista === 'resumen' ? 'TU RESUMEN PERSONAL' : 'TU PERÍODO'}</span>
           <strong>{desde === hasta ? mostrarFecha(desde) : `${mostrarFecha(desde)} — ${mostrarFecha(hasta)}`}</strong>
         </div>
-        <div className="historial-filtros__controles">
+        {vista === 'resumen' ? <span>Últimos 30 días</span> : <div className="historial-filtros__controles">
           <div className="historial-periodos" role="group" aria-label="Elegir período">
             {opcionesPeriodo.map((item) => (
               <button
@@ -117,7 +118,7 @@ export function CabeceraHistorial({
               <ChevronRight size={19} aria-hidden="true" />
             </button>
           </div>
-        </div>
+        </div>}
       </div>
     </header>
   );

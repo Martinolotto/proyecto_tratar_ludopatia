@@ -24,3 +24,15 @@ test('deduplica fechas, excluye el exterior y ordena las reglas', () => {
   assert.equal(resultado.registrados, 7);
   assert.deepEqual(resultado.observaciones.map((item) => item.id), ['situacion:a', 'tiempo']);
 });
+test('incluye cambio de año, omisiones y actualización del mismo día', () => {
+  const datos = [{ fecha: '2025-12-31', aposto: false, tiempo_valor: null }, { fecha: '2026-01-01', aposto: true, tiempo_valor: 0, tiempo_unidad: 'minutos' }, { fecha: '2026-01-01', aposto: false, tiempo_valor: 2, tiempo_unidad: 'horas' }];
+  const resultado = evaluarResumen(datos, '2025-12-31', '2026-01-01');
+  assert.equal(resultado.registrados, 2);
+  assert.equal(resultado.sinApostar, 2);
+  assert.equal(resultado.suficienciaTiempo, false);
+});
+test('desempata por código y conserva todas las situaciones activadas', () => {
+  const datos = registros(7, 0);
+  for (const dia of datos) dia.conductas = [{ codigo: 'b', nombre: 'B' }, { codigo: 'a', nombre: 'A' }];
+  assert.deepEqual(evaluar(datos).observaciones.map(({ id }) => id), ['situacion:a', 'situacion:b']);
+});
