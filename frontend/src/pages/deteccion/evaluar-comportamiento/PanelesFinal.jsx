@@ -77,14 +77,38 @@ export function PanelContextual({ objeto, escena, entorno, cerrar, verMensajes }
 }
 
 export function Devolucion({ decisiones, volver, repetir, tituloRef }) {
-  const { recorrido = [] } = evaluarDecisiones(decisiones);
+  const { resumen, observaciones, proteccion, recorrido } = evaluarDecisiones(decisiones);
   return (
     <section className="final-resultado">
       <h1 tabIndex={-1} ref={tituloRef}>Tus decisiones también cuentan una historia</h1>
-      <p>Estos son algunos aspectos de tu recorrido sobre los que podrías reflexionar.</p>
+      <p>{resumen}</p>
+      {['atencion', 'reflexion'].map((tipo) => {
+        const grupo = observaciones.filter((observacion) => observacion.tipo === tipo);
+        if (!grupo.length) return null;
+        return <section key={tipo}>
+          <h2>{tipo === 'atencion' ? 'Para prestar atención' : 'Para reflexionar'}</h2>
+          <div className="final-devoluciones">
+            {grupo.map(({ id, titulo, evidencias, observado, porQueImporta, orientacion, matiz }) => (
+              <article key={id}><h3>{titulo}</h3>
+                {evidencias.map((cita) => <blockquote key={cita.id}>«{cita.texto}»</blockquote>)}
+                <p>{observado}</p>{matiz && <p>{matiz}</p>}
+                <p>{porQueImporta}</p><strong>{orientacion}</strong>
+              </article>
+            ))}
+          </div>
+        </section>;
+      })}
+      {proteccion.length > 0 && <section>
+        <h2>Decisiones de protección</h2>
+        <div className="final-devoluciones">
+          {proteccion.map(({ id, titulo, evidencias }) => <article key={id}>
+            <h3>{titulo}</h3>
+            {evidencias.map((cita) => <blockquote key={cita.id}>«{cita.texto}»</blockquote>)}
+          </article>)}
+        </div>
+      </section>}
       <details><summary>Ver las decisiones de mi recorrido</summary><ol>{recorrido.map(({ id, texto }) => <li key={id}>{texto}</li>)}</ol></details>
-      <p>Estas observaciones se basan únicamente en tus decisiones dentro de una situación ficticia. No constituyen un diagnóstico.</p>
-      <p>Al salir, tu recorrido y devolución no se conservarán.</p>
+      <p>Estas observaciones se basan únicamente en tus decisiones dentro de una situación ficticia. No constituyen un diagnóstico ni permiten determinar tu conducta real. Tu recorrido y devolución no se guardarán.</p>
       <div className="final-recursos"><Link to="/prevencion">Explorar Prevención <ArrowRight size={16} /></Link><Link to="/escudo-digital">Escudo digital <ArrowRight size={16} /></Link></div>
       <div className="final-resultado__acciones"><button type="button" onClick={volver}>Volver a situaciones</button><button type="button" onClick={repetir}>Realizar otro recorrido</button></div>
     </section>

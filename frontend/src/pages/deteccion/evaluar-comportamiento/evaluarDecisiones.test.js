@@ -58,3 +58,47 @@ test('todos los recorridos del guion llegan a fin con citas válidas y temas ún
   visitar(0, [], []);
   assert.equal(total, 3 * 4 * 4 * (10 * 22 + 6 * 9));
 });
+
+test('separa influencia aislada, interés económico aislado y cambio tras la ganancia ajena', () => {
+  const conCierre = cambiar(base, 's4_plan_pendiente', 's4_abierta');
+  const social = evaluarDecisiones(cambiar(conCierre, 's1_no', 's1_grupo'));
+  assert.deepEqual(social.observaciones.map(({ id, tipo }) => [id, tipo]), [['influencia_social', 'atencion']]);
+  const dinero = evaluarDecisiones(cambiar(conCierre, 's1_no', 's1_dinero'));
+  assert.deepEqual(dinero.observaciones.map(({ id, tipo }) => [id, tipo]), [['expectativa_economica', 'reflexion']]);
+  const cambio = evaluarDecisiones(cambiar(conCierre, 's2_independiente', 's2_interes'));
+  assert.match(cambio.observaciones[0].observado, /Al principio preferiste seguir mirando/);
+  assert.deepEqual(cambio.observaciones[0].evidencias.map(({ id }) => id), ['s1_no', 's2_interes', 's4_abierta']);
+  assert.equal(cambio.proteccion.some(({ id }) => id === 'rechazo'), false);
+});
+
+test('las cinco observaciones tienen prioridad, evidencia y matices compatibles', () => {
+  const { observaciones } = evaluarDecisiones(economia);
+  assert.deepEqual(observaciones.map(({ id }) => id), [
+    'compromisos', 'recuperacion_perdidas', 'influencia_social', 'expectativa_economica', 'continuidad_resultado',
+  ]);
+  assert.deepEqual(observaciones[0].evidencias.map(({ id }) => id), ['s3_ganancia', 's3_reserva_usa', 's4_mantiene_reserva']);
+  assert.match(observaciones[0].observado, /Volviste a mencionar/);
+  assert.match(observaciones[4].matiz, /ambos supuestos/);
+  for (const [id, texto] of [
+    ['s4_desiste', /dejar de lado/], ['s4_protege_reserva', /mantener separado/], ['s4_abierta', /quedó abierta/],
+  ]) {
+    const { observaciones: [compromiso] } = evaluarDecisiones(cambiar(economia, 's4_mantiene_reserva', id));
+    assert.match(compromiso.matiz, texto);
+    assert.doesNotMatch(compromiso.observado, /Volviste/);
+  }
+  const planCondicionado = cambiar(cambiar(economia, 's3_reserva_usa', 's3_reserva_duda'), 's4_mantiene_reserva', 's4_abierta');
+  assert.doesNotMatch(evaluarDecisiones(planCondicionado).observaciones[0].observado, /usar parte/);
+});
+
+test('distingue supuestos y conserva protección aun en devoluciones neutrales', () => {
+  assert.equal(evaluarDecisiones(cambiar(base, 's4_duda', 's4_recuperar')).observaciones[0].id, 'recuperacion_perdidas');
+  assert.equal(evaluarDecisiones(cambiar(base, 's2_no_sabe', 's2_seguir')).observaciones[0].id, 'continuidad_resultado');
+  const plan = cambiar(cambiar(base, 's3_pendiente', 's3_completa'), 's4_plan_pendiente', 's4_plan_confirma');
+  const neutral = evaluarDecisiones(cambiar(plan, 's4_duda', 's4_detener'));
+  assert.deepEqual(neutral.observaciones, []);
+  assert.match(neutral.resumen, /no encontramos decisiones/);
+  assert.deepEqual(neutral.proteccion.map(({ id }) => id), ['detenerse', 'planes', 'rechazo']);
+  const reconsidera = cambiar(cambiar(economia, 's3_reserva_usa', 's3_reserva_desiste'), 's4_mantiene_reserva', 's4_plan_alternativa');
+  assert.match(evaluarDecisiones(reconsidera).observaciones[0].matiz, /dejar de lado/);
+  assert.equal(obtenerContexto(reconsidera).plan, 'alternativa');
+});
