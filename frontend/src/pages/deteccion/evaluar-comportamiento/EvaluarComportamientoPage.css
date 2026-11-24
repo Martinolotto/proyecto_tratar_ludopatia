@@ -258,3 +258,14 @@
 @media (601px <= width) and (500px < height <= 820px) {
   .final-pagina:fullscreen .final-experiencia { grid-template-rows: auto minmax(0, 55fr) minmax(0, 45fr) auto; }
 }
+
+/* Más superficie para la escena en monitores amplios; el diálogo conserva su medida de lectura. */
+@media (min-width: 1500px) and (min-height: 920px) {
+  .final-pagina:fullscreen .final-experiencia { max-inline-size: 1320px; grid-template-rows: auto minmax(0, 61fr) minmax(0, 39fr) auto; }
+  .final-pagina:fullscreen .final-dialogo { inline-size: 100%; max-inline-size: 1100px; margin-inline: auto; }
+}
+.final-pagina .final-parlamento { max-inline-size: 72ch; line-height: 1.4; }
+.final-devoluciones article, .final-proteccion, .final-recursos a {
+  box-shadow: inset 0 2px 4px #ffffff40, 0 6px 14px #172b3a13;
+}
+.final-devoluciones article > p:not(.final-etiqueta), .final-proteccion li > div { max-inline-size: 76ch; }
