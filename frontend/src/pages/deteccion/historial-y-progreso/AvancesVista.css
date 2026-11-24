@@ -143,6 +143,8 @@
 .avance-nuevos article.logrado { background: #28565d; color: white; }
 .avance-nuevos strong { font-size: 1.35rem; }
 .avance-nuevos small, .avance-nuevos span { font-size: .8rem; }
+.avance-nuevos small { display: inline-flex; align-items: center; gap: 4px; }
 .avance-grupos a { color: #145b58; font-weight: 700; }
+.avance-grupos button { min-height: 44px; color: #145b58; font-weight: 700; text-decoration: underline; cursor: pointer; }
 @container (max-width: 760px) { .avance-grupos { grid-template-columns: 1fr; } }
 @container (max-width: 440px) { .avance-nuevos { grid-auto-flow: row; grid-template-columns: 1fr; } }

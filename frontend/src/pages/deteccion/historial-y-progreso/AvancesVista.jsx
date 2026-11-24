@@ -1,5 +1,5 @@
 /* Vista de participación y reconocimientos calculados desde registros privados. */
-import { Award, Flag, Flame, Footprints, Medal, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
+import { Award, CalendarCheck, CheckCircle, Flag, Flame, Footprints, Medal, Mountain, ShieldCheck, Sparkles, Trophy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { supabase } from '../../../lib/supabase.js';
@@ -10,6 +10,7 @@ import './AvancesVista.css';
 // Adaptado de Achievement Badge de Trophy UI (MIT): icono y estado conseguido/pendiente.
 // Fuente: https://ui.trophy.so/r/achievement-badge.json
 const ICONOS = [Footprints, Flag, Sparkles, Medal, Trophy];
+const ICONOS_RACHA = [Flame, CalendarCheck, Mountain];
 function Insignia({ hito, index, conseguida }) {
   const Icono = ICONOS[index];
   return <li className={`avance-insignia ${conseguida ? 'avance-insignia--lograda' : ''}`}>
@@ -35,15 +36,21 @@ function Camino({ total, progreso, siguiente }) {
 
 export function AvancesVista({ registrosPeriodo, registrosHistoricos, desde, hasta, hoy, usuarioId }) {
   const [medidas, setMedidas] = useState({ cuenta: null, estado: 'cargando', total: 0 });
+  const [revisionMedidas, setRevisionMedidas] = useState(0);
   useEffect(() => {
     let vigente = true;
     async function consultar() {
-      const { data, error } = await supabase.from('medidas_usuario').select('medida_id,realizada').eq('usuario_id', usuarioId);
-      if (vigente) setMedidas(error ? { cuenta: usuarioId, estado: 'error', total: 0 } : { cuenta: usuarioId, estado: 'listo', total: contarMedidas(data ?? []) });
+      try {
+        const { data, error } = await supabase.from('medidas_usuario').select('medida_id,realizada').eq('usuario_id', usuarioId);
+        if (error) throw error;
+        if (vigente) setMedidas({ cuenta: usuarioId, estado: 'listo', total: contarMedidas(data ?? []) });
+      } catch {
+        if (vigente) setMedidas({ cuenta: usuarioId, estado: 'error', total: 0 });
+      }
     }
     if (usuarioId) consultar();
     return () => { vigente = false; };
-  }, [usuarioId]);
+  }, [usuarioId, revisionMedidas]);
   const datos = calcularAvances({ registrosPeriodo, registrosHistoricos, desde, hasta, hoy });
   return <div className="avances-vista">
     <section className="avance-participacion" aria-labelledby="avance-participacion-titulo">
@@ -88,7 +95,7 @@ export function AvancesVista({ registrosPeriodo, registrosHistoricos, desde, has
       </div>
       <h3>Tu recorrido</h3><p>Se consiguen por días registrados acumulados, sin necesidad de que sean consecutivos.</p>
       <ul className="avance-insignias">{HITOS.map((hito, index) => <Insignia key={hito.dias} hito={hito} index={index} conseguida={datos.total >= hito.dias} />)}</ul><Camino total={datos.total} progreso={datos.progreso} siguiente={datos.siguiente} />
-      <div className="avance-grupos"><section><h3>Tu constancia</h3><p>Celebrá los días que dedicaste a registrar tu actividad.</p><div className="avance-nuevos">{[[3, 'Buen comienzo'], [7, 'A tu ritmo'], [14, 'Paso a paso']].map(([dias, nombre]) => <article key={dias} className={datos.rachaRegistro.maxima >= dias ? 'logrado' : ''}><Flame size={19} aria-hidden="true" /><strong>{dias} días seguidos</strong><b>{nombre}</b><small>{datos.rachaRegistro.maxima >= dias ? 'Conseguido' : 'Pendiente'}</small></article>)}</div></section>
-      <section><h3>Tu protección</h3><p>Pequeñas acciones para cuidar tu entorno digital.</p>{medidas.cuenta !== usuarioId || medidas.estado === 'cargando' ? <p role="status">Cargando tus medidas...</p> : medidas.estado === 'error' ? <p role="alert">No pudimos consultar tus medidas.</p> : <div className="avance-nuevos">{[[1, 'Primer escudo'], [3, 'Más herramientas']].map(([cantidad, nombre]) => <article key={cantidad} className={medidas.total >= cantidad ? 'logrado' : ''}><ShieldCheck size={19} aria-hidden="true" /><b>{nombre}</b><strong>{cantidad}</strong><span>{cantidad === 1 ? 'Medida declarada' : 'Medidas declaradas'}</span><small>{medidas.total >= cantidad ? 'Conseguido' : 'Pendiente'}</small></article>)}</div>}<Link to="/escudo-digital">Explorá las herramientas de Escudo digital →</Link></section></div></section>
+      <div className="avance-grupos"><section><h3>Tu constancia</h3><p>Celebrá los días que dedicaste a registrar tu actividad.</p><div className="avance-nuevos">{[[3, 'Buen comienzo'], [7, 'A tu ritmo'], [14, 'Paso a paso']].map(([dias, nombre], indice) => { const Icono = ICONOS_RACHA[indice]; const logrado = datos.rachaRegistro.maxima >= dias; return <article key={dias} className={logrado ? 'logrado' : ''}><Icono size={19} aria-hidden="true" /><strong>{dias} días seguidos</strong><b>{nombre}</b><small>{logrado && <CheckCircle size={14} aria-hidden="true" />} {logrado ? 'Conseguido' : 'Pendiente'}</small></article>; })}</div></section>
+      <section><h3>Tu protección</h3><p>Pequeñas acciones para cuidar tu entorno digital.</p>{medidas.cuenta !== usuarioId || medidas.estado === 'cargando' ? <p role="status">Cargando tus medidas...</p> : medidas.estado === 'error' ? <div role="alert"><p>No pudimos consultar tus medidas.</p><button type="button" onClick={() => { setMedidas({ cuenta: usuarioId, estado: 'cargando', total: 0 }); setRevisionMedidas((valor) => valor + 1); }}>Reintentar</button></div> : <div className="avance-nuevos">{[[1, 'Primer escudo'], [3, 'Más herramientas']].map(([cantidad, nombre]) => <article key={cantidad} className={medidas.total >= cantidad ? 'logrado' : ''}><ShieldCheck size={19} aria-hidden="true" /><b>{nombre}</b><strong>{cantidad}</strong><span>{cantidad === 1 ? 'Medida declarada' : 'Medidas declaradas'}</span><small>{medidas.total >= cantidad ? 'Conseguido' : 'Pendiente'}</small></article>)}</div>}<Link to="/escudo-digital">Explorá las herramientas de Escudo digital →</Link></section></div></section>
   </div>;
 }
