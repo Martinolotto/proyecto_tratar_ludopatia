@@ -3,6 +3,17 @@
  * superficies de la vista real sin modificar los estilos de otras páginas.
  */
 .historial-pagina { container-type: inline-size; }
+.historial-vista > h2 { margin: 0 0 14px; font-size: 1.45rem; font-weight: 800; }
+.historial-carga { display: grid; gap: 18px; }
+.historial-carga > p { margin: 0; color: #405b59; }
+.historial-carga__resumen, .historial-carga__bloques { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.historial-carga--avances .historial-carga__resumen, .historial-carga__bloques { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.historial-carga__resumen > div, .historial-carga__bloques > div { padding: 24px; min-height: 130px; border-radius: 20px; background: #e4eeea; }
+.historial-carga__bloques > div { min-height: 210px; background: #fff; border: 1px solid #d2dfda; }
+.historial-carga__observacion { padding: 24px; border-radius: 20px; background: #1e3946; }
+.historial-carga span { display: block; width: 65%; height: 20px; border-radius: 6px; background: #bdcfc8; }
+.historial-carga h2 { margin: 8px 0 14px; font-size: 1.45rem; }
+@media (max-width: 650px) { .historial-carga__resumen, .historial-carga--avances .historial-carga__resumen, .historial-carga__bloques { grid-template-columns: 1fr; } }
 .historial-cabecera,
 .historial-vista {
   color: var(--modus-brand-navy);

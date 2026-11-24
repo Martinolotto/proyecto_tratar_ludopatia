@@ -13,6 +13,16 @@ import { alinearBloque30, desplazarPeriodo, fechaCordoba, obtenerPeriodo, puedeN
 
 const PERIODOS = ["dia", "semana", "mes", "30dias"];
 
+// Reservamos la estructura mientras se consulta el período, sin mostrar cifras anteriores.
+function CargaHistorial({ avances = false, error = false }) {
+  return <div className={`historial-carga ${avances ? 'historial-carga--avances' : ''}`} role={error ? undefined : 'status'} aria-label={error ? undefined : avances ? 'Cargando tus avances' : 'Cargando tus registros'} aria-hidden={error || undefined}>
+    {!error && <p>Cargando {avances ? 'tus avances' : 'tus registros'}...</p>}
+    <div className="historial-carga__resumen">{Array.from({ length: avances ? 2 : 3 }, (_, i) => <div key={i}><span /></div>)}</div>
+    {!avances && <div className="historial-carga__observacion"><span /></div>}
+    {(avances ? ['Continuidad sin apostar', 'Tus reconocimientos'] : ['Impacto económico', 'Tiempo y frecuencia', 'Situaciones y hábitos', 'Tus registros']).map((titulo) => <section key={titulo}><h2>{titulo}</h2><div className="historial-carga__bloques"><div><span /></div><div><span /></div></div></section>)}
+  </div>;
+}
+
 // Las fechas de la URL son días de calendario; no se interpretan en la zona del navegador.
 const esFechaValida = (fecha) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha || "")) return false;
@@ -406,9 +416,9 @@ export const HistorialYProgresoPage = () => {
             puedeSiguiente={puedeNavegar(periodo, ancla, 1, cuenta.creacion, cuenta.hoy)}
           />
           <div className="historial-panel" id="panel-historial" role="tabpanel" aria-labelledby="tab-historial" hidden={vista !== "historial"}>
-            {estadoVisible === "cargando" && <p role="status">Cargando tus registros...</p>}
+            {estadoVisible === "cargando" && <CargaHistorial />}
             {estadoVisible === "error" && (
-              <div role="alert"><p>No pudimos consultar tus registros.</p><button type="button" onClick={reintentar}>Reintentar</button></div>
+              <><div role="alert"><p>No pudimos consultar tus registros.</p><button type="button" onClick={reintentar}>Reintentar</button></div><CargaHistorial error /></>
             )}
             {estadoVisible === "listo" && (
               <HistorialVista
@@ -443,9 +453,9 @@ export const HistorialYProgresoPage = () => {
             )}
           </div>
           <div className="historial-panel" id="panel-avances" role="tabpanel" aria-labelledby="tab-avances" tabIndex={0} hidden={vista !== "avances"}>
-            {(estadoVisible === "cargando" || estadoHistorico === "cargando") && <p role="status">Cargando tus avances...</p>}
+            {(estadoVisible === "cargando" || estadoHistorico === "cargando") && estadoVisible !== "error" && estadoHistorico !== "error" && <CargaHistorial avances />}
             {(estadoVisible === "error" || estadoHistorico === "error") && (
-              <div role="alert"><p>No pudimos consultar tus avances.</p><button type="button" onClick={() => { reintentar(); setRevisionHistorico((valor) => valor + 1); }}>Reintentar</button></div>
+              <><div role="alert"><p>No pudimos consultar tus avances.</p><button type="button" onClick={() => { reintentar(); setRevisionHistorico((valor) => valor + 1); }}>Reintentar</button></div><CargaHistorial avances error /></>
             )}
             {estadoVisible === "listo" && estadoHistorico === "listo" && (
               <AvancesVista registrosPeriodo={registros} registrosHistoricos={historialCompleto}
