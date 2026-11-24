@@ -213,6 +213,7 @@ export function HistorialVista({
     <div className="historial-vista">
       <MetricasHistorial registros={registros} desde={desde} hasta={hasta}
         onSeleccionarFecha={onSeleccionarFecha} onConsultarDetalle={consultarDetalle} />
+      <h2>Tus registros</h2>
       <div className="historial-vista__principal">
         <Calendario mes={mes} desdeMes={desdeMes} hastaMes={hastaMes} fechasMes={fechasMes}
           estadoMes={estadoMes} seleccion={fechaSeleccionada} onSeleccionar={onSeleccionarFecha}

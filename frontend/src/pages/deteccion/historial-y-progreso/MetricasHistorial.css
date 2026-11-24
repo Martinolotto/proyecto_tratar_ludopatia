@@ -304,3 +304,19 @@ html:has(.metricas-modal[open]) { overflow: hidden; }
 .metricas-contexto { align-self: stretch; display: flex; flex-direction: column; gap: 12px; }
 .metricas-contexto__enlace { display: inline-flex; align-items: center; min-height: 44px; margin-top: auto; color: #145b58; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .metricas-contexto__enlace:focus-visible { outline: 3px solid #145b58; outline-offset: 3px; }
+
+/* Secciones de lectura y superficies de las cifras del período. */
+.metricas-historial > h2 { margin: 12px 0 0; font-size: 1.45rem; font-weight: 800; }
+.metricas-resumen { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.metricas-resumen--dinero { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.metricas-resumen article:nth-child(1) { background: #c9e4d7; }
+.metricas-resumen article:nth-child(2) { background: #ddd3eb; }
+.metricas-resumen article:nth-child(3) { background: #d0e0e9; }
+.metricas-resumen--dinero article:nth-child(1) { background: #efd3bc; }
+.metricas-resumen--dinero article:nth-child(2) { background: #d0e0e9; }
+.metricas-contexto { background: #1e3946; color: white; border-color: #1e3946; }
+.metricas-contexto h3, .metricas-contexto p, .metricas-contexto a { color: white; }
+.metricas-contexto > span { font-size: .75rem; }
+.metricas-economia { display: block; }
+.metricas-promedio { display: block; font-size: 1.7rem; margin-top: 8px; }
+@media (max-width: 650px) { .metricas-resumen, .metricas-resumen--dinero { grid-template-columns: 1fr; } }

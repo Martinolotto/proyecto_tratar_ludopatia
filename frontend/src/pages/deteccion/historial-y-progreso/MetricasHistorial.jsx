@@ -40,7 +40,7 @@ function MensajeVacio({ children }) {
   return <p className="metricas-vacio">{children}</p>;
 }
 
-function GraficoDias({ titulo, descripcion, dias, desde, hasta, claves, tipo = "barras", onSeleccionarFecha, onConsultarDetalle }) {
+function GraficoDias({ titulo, descripcion, promedio, dias, desde, hasta, claves, tipo = "barras", onSeleccionarFecha, onConsultarDetalle }) {
   const hayDatos = dias.some((dia) => claves.some((clave) => dia[clave] !== null));
   const esMoneda = claves.includes("apostado") || claves.includes("perdido");
   // El eje conserva todas las fechas; null deja un hueco y 0 es un valor declarado.
@@ -52,7 +52,7 @@ function GraficoDias({ titulo, descripcion, dias, desde, hasta, claves, tipo = "
   };
   return (
     <section className={`metricas-grafico metricas-grafico--${tipo}`}>
-      <div className="metricas-grafico__cabecera"><div><h3>{titulo}</h3><p>{descripcion}</p></div></div>
+      <div className="metricas-grafico__cabecera"><div><h3>{titulo}</h3>{promedio && <strong className="metricas-promedio">{promedio}</strong>}<p>{descripcion}</p></div></div>
       {hayDatos ? (
         <>
           <div className="metricas-grafico__leyenda">{claves.map((clave) => <span key={clave}><i style={{ backgroundColor: colores[clave] }} aria-hidden="true" />{columnas[clave].etiqueta}</span>)}</div>
@@ -62,7 +62,7 @@ function GraficoDias({ titulo, descripcion, dias, desde, hasta, claves, tipo = "
                 <LineChart accessibilityLayer={false} data={dias} onClick={alSeleccionar} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid vertical={false} stroke="#e3ebe8" strokeDasharray="3 3" />
                   <XAxis dataKey="etiqueta" tickLine={false} axisLine={false} minTickGap={24} tick={{ fontSize: 12 }} />
-                  <YAxis width={65} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatearEjeTiempo} />
+                  <YAxis width={90} tickLine={false} axisLine={false} tick={{ fontSize: 12 }} tickFormatter={formatearEjeTiempo} />
                   <Tooltip content={<TooltipDiario />} isAnimationActive={false} />
                   <Line type="monotone" dataKey={claves[0]} stroke={colores[claves[0]]} strokeWidth={3}
                     dot={({ cx, cy, payload }) => Number.isFinite(cx) && Number.isFinite(cy) ? (
@@ -99,12 +99,22 @@ export function MetricasHistorial({ registros, desde, hasta, onSeleccionarFecha,
     : "Sin datos";
   return (
     <div className="metricas-historial">
-      <h2 className="sr-only">Métricas de tu actividad</h2>
+      <h2>Tu actividad en números</h2>
       <div className="metricas-resumen" aria-label="Resumen del período">
-        <article><span>Días registrados</span><strong>{metricas.registrados}</strong><small>En el período elegido</small></article>
-        <article><span>Frecuencia declarada</span><strong>{frecuencia}</strong><small>Días con apuestas / registrados</small></article>
-        <article><span>Dinero apostado</span><strong>{formatearMoneda(metricas.apostado.valor)}</strong><small>Promedio: {formatearMoneda(metricas.apostado.promedio)} · {metricas.apostado.base} días informados</small></article>
-        <article><span>Dinero perdido</span><strong>{formatearMoneda(metricas.perdido.valor)}</strong><small>Promedio: {formatearMoneda(metricas.perdido.promedio)} · {metricas.perdido.base} días informados</small></article>
+        <article><span>Tus registros</span><strong>{metricas.registrados}</strong><small>Días registrados</small></article>
+        <article><span>Con apuestas</span><strong>{metricas.registrados ? `${metricas.declararonApuestas} de ${metricas.registrados}` : 'Sin datos'}</strong><small>{frecuencia}</small></article>
+        <article><span>Sin apostar</span><strong>{metricas.dias.filter((dia) => dia.registrado && dia.aposto === false).length}</strong><small>Días declarados</small></article>
+      </div>
+      <aside className="metricas-contexto">
+        <span>CONOCÉ MEJOR TUS DECISIONES</span><h3>Una mirada a tus registros.</h3>
+        {metricas.registrados > 0 ? <p>En base a tus registros, notamos que declaraste apuestas en {metricas.declararonApuestas} de {metricas.registrados} días registrados durante este período.</p> : <p>Cuando registres tu actividad, acá vas a poder observar un resumen de lo que compartiste.</p>}
+        {metricas.concentracion && <p>Los días {metricas.concentracion.fechas.map(formatearFechaCorta).join(" y ")} reúnen el {formatearPorcentaje(metricas.concentracion.proporcion)} del dinero {metricas.concentracion.clave} informado en {metricas.concentracion.base} días.</p>}
+        <Link to="/prevencion" className="metricas-contexto__enlace">Explorá Prevención →</Link>
+      </aside>
+      <h2>Impacto económico</h2>
+      <div className="metricas-resumen metricas-resumen--dinero">
+        <article><span>Dinero apostado</span><strong>{formatearMoneda(metricas.apostado.valor)}{metricas.apostado.valor !== null && ' ARS'}</strong><small>Promedio: {formatearMoneda(metricas.apostado.promedio)} · {metricas.apostado.base} días informados</small></article>
+        <article><span>Dinero perdido</span><strong>{formatearMoneda(metricas.perdido.valor)}{metricas.perdido.valor !== null && ' ARS'}</strong><small>Promedio: {formatearMoneda(metricas.perdido.promedio)} · {metricas.perdido.base} días informados</small></article>
       </div>
       <div className="metricas-economia">
         <div className="metricas-economia__principal">
@@ -113,17 +123,13 @@ export function MetricasHistorial({ registros, desde, hasta, onSeleccionarFecha,
           </div>
           <GraficoDias titulo="Dinero declarado" descripcion="Importes por día, expresados en pesos argentinos." dias={metricas.dias} desde={desde} hasta={hasta} claves={clavesDinero} onSeleccionarFecha={onSeleccionarFecha} onConsultarDetalle={onConsultarDetalle} />
         </div>
-        <aside className="metricas-contexto">
-          <h3>Para observar</h3>
-          {metricas.registrados > 0 ? <p>En base a tus registros, notamos que declaraste apuestas en {metricas.declararonApuestas} de {metricas.registrados} días registrados durante este período. Podés explorar tus datos con calma y conocer más sobre cómo funcionan las apuestas.</p> : <p>Cuando registres tu actividad, acá vas a poder observar un resumen de lo que compartiste.</p>}
-          {metricas.concentracion && <p>Los días {metricas.concentracion.fechas.map(formatearFechaCorta).join(" y ")} reúnen el {formatearPorcentaje(metricas.concentracion.proporcion)} del dinero {metricas.concentracion.clave} informado en {metricas.concentracion.base} días.</p>}
-          <Link to="/prevencion" className="metricas-contexto__enlace">Explorar recursos de Prevención →</Link>
-        </aside>
       </div>
+      <h2>Tiempo y frecuencia</h2>
       <div className="metricas-dos-columnas">
-        <GraficoDias titulo="Tiempo dedicado" descripcion={`Promedio: ${formatearDuracion(metricas.minutos.promedio)} · ${metricas.minutos.base} días informados.`} dias={metricas.dias} desde={desde} hasta={hasta} claves={["minutos"]} tipo="linea" onSeleccionarFecha={onSeleccionarFecha} onConsultarDetalle={onConsultarDetalle} />
-        <GraficoDias titulo="Cantidad de apuestas" descripcion={`Promedio: ${formatearCantidad(metricas.cantidad.promedio)} · ${metricas.cantidad.base} días informados.`} dias={metricas.dias} desde={desde} hasta={hasta} claves={["cantidad"]} onSeleccionarFecha={onSeleccionarFecha} onConsultarDetalle={onConsultarDetalle} />
+        <GraficoDias titulo="Tiempo dedicado" promedio={formatearDuracion(metricas.minutos.promedio)} descripcion={`Promedio · ${metricas.minutos.base} días informados.`} dias={metricas.dias} desde={desde} hasta={hasta} claves={["minutos"]} tipo="linea" onSeleccionarFecha={onSeleccionarFecha} onConsultarDetalle={onConsultarDetalle} />
+        <GraficoDias titulo="Cantidad de apuestas" promedio={formatearCantidad(metricas.cantidad.promedio)} descripcion={`Promedio · ${metricas.cantidad.base} días informados.`} dias={metricas.dias} desde={desde} hasta={hasta} claves={["cantidad"]} onSeleccionarFecha={onSeleccionarFecha} onConsultarDetalle={onConsultarDetalle} />
       </div>
+      <h2>Situaciones y hábitos</h2>
       <div className="metricas-dos-columnas metricas-dos-columnas--patrones">
         <section className="metricas-grafico"><h3>Frecuencia por día</h3><p>Días con apuestas sobre días registrados.</p>{metricas.registrados ? <ul className="metricas-semana">{metricas.semana.map((dia) => <li key={dia.nombre}><span>{dia.nombre}</span><strong>{dia.registrados ? `${dia.apuestas}/${dia.registrados}` : "Sin registro"}</strong><i aria-hidden="true"><b style={{ width: `${dia.registrados ? dia.apuestas / dia.registrados * 100 : 0}%` }} /></i></li>)}</ul> : <MensajeVacio>Todavía no hay días registrados en este período.</MensajeVacio>}{metricas.distribucion && <p className="metricas-observacion">Entre los días de la semana con al menos dos registros, {metricas.distribucion[0].nombre} tuvo {metricas.distribucion[0].apuestas} declaraciones de apuestas en {metricas.distribucion[0].registrados} registros; {metricas.distribucion[1].nombre}, {metricas.distribucion[1].apuestas} en {metricas.distribucion[1].registrados}.</p>}</section>
         <section className="metricas-grafico"><h3>Situaciones declaradas</h3><p>Veces que seleccionaste cada situación.</p>{metricas.situaciones.length ? <ul className="metricas-situaciones">{metricas.situaciones.map((situacion) => <li key={situacion.codigo}><span>{situacion.nombre}</span><strong>{situacion.cantidad}</strong><i aria-hidden="true"><b style={{ width: `${situacion.cantidad / metricas.registrados * 100}%` }} /></i></li>)}</ul> : <MensajeVacio>No seleccionaste situaciones en este período.</MensajeVacio>}{metricas.repetida && <p className="metricas-observacion">«{metricas.repetida.nombre}» apareció en {metricas.repetida.cantidad} de {metricas.registrados} días registrados ({metricas.repetida.fechas.map(formatearFechaCorta).join(", ")}). La selección de situaciones es opcional.{metricas.repetida.codigo === "recuperar_perdidas" && <> <Link to="/prevencion">Explorar contenidos de Prevención</Link></>}</p>}</section>
