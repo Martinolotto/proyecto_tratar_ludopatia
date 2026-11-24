@@ -20,7 +20,7 @@ const lecturasDestacadas = ["casi-ganar", "publicidad-y-apuestas"]
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const { openSidebar, signOutInProgress } = useOutletContext();
+  const { signOutInProgress } = useOutletContext();
   const [estado, setEstado] = useState("cargando");
   const [datos, setDatos] = useState(null);
   const [intento, setIntento] = useState(0);
@@ -155,14 +155,9 @@ export const HomePage = () => {
             <p>Un punto de partida para entender tu actividad y encontrar lo que necesitás.</p>
           )}
         </div>
-        {/* El layout abre la sidebar existente y enfoca su primer acceso. */}
-        <button
-          type="button"
-          className="home-b2__welcome-link"
-          onClick={() => openSidebar({ focusFirst: true })}
-        >
-          Explorá tus herramientas <ArrowRight size={18} aria-hidden="true" />
-        </button>
+        <Link to="/historial-y-progreso?vista=resumen" className="home-b2__welcome-link">
+          Ver tu resumen <ArrowRight size={18} aria-hidden="true" />
+        </Link>
       </header>
 
       <div className="home-b2__workspace">
@@ -224,7 +219,12 @@ export const HomePage = () => {
         </section>
       </div>
 
-      {/* El calendario se dibuja solo con la respuesta confirmada para esta cuenta. */}
+      {/* El espacio de la semana ya está presente durante la consulta inicial. */}
+      {estado === "cargando" && (
+        <div className="home-b2__week-layout home-b2__week-placeholder" aria-hidden="true">
+          <div /><div />
+        </div>
+      )}
       {estado === "listo" && (
         <div className="home-b2__week-layout">
           <div className="home-b2__week"><ActividadSemanal dias={datos.semana} racha={datos.racha} hoy={datos.fechaActual} /></div>

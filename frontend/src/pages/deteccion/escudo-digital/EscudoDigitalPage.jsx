@@ -179,8 +179,7 @@ export const EscudoDigitalPage = () => {
   const categoriasVisibles = categoria === "todos" ? CATEGORIAS : CATEGORIAS.filter((item) => item.id === categoria);
   return (
     <div className="escudo-pagina">
-      <header className="escudo-encabezado"><div className="escudo-encabezado-icono"><ShieldCheck size={30} aria-hidden="true" /></div><div><h1>Escudo digital</h1><p className="escudo-subtitulo">Herramientas que te pueden ayudar en tu día a día.</p></div></header>
-      <p className="escudo-introduccion">Encontrá recursos para gestionar tu entorno digital, reducir la exposición a las apuestas y buscar apoyo cuando lo necesites.</p>
+      <header className="escudo-encabezado"><div className="escudo-encabezado-icono"><ShieldCheck size={30} aria-hidden="true" /></div><div><h1>Escudo digital</h1><p className="escudo-subtitulo">Herramientas para proteger tu entorno digital y encontrar apoyo.</p></div></header>
       <nav className="escudo-filtros" aria-label="Categorías de Escudo digital">{[{ id: "todos", filtro: "Todos los recursos" }, ...CATEGORIAS].map((item) => <button key={item.id} type="button" aria-pressed={categoria === item.id} onClick={() => setCategoria(item.id)}>{item.filtro}</button>)}</nav>
       {estado === "cargando" && <p className="escudo-estado" role="status">Cargando recursos…</p>}
       {estado === "error" && <div className="escudo-estado" role="alert"><p>No pudimos cargar los recursos. Revisá tu conexión e intentá nuevamente.</p><button type="button" onClick={reintentar}>Volver a intentar</button></div>}

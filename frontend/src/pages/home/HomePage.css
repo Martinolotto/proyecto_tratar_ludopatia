@@ -13,7 +13,7 @@
   color: var(--modus-brand-navy);
 }
 
-/* La bienvenida abre el recorrido y deja un acceso directo a la barra personal. */
+/* La bienvenida enlaza con el resumen personal. */
 .home-b2__welcome {
   display: flex;
   align-items: end;
@@ -394,3 +394,10 @@
 .home-b2__participation progress::-webkit-progress-bar { background:#a9c7bb; border-radius:999px; }
 .home-b2__participation progress::-webkit-progress-value { background:#176b60; border-radius:999px; }
 .home-b2__participation progress::-moz-progress-bar { background:#176b60; border-radius:999px; }
+
+/* Superficies neutras durante la carga, sin cifras o registros provisionales. */
+.home-b2__activity-content { min-block-size: 4.5rem; }
+.home-b2__week-layout { min-block-size: 375px; }
+.home-b2__week-placeholder > div { min-block-size: 375px; border: 1px solid var(--modus-border); border-radius: 22px; background: var(--modus-surface-soft); }
+@container (max-width:850px) { .home-b2__week-placeholder { grid-template-rows: minmax(265px, auto) minmax(170px, auto); } .home-b2__week-placeholder > div { min-block-size: 0; } }
+@container (max-width:560px) { .home-b2__week-placeholder { grid-template-rows: minmax(270px, auto) minmax(295px, auto); } }

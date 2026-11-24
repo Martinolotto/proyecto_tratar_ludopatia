@@ -12,7 +12,7 @@ main:has(> .access-page) {
   place-items: center;
   /* La imagen decorativa cubre la pantalla; el color de marca queda como respaldo. */
   background-color: var(--modus-brand-navy);
-  background-image: url("../../assets/fondo-login.png");
+  background-image: linear-gradient(rgb(23 43 58 / 35%), rgb(23 43 58 / 50%)), url("../../assets/fondo-login.png");
   background-position: center;
   background-size: cover;
 }
@@ -21,7 +21,7 @@ main:has(> .access-page) {
   position: relative;
   display: grid;
   width: min(100%, 55rem);
-  min-height: 37rem;
+  min-height: 32rem;
   overflow: hidden;
   border-radius: 1rem;
   /* Superficie apenas translúcida: el fondo aporta profundidad sin restar legibilidad. */
@@ -192,6 +192,8 @@ main:has(> .access-page) {
 /* En móvil se conserva el cambio de formulario sin desplazar paneles fuera de pantalla. */
 @media (max-width: 700px) {
   .access-page {
+    background-image: none;
+    background-color: var(--modus-canvas);
     align-items: start;
     min-height: calc(100svh - 4.5rem);
   }
@@ -228,8 +230,7 @@ main:has(> .access-page) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .access-panel, /* Distribuye el formulario y la invitación sobre el panel animado. */
-.access-content, .access-invitation {
+  .access-panel, .access-content, .access-invitation {
     transition: none;
   }
 }
