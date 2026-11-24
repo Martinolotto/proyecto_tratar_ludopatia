@@ -1,7 +1,7 @@
 /*
- * Pantalla de Comunidad (/comunidad) conectada 100% a Supabase.
- * Lee preferencias e insignias desde perfil_preferencias y gestiona publicaciones,
- * filtros por etiqueta, apoyos, comentarios y retiros en la base de datos.
+- Pantalla de Comunidad (/comunidad) conectada 100% a Supabase.
+- Lee preferencias e insignias desde perfil_preferencias y gestiona publicaciones,
+- filtros por etiqueta, apoyos, comentarios y retiros en la base de datos.
  */
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -616,15 +616,17 @@ export const ComunidadPage = () => {
                         {etiquetaTexto}
                       </span>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => handleRetirarPost(post.id)}
-                      title="Retirar publicación"
-                      aria-label="Retirar publicación"
-                      className="rounded p-1 text-ink/50 transition hover:bg-surface-soft hover:text-ink"
-                    >
-                      <Trash2 size={15} aria-hidden="true" />
-                    </button>
+                    {post.esPropia && (
+                      <button
+                        type="button"
+                        onClick={() => handleRetirarPost(post.id)}
+                        title="Retirar publicación"
+                        aria-label="Retirar publicación"
+                        className="rounded p-1 text-ink/50 transition hover:bg-surface-soft hover:text-ink"
+                      >
+                        <Trash2 size={15} aria-hidden="true" />
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -732,15 +734,17 @@ export const ComunidadPage = () => {
                                   >
                                     Responder
                                   </button>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      handleRetirarComentario(c.id)
-                                    }
-                                    className="text-[11px] text-ink/50 hover:text-red-600"
-                                  >
-                                    Retirar
-                                  </button>
+                                  {c.esPropio && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleRetirarComentario(c.id)
+                                      }
+                                      className="text-[11px] text-ink/50 hover:text-red-600"
+                                    >
+                                      Retirar
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                               <p>{c.texto}</p>

@@ -152,59 +152,49 @@ async function leerPrefsRemotas(usuarioId) {
   return normalizarPrefs(data);
 }
 
-async function contarFilasSeguras(tabla, columnaUsuario, usuarioId) {
-  try {
-    const { count, error } = await supabase
-      .from(tabla)
-      .select("*", { count: "exact", head: true })
-      .eq(columnaUsuario, usuarioId);
-    if (error) return 0;
-    return count || 0;
-  } catch {
-    return 0;
-  }
-}
-
 async function calcularDesbloqueosUsuario(usuarioId) {
   const desbloqueadas = new Set(["inicio_consciente"]);
   if (!usuarioId) return desbloqueadas;
 
-  const [
-    pubsRes,
-    comsRes,
-    reacsRes,
-    registrosSeguimiento,
-    habitosControl,
-    metasAvance,
-  ] = await Promise.all([
-    supabase
-      .from("publicaciones")
-      .select("id", { count: "exact", head: true })
-      .eq("autor_id", usuarioId)
-      .is("retirado_en", null),
-    supabase
-      .from("comentarios")
-      .select("id", { count: "exact", head: true })
-      .eq("autor_id", usuarioId)
-      .is("retirado_en", null),
-    supabase
-      .from("reacciones")
-      .select("publicacion_id", { count: "exact", head: true })
-      .eq("usuario_id", usuarioId),
-    contarFilasSeguras("registros", "usuario_id", usuarioId),
-    contarFilasSeguras("habitos", "usuario_id", usuarioId),
-    contarFilasSeguras("metas", "usuario_id", usuarioId),
-  ]);
+  const [participacionRes, medidasRes, pubsRes, comsRes, reacsRes] =
+    await Promise.all([
+      supabase
+        .from("participacion_diaria")
+        .select("fecha", { count: "exact", head: true })
+        .eq("usuario_id", usuarioId),
+      supabase
+        .from("medidas_usuario")
+        .select("medida_id", { count: "exact", head: true })
+        .eq("usuario_id", usuarioId)
+        .eq("realizada", true),
+      supabase
+        .from("publicaciones")
+        .select("id", { count: "exact", head: true })
+        .eq("perfil_visible_id", usuarioId)
+        .is("eliminado_en", null),
+      supabase
+        .from("comentarios")
+        .select("id", { count: "exact", head: true })
+        .eq("perfil_visible_id", usuarioId)
+        .is("eliminado_en", null),
+      supabase
+        .from("reacciones")
+        .select("publicacion_id", { count: "exact", head: true })
+        .eq("usuario_id", usuarioId),
+    ]);
 
+  const totalDias = participacionRes.error ? 0 : participacionRes.count || 0;
+  const totalMedidas = medidasRes.error ? 0 : medidasRes.count || 0;
   const totalPubs = pubsRes.error ? 0 : pubsRes.count || 0;
   const totalComs = comsRes.error ? 0 : comsRes.count || 0;
   const totalReacs = reacsRes.error ? 0 : reacsRes.count || 0;
-  const totalComunidad = totalPubs + totalComs + totalReacs;
-  const totalSeguimiento = registrosSeguimiento + habitosControl;
-  const totalAutocontrol = habitosControl + metasAvance + registrosSeguimiento;
 
-  if (totalSeguimiento >= 3) desbloqueadas.add("registro_constante");
-  if (totalAutocontrol >= 5) desbloqueadas.add("autocontrol_firme");
+  const totalComunidad = totalPubs + totalComs + totalReacs;
+
+  if (totalDias >= 3) desbloqueadas.add("registro_constante");
+  if (totalMedidas >= 5 || totalDias + totalMedidas >= 5) {
+    desbloqueadas.add("autocontrol_firme");
+  }
   if (totalComunidad >= 3) desbloqueadas.add("red_de_apoyo");
 
   return desbloqueadas;
@@ -368,6 +358,7 @@ export const PerfilPage = () => {
       "Se quitará la foto de perfil al guardar cambios y volverá al avatar por defecto.",
     );
   };
+
   const handlePortadaImagenUpload = async (event) => {
     const archivo = event.target.files?.[0];
     event.target.value = "";

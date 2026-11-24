@@ -1,7 +1,7 @@
 /*
- * Consultas y operaciones de Comunidad en Supabase.
- * La identidad visible se resuelve desde perfiles solo cuando no es anónima;
- * la autoría real permanece protegida en la base mediante RPC y RLS.
+- Consultas y operaciones de Comunidad en Supabase.
+- La identidad visible se resuelve desde perfiles solo cuando no es anónima;
+- la autoría real permanece protegida en la base mediante RPC y RLS.
  */
 import { supabase } from "../../lib/supabase.js";
 
@@ -165,6 +165,9 @@ export async function cargarFeedComunidad({ etiquetaCodigo = "" } = {}) {
       respuestaAId: com.respuesta_a_id,
       autor: retirado ? "Contenido retirado" : infoAutor.autor,
       esAnonimo: retirado ? true : infoAutor.esAnonimo,
+      esPropio:
+        !retirado &&
+        Boolean(com.perfil_visible_id && com.perfil_visible_id === user.id),
       retirado,
       texto: retirado ? "Este comentario fue retirado." : com.contenido || "",
       hace: formatearFechaRelativa(com.creado_en),
@@ -185,6 +188,9 @@ export async function cargarFeedComunidad({ etiquetaCodigo = "" } = {}) {
       id: pub.id,
       autor: infoAutor.autor,
       esAnonimo,
+      esPropia: Boolean(
+        pub.perfil_visible_id && pub.perfil_visible_id === user.id,
+      ),
       etiquetaCodigo: pub.etiqueta_codigo || "",
       tipo: pub.tipo || "texto",
       titulo: pub.titulo || "",
