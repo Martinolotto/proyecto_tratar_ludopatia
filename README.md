@@ -1,108 +1,15 @@
 # MODUS
 
-Proyecto universitario desarrollado por tres integrantes para adolescentes de 13 a 17 años que han participado en apuestas. Integra Prevención/concientización, Detección/orientación no diagnóstica y Comunidad/apoyo entre pares. No realiza diagnósticos ni tratamientos.
+MODUS es una plataforma web universitaria pensada para acompañar a adolescentes de 13 a 17 años frente a los riesgos de las apuestas.
 
-## Qué contiene el repositorio
+Busca ofrecer un espacio cercano, privado y accesible para comprender cómo funcionan las apuestas, reconocer posibles señales de dificultad y conocer herramientas de apoyo. Su identidad combina un lenguaje claro y respetuoso con experiencias interactivas que cada persona puede recorrer a su ritmo.
 
-- `frontend/`: React + Vite, JavaScript/ESModules, React Router y Tailwind CSS 4; navegación compartida, pantallas de los tres ejes e interacciones locales. La presencia de una pantalla no acredita integración funcional.
-- `backend/`: Express con `app.js` como entrada y una ruta de comprobación `GET /`.
-- `supabase/`: configuración local, diez migraciones propias aplicadas y un antecedente remoto; las pruebas previas siguen sin versionar.
-- `docs/`: constitución y guías del equipo.
-- `setup.md`: preparación verificada y pendientes de la base común.
+La plataforma reúne tres ejes:
 
-La [guía de diseño MODUS, versión 1.1](docs/design/DESIGN_GUIDELINES.md), es la base visual aceptada; su aplicación y validación siguen pendientes según el checklist de preparación.
+- **Prevención:** información para conocer los riesgos y reflexionar sobre las apuestas.
+- **Detección y orientación:** registros personales, historial, avances y situaciones interactivas para comprender decisiones y hábitos.
+- **Comunidad:** un espacio pensado para compartir experiencias y encontrar apoyo entre pares.
 
-Supabase será el backend administrado principal; React podrá usar su Data API con sesión y RLS, y Express resolverá necesidades concretas de servidor. Ver la [arquitectura aprobada](docs/backend.md#arquitectura-aprobada-supabase-y-express). Registro, ingreso y Perfil utilizan Supabase; Onboarding conecta la finalización por cuenta. Mi actividad consulta y guarda el registro de hoy; Historial y Escudo aún no conectan sus datos. El almacenamiento y los permisos se explican en [base de datos](docs/base-de-datos.md#persistencia-y-permisos-actuales-guía-para-el-equipo); su sección 9 detalla el estado y las limitaciones locales.
+MODUS brinda orientación y recursos preventivos. No realiza diagnósticos clínicos ni reemplaza el acompañamiento profesional.
 
-## Incorporarse al equipo: Git y ramas
-
-- `main`: versión estable.
-- `develop`: integración y pruebas de la base y del trabajo del equipo.
-- Ramas funcionales: trabajo de cada eje, derivado de `develop`; pueden tener subramas de tareas acordadas por el equipo.
-
-Para una copia nueva:
-
-```bash
-git clone https://github.com/Martinolotto/proyecto_tratar_ludopatia.git MODUS
-cd MODUS
-git fetch origin
-git branch --all
-git switch develop
-git pull --ff-only origin develop
-git branch --remotes
-```
-
-`fetch` descarga referencias; `branch --all` permite consultar ramas locales y remotas; `switch` cambia de rama. Si `develop` solo existe como `origin/develop`, se puede crear su seguimiento local con `git switch --track origin/develop`. Cambiar o actualizar ramas requiere un árbol de trabajo limpio; no descartar cambios locales para hacerlo.
-
-En la copia revisada existen `feat/deteccion`, `feat/prevencion` y `feat/comunidad`. Consultar las referencias remotas actualizadas y confirmar la rama asignada con el equipo; si falta una rama en otra copia, coordinar su creación desde `develop`. Para una rama del eje existente:
-
-```bash
-git switch --track origin/<rama-del-eje>
-```
-
-Ese comando se usa la primera vez si aún no existe localmente; después, `git switch <rama-del-eje>`. Si corresponde una subrama, partir de la rama del eje y usar `git switch -c <subrama-acordada>`.
-
-Una vez en la rama asignada, instalar y ejecutar como se indica abajo. Antes de integrar a `develop`, revisar `git status` y `git diff`, ejecutar las comprobaciones aplicables y coordinar la revisión del equipo. Estos comandos son una guía para integrantes; los agentes siguen las autorizaciones de `AGENTS.md`.
-
-## Instalación
-
-Usar Node.js compatible con los lockfiles y npm. La dependencia instalada de React Router requiere Node `>=22.22.0`; la última comprobación local (2026-11-08) utilizó Node `24.18.0` y npm `11.16.0`.
-
-Desde la raíz del repositorio local, al preparar una copia nueva:
-
-```bash
-npm ci
-npm --prefix frontend ci
-npm --prefix backend ci
-```
-
-Los proyectos ya existen: no ejecutar generadores de React, Vite o Express. Cada uno tiene su `package.json` y lockfile; la raíz agrega la CLI local de Supabase y los comandos para datos de prueba. La CLI de la raíz se instaló para preparar el entorno local; frontend y backend conservan sus instalaciones independientes.
-
-## Comandos
-
-En dos terminales, desde la raíz:
-
-```bash
-npm --prefix backend run dev
-```
-
-```bash
-npm --prefix frontend run dev
-```
-
-Vite está configurado en el puerto 5173; consultar la URL que informe al iniciar. Express usa 3000 salvo que se proporcione `PORT`. Para comprobar la ruta actual del backend: `curl http://localhost:3000/`.
-
-Comprobaciones de la base:
-
-```bash
-npm --prefix frontend run lint
-npm --prefix frontend run build
-node --check backend/app.js
-```
-
-Otros scripts disponibles: `npm --prefix frontend run preview` sirve la compilación frontend y `npm --prefix backend start` ejecuta Express sin observación de cambios. El script `test` del backend es un placeholder que falla; no hay una suite implementada.
-
-Playwright está instalado como dependencia de desarrollo en la raíz. Para descargar Chromium dentro del proyecto, sin usar una instalación global:
-
-```bash
-PLAYWRIGHT_BROWSERS_PATH="$PWD/node_modules/.cache/ms-playwright" ./node_modules/.bin/playwright install chromium
-```
-
-Al ejecutar Playwright, usar la misma variable para encontrar ese navegador. Los binarios quedan en `node_modules/`, fuera de Git; la dependencia y su lockfile sí se comparten. Actualmente no hay una suite Playwright versionada.
-
-El proxy `/api` de Vite aún no corresponde a rutas funcionales de Express. Tampoco se cargan archivos `.env` automáticamente en el backend. Consultar la [guía de backend](docs/backend.md) antes de conectar servicios.
-
-## Cómo empezar a contribuir
-
-1. Leer [AGENTS.md](AGENTS.md), la [constitución](docs/CONSTITUTION.md) y las instrucciones de [frontend](frontend/AGENTS.md) o [backend](backend/AGENTS.md).
-2. Revisar [setup.md](setup.md), la guía de [frontend](docs/frontend.md) o [backend](docs/backend.md) y el [RF vigente en Trello](https://trello.com/b/nMHsAZXQ/proyecto-tratar-ludopatia).
-3. Inspeccionar cambios locales y coordinar modificaciones en navegación, layouts, diseño, autenticación y contratos compartidos.
-4. Implementar solo el alcance acordado y ejecutar las comprobaciones aplicables. No incluir secretos ni datos reales sensibles.
-
-Seguir Conventional Commits con mensajes en español, en pasado y descriptivos. Los agentes requieren autorización para alterar ramas, crear commits, hacer push o merge, conforme a las reglas raíz.
-
-El Dashboard es un panel global desplegable desde Navbar y Home, con accesos a Mi actividad, Historial y progreso y Escudo digital. Las páginas del eje 2, incluido Onboarding, están agrupadas en `frontend/src/pages/deteccion/`; Mi espacio y su ruta fueron retirados. Onboarding conecta su finalización a Supabase; Mi actividad consulta y guarda el registro privado del día; Historial y Escudo presentan vistas iniciales sin datos conectados. Home integra accesos, contenidos destacados de Prevención y una consulta del alias y último registro propio. El detalle y los pendientes están en la [guía de frontend](docs/frontend.md). Registro e ingreso usan Supabase Auth; Perfil conecta alias, avatar y cierre local. Historial y Escudo todavía no conectan sus datos y la protección general de rutas sigue pendiente. No se impone SDD, TDD ni otro paradigma obligatorio.
-
-## Datos de prueba
-
-Los comandos de usuarios ficticios y sus límites están documentados en [base de datos](docs/base-de-datos.md#usuarios-ficticios-de-desarrollo). No usar estas cuentas con datos reales.
+Para conocer la organización y la preparación del proyecto, consultá [setup.md](setup.md) y la [documentación del equipo](docs/).
